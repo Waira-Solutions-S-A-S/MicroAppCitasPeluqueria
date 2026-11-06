@@ -26,7 +26,7 @@ export type WizardService = {
   color: string;
 };
 
-export type WizardStaff = { id: string; name: string; color: string };
+export type WizardStaff = { id: string; name: string; color: string; serviceIds: string[] };
 
 type Slot = {
   startAt: string;
@@ -69,6 +69,10 @@ function longDate(iso: string): string {
   }).format(date);
 }
 
+function slotKeyFor(slot: Slot): string {
+  return `${slot.startAt}|${slot.staffId}`;
+}
+
 export function BookingWizard({
   businessName,
   currency,
@@ -84,7 +88,7 @@ export function BookingWizard({
   const [serviceId, setServiceId] = useState(initialServiceId ?? "");
   const [staffId, setStaffId] = useState("any");
   const [date, setDate] = useState(todayKey);
-  const [slotStart, setSlotStart] = useState("");
+  const [slotKey, setSlotKey] = useState("");
   const [slots, setSlots] = useState<Slot[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [error, setError] = useState("");
@@ -99,7 +103,11 @@ export function BookingWizard({
   const [occurrences, setOccurrences] = useState(3);
 
   const service = services.find((item) => item.id === serviceId);
-  const selectedSlot = slots.find((slot) => slot.startAt === slotStart);
+  const staffForService = useMemo(
+    () => (serviceId ? staff.filter((member) => member.serviceIds.includes(serviceId)) : staff),
+    [staff, serviceId],
+  );
+  const selectedSlot = slots.find((slot) => slotKeyFor(slot) === slotKey);
 
   const days = useMemo(() => {
     const base = Date.parse(`${todayKey}T00:00:00Z`);
@@ -114,7 +122,7 @@ export function BookingWizard({
     let cancelled = false;
     setLoadingSlots(true);
     setSlots([]);
-    setSlotStart("");
+    setSlotKey("");
     setError("");
 
     const query = new URLSearchParams({ serviceId, date });
@@ -156,9 +164,9 @@ export function BookingWizard({
     step === 0
       ? Boolean(serviceId)
       : step === 1
-        ? Boolean(staffId)
+        ? staffForService.length > 0
         : step === 2
-          ? Boolean(slotStart)
+          ? Boolean(slotKey)
           : clientName.trim().length >= 2 && clientPhone.trim().length >= 6;
 
   async function submit() {
@@ -254,7 +262,8 @@ export function BookingWizard({
                       type="button"
                       onClick={() => {
                         setServiceId(item.id);
-                        setSlotStart("");
+                        setStaffId("any");
+                        setSlotKey("");
                       }}
                       className={`rounded-2xl border p-4 text-left transition ${
                         active
@@ -292,48 +301,55 @@ export function BookingWizard({
               <p className="mt-1 text-sm text-muted">
                 Elegí una profesional o dejá que te asignemos la primera disponible.
               </p>
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <button
-                  type="button"
-                  onClick={() => setStaffId("any")}
-                  className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition ${
-                    staffId === "any"
-                      ? "border-brand bg-brand-soft/60 ring-2 ring-brand/20"
-                      : "border-ink/10 hover:border-brand/30"
-                  }`}
-                >
-                  <span className="grid size-10 place-items-center rounded-full bg-brand text-white">
-                    <User className="size-5" />
-                  </span>
-                  <span>
-                    <span className="block font-semibold">Cualquiera</span>
-                    <span className="block text-xs text-muted">Primera disponible</span>
-                  </span>
-                </button>
-                {staff.map((member) => {
-                  const active = staffId === member.id;
-                  return (
-                    <button
-                      key={member.id}
-                      type="button"
-                      onClick={() => setStaffId(member.id)}
-                      className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition ${
-                        active
-                          ? "border-brand bg-brand-soft/60 ring-2 ring-brand/20"
-                          : "border-ink/10 hover:border-brand/30"
-                      }`}
-                    >
-                      <span
-                        className="grid size-10 place-items-center rounded-full text-sm font-semibold text-white"
-                        style={{ backgroundColor: member.color }}
+              {staffForService.length === 0 ? (
+                <p className="mt-5 rounded-2xl border border-dashed border-ink/15 bg-cream/50 p-5 text-sm text-muted">
+                  Este servicio todavía no tiene profesionales asignados. Probá con otro
+                  servicio.
+                </p>
+              ) : (
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={() => setStaffId("any")}
+                    className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition ${
+                      staffId === "any"
+                        ? "border-brand bg-brand-soft/60 ring-2 ring-brand/20"
+                        : "border-ink/10 hover:border-brand/30"
+                    }`}
+                  >
+                    <span className="grid size-10 place-items-center rounded-full bg-brand text-white">
+                      <User className="size-5" />
+                    </span>
+                    <span>
+                      <span className="block font-semibold">Cualquiera</span>
+                      <span className="block text-xs text-muted">Primera disponible</span>
+                    </span>
+                  </button>
+                  {staffForService.map((member) => {
+                    const active = staffId === member.id;
+                    return (
+                      <button
+                        key={member.id}
+                        type="button"
+                        onClick={() => setStaffId(member.id)}
+                        className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition ${
+                          active
+                            ? "border-brand bg-brand-soft/60 ring-2 ring-brand/20"
+                            : "border-ink/10 hover:border-brand/30"
+                        }`}
                       >
-                        {member.name.slice(0, 1)}
-                      </span>
-                      <span className="font-semibold">{member.name}</span>
-                    </button>
-                  );
-                })}
-              </div>
+                        <span
+                          className="grid size-10 place-items-center rounded-full text-sm font-semibold text-white"
+                          style={{ backgroundColor: member.color }}
+                        >
+                          {member.name.slice(0, 1)}
+                        </span>
+                        <span className="font-semibold">{member.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </section>
           )}
 
@@ -387,12 +403,12 @@ export function BookingWizard({
                         </p>
                         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
                           {group.items.map((slot) => {
-                            const active = slot.startAt === slotStart;
+                            const active = slotKeyFor(slot) === slotKey;
                             return (
                               <button
                                 key={`${slot.startAt}-${slot.staffId}`}
                                 type="button"
-                                onClick={() => setSlotStart(slot.startAt)}
+                                onClick={() => setSlotKey(slotKeyFor(slot))}
                                 className={`rounded-xl border px-2 py-2.5 text-sm font-semibold transition ${
                                   active
                                     ? "border-brand bg-brand text-white"

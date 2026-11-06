@@ -66,9 +66,13 @@ export async function createBooking(input: BookingInput): Promise<BookingResult>
   if (!service) return fail("SERVICE_NOT_FOUND", "El servicio ya no está disponible.");
 
   const staff = await prisma.staffMember.findFirst({
-    where: { id: input.staffId, isActive: true },
+    where: {
+      id: input.staffId,
+      isActive: true,
+      services: { some: { id: service.id } },
+    },
   });
-  if (!staff) return fail("STAFF_NOT_FOUND", "El profesional ya no está disponible.");
+  if (!staff) return fail("STAFF_NOT_FOUND", "El profesional no atiende este servicio.");
 
   const base = new Date(input.startAt);
   if (Number.isNaN(base.getTime())) return fail("BAD_DATE", "La fecha elegida no es válida.");

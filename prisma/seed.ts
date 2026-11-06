@@ -94,9 +94,27 @@ async function main() {
 
   const staff: string[] = [];
   for (const item of staffSeed) {
-    const existing = await prisma.staffMember.findFirst({ where: { name: item.name } });
+    const existing = await prisma.staffMember.findFirst({
+      where: { name: item.name },
+      include: { _count: { select: { services: true } } },
+    });
     const member =
-      existing ?? (await prisma.staffMember.create({ data: { name: item.name, color: item.color } }));
+      existing ??
+      (await prisma.staffMember.create({
+        data: {
+          name: item.name,
+          color: item.color,
+          services: { connect: services.map((service) => ({ id: service.id })) },
+        },
+      }));
+
+    if (existing && existing._count.services === 0) {
+      await prisma.staffMember.update({
+        where: { id: existing.id },
+        data: { services: { connect: services.map((service) => ({ id: service.id })) } },
+      });
+    }
+
     staff.push(member.id);
   }
 

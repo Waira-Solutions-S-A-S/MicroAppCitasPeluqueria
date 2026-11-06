@@ -48,6 +48,7 @@ export const staffSchema = z.object({
     .trim()
     .regex(/^#[0-9a-fA-F]{6}$/, "color inválido")
     .optional(),
+  serviceIds: z.array(z.string().min(1)).optional(),
 });
 
 export const settingsSchema = z.object({

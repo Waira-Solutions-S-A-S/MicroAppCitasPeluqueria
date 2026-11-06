@@ -19,10 +19,20 @@ export default async function HorariosPage({
 }) {
   const params = await searchParams;
 
-  const staff = await prisma.staffMember.findMany({
-    orderBy: { createdAt: "asc" },
-    include: { workingHours: true },
-  });
+  const [staff, services] = await Promise.all([
+    prisma.staffMember.findMany({
+      orderBy: { createdAt: "asc" },
+      include: {
+        workingHours: true,
+        services: { select: { id: true, name: true } },
+      },
+    }),
+    prisma.service.findMany({
+      where: { isActive: true },
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      select: { id: true, name: true },
+    }),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -63,7 +73,11 @@ export default async function HorariosPage({
                         </span>
                       )}
                     </p>
-                    <p className="text-xs text-muted">Semana completa</p>
+                    <p className="text-xs text-muted">
+                      {member.services.length > 0
+                        ? member.services.map((service) => service.name).join(" · ")
+                        : "Sin servicios asignados"}
+                    </p>
                   </div>
                 </div>
                 <form action={toggleStaffAction}>
@@ -102,6 +116,30 @@ export default async function HorariosPage({
                       className="h-10 w-20 cursor-pointer rounded-xl border border-ink/15 bg-white px-1"
                     />
                   </label>
+                  <fieldset className="w-full">
+                    <legend className="mb-1 block text-xs font-medium text-muted">
+                      Servicios que atiende
+                    </legend>
+                    <div className="flex flex-wrap gap-2">
+                      {services.map((service) => (
+                        <label
+                          key={service.id}
+                          className="inline-flex items-center gap-2 rounded-full border border-ink/10 px-3 py-1.5 text-xs"
+                        >
+                          <input
+                            type="checkbox"
+                            name="serviceIds"
+                            value={service.id}
+                            defaultChecked={member.services.some(
+                              (assigned) => assigned.id === service.id,
+                            )}
+                            className="size-3.5 accent-[var(--color-brand)]"
+                          />
+                          {service.name}
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
                   <button
                     type="submit"
                     className="inline-flex items-center gap-2 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white"

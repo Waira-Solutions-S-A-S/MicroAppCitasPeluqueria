@@ -156,10 +156,16 @@ export async function createStaffAction(formData: FormData): Promise<void> {
     back("/admin/horarios", "error", "Revisá el nombre del profesional.");
   }
 
+  const allServices = await prisma.service.findMany({
+    where: { isActive: true },
+    select: { id: true },
+  });
+
   const member = await prisma.staffMember.create({
     data: {
       name: parsed.data.name,
       color: parsed.data.color ?? "#0ea5e9",
+      services: { connect: allServices },
     },
   });
 
@@ -187,15 +193,25 @@ export async function updateStaffAction(formData: FormData): Promise<void> {
   const parsed = staffSchema.safeParse({
     name: formData.get("name"),
     color: String(formData.get("color") ?? "") || undefined,
+    serviceIds: formData.getAll("serviceIds").map(String).filter(Boolean),
   });
 
   if (!id || !parsed.success) {
     back("/admin/horarios", "error", "Revisá los datos del profesional.");
   }
 
+  const assignedServices = await prisma.service.findMany({
+    where: { id: { in: parsed.data.serviceIds ?? [] } },
+    select: { id: true },
+  });
+
   await prisma.staffMember.update({
     where: { id },
-    data: { name: parsed.data.name, color: parsed.data.color },
+    data: {
+      name: parsed.data.name,
+      color: parsed.data.color,
+      services: { set: assignedServices },
+    },
   });
 
   revalidatePath("/admin/horarios");

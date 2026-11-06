@@ -18,7 +18,7 @@ export default async function ReservarPage({
   const params = await searchParams;
   const settings = await getSettings();
 
-  const [services, staff] = await Promise.all([
+  const [services, staffRecords] = await Promise.all([
     prisma.service.findMany({
       where: { isActive: true },
       orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
@@ -34,9 +34,19 @@ export default async function ReservarPage({
     prisma.staffMember.findMany({
       where: { isActive: true },
       orderBy: { createdAt: "asc" },
-      select: { id: true, name: true, color: true },
+      select: {
+        id: true,
+        name: true,
+        color: true,
+        services: { select: { id: true } },
+      },
     }),
   ]);
+
+  const staff = staffRecords.map(({ services: staffServices, ...member }) => ({
+    ...member,
+    serviceIds: staffServices.map((service) => service.id),
+  }));
 
   if (services.length === 0 || staff.length === 0) {
     return (

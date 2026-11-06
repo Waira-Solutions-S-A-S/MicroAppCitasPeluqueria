@@ -54,7 +54,11 @@ export async function getAvailability(
   const latest = addDays(today, settings.maxAdvanceDays);
 
   const staffList = await prisma.staffMember.findMany({
-    where: { isActive: true, ...(staffId ? { id: staffId } : {}) },
+    where: {
+      isActive: true,
+      ...(staffId ? { id: staffId } : {}),
+      services: { some: { id: serviceId } },
+    },
     orderBy: { createdAt: "asc" },
   });
 

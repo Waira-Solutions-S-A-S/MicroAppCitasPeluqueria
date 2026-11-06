@@ -19,9 +19,20 @@ export async function GET() {
     prisma.staffMember.findMany({
       where: { isActive: true },
       orderBy: { createdAt: "asc" },
-      select: { id: true, name: true, color: true },
+      select: {
+        id: true,
+        name: true,
+        color: true,
+        services: { select: { id: true } },
+      },
     }),
   ]);
 
-  return Response.json({ services, staff });
+  return Response.json({
+    services,
+    staff: staff.map(({ services: staffServices, ...member }) => ({
+      ...member,
+      serviceIds: staffServices.map((service) => service.id),
+    })),
+  });
 }
