@@ -9,6 +9,7 @@
 - **S2** — "un servicio recurrente como tintes": el cliente puede reservar un turno recurrente, por ejemplo un tinte cada N semanas durante X ocurrencias; la serie se crea completa o se rechaza completa (atómica).
 - **S3** — "si damelo el que tienes pero en local": stack Next.js (App Router) + TypeScript + Tailwind + Prisma + SQLite, sin cuentas ni servicios externos obligatorios; `npm install && npm run db:setup && npm run dev` debe alcanzar.
 - **S4** — "Con backend real": clientes reservan online desde la PWA, el negocio administra desde un panel con login, base de datos persistente y autenticación.
+- **S5** — "que en el apnel admin se puedan poner los servicios y los posibles que atiendas": el panel permite gestionar servicios y asignar a cada profesional qué servicios atiende; el wizard y la disponibilidad solo ofrecen profesionales habilitados para el servicio elegido.
 
 ### Criterios de aceptación
 
@@ -16,6 +17,7 @@
 - **S2:** el formulario permite activar repetición (cada N semanas, X veces) y crea la serie completa; si una ocurrencia choca, no se crea ninguna.
 - **S3:** SQLite en `prisma/dev.db`, seed idempotente, README con comandos; sin dependencias de red para funcionar.
 - **S4:** `/api/services`, `/api/availability`, `POST /api/bookings` públicos; `/admin/*` protegido por cookie de sesión; agenda con confirmar/cancelar/completar; CRUD de servicios; horarios por profesional; ajustes del negocio.
+- **S5:** en "Equipo y horarios" cada profesional tiene checkboxes de servicios; la disponibilidad y el POST rechazan combinaciones profesional/servicio no asignadas.
 
 ### Restricciones e invariantes
 
@@ -38,6 +40,7 @@
 | T8 | S4 | inline | hecho | `/admin/servicios`, `/admin/horarios`, `/admin/ajustes` |
 | T9 | S1 | inline | hecho | `manifest.ts`, `public/sw.js`, iconos 192/512/maskable |
 | T10 | S3 | inline | hecho | `README.md` + build + smoke HTTP |
+| T11 | S5 | inline | hecho | asignación servicio↔profesional + fix de selección doble |
 
 ## Log
 
@@ -67,3 +70,13 @@ Se implementaron las 10 tareas inline. El sandbox bloquea escribir `.env`, así 
 - Confirmación `/reserva/[id]`: 200 con los datos del cliente; `/offline`: 200; manifest con 3 iconos y `display: standalone`.
 - Bug corregido: el límite de anticipación comparaba hora además de fecha y rechazaba la última ocurrencia de una serie en el borde. Ahora compara por día y el default pasó de 60 a 180 días.
 - Pendiente: no hay prueba automatizada de UI en navegador; la verificación fue HTTP contra el servidor real.
+
+### L5 — corrección y ajuste de admin (verbatim)
+
+> corrijamos errores primero dame panel admin con citas y damelo con clave y correo ademas cuando estoy seleccionando en tarde y noche se marca doble la selecci0on porque no se toca solucionar y recuerda es una micro app sencilla, que en el apnel admin se puedan poner los servicios y los posibles que atiendas
+
+- Bug: la selección del horario se comparaba solo por `startAt`; Camila y Martina comparten la misma hora, así que se pintaban las dos. Ahora la clave es `startAt + staffId` y se resetea al cambiar de servicio o profesional.
+- Nuevo: relación muchos-a-muchos `Service` ↔ `StaffMember`. En "Equipo y horarios" cada profesional tiene checkboxes de servicios; el seed asigna todos a los existentes.
+- `getAvailability` filtra profesionales por servicio; `createBooking` rechaza un profesional no habilitado; `/api/services` y el wizard reciben `serviceIds`.
+- Verificación: `npm run build` OK; `/api/services` devuelve 5 servicios y 2 profesionales con 5 servicios cada uno; página de login 200.
+- Credenciales del panel: `admin@estudio.local` / `admin123`.
