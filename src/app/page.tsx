@@ -2,15 +2,11 @@ import Link from "next/link";
 import {
   ArrowRight,
   Calendar,
-  CheckCircle2,
+  Check,
   Clock,
-  Compass,
   MapPin,
+  MessageCircle,
   Phone,
-  Scissors,
-  ShieldCheck,
-  Sparkles,
-  Star,
   User,
 } from "lucide-react";
 
@@ -21,33 +17,6 @@ import { getSettings } from "@/lib/settings";
 import { labelDateLong, nowWallClock } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
-
-function getServiceImage(name: string): string {
-  const lower = name.toLowerCase();
-  if (lower.includes("color") || lower.includes("tint") || lower.includes("mecha") || lower.includes("balayage")) {
-    return "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80";
-  }
-  if (lower.includes("manicur") || lower.includes("uña") || lower.includes("kapping")) {
-    return "https://images.unsplash.com/photo-1632345031435-8727f6897d53?auto=format&fit=crop&w=800&q=80";
-  }
-  if (lower.includes("barba") || lower.includes("barber")) {
-    return "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&w=800&q=80";
-  }
-  if (lower.includes("peinado") || lower.includes("styling") || lower.includes("brushing")) {
-    return "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80";
-  }
-  // Default haircut / precision styling
-  return "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=800&q=80";
-}
-
-function getStaffImage(index: number): string {
-  const avatars = [
-    "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80",
-    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
-    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
-  ];
-  return avatars[index % avatars.length];
-}
 
 export default async function HomePage({
   searchParams,
@@ -73,67 +42,64 @@ export default async function HomePage({
   const today = nowWallClock(settings.timezone);
   const user = await getCurrentUser();
 
+  // Lookbook images from authentic studio gallery
+  const studioLookbook = [
+    { src: "/swiper-imgs/img-studio-001.jpg", title: "Corte & Estilo" },
+    { src: "/swiper-imgs/img-studio-002.jpg", title: "Acabado Texturado" },
+    { src: "/swiper-imgs/img-studio-003.jpg", title: "Diseño & Barba" },
+    { src: "/swiper-imgs/img-studio-004.jpg", title: "Fade de Precisión" },
+    { src: "/swiper-imgs/img-studio-005.jpg", title: "Color & Brillo" },
+    { src: "/swiper-imgs/img-studio-006.jpg", title: "Espacio del Estudio" },
+    { src: "/swiper-imgs/img-studio-007.jpg", title: "Tratamiento Capilar" },
+    { src: "/swiper-imgs/img-studio-008.jpg", title: "Perfilado Clásico" },
+  ];
+
   return (
     <div className="min-h-dvh bg-white text-zinc-900 antialiased selection:bg-zinc-200">
-      {/* Top Banner */}
-      <div className="border-b border-zinc-100 bg-zinc-50 px-4 py-2 text-center text-xs font-medium text-zinc-600">
-        <span className="inline-flex items-center gap-2">
-          <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          Agenda online abierta · Turnos para hoy {labelDateLong(today)} y próximas semanas
-        </span>
-      </div>
-
-      {/* Navbar (Sattis Studio Style) */}
-      <header className="sticky top-0 z-40 border-b border-zinc-200/80 bg-white/90 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-zinc-950 text-xs font-bold tracking-widest text-white transition group-hover:bg-zinc-800">
-              ST
-            </div>
-            <div>
-              <p className="text-sm font-bold tracking-tight text-zinc-950 uppercase">
-                {settings.businessName}
-              </p>
-              <p className="text-[10px] uppercase tracking-wider text-zinc-500">
-                Studio & Barbershop
-              </p>
-            </div>
+      {/* Header / Navbar */}
+      <header className="sticky top-0 z-40 border-b border-zinc-200/80 bg-white/95 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:px-12">
+          <Link href="/" className="flex items-center gap-3">
+            <span className="text-xl font-medium tracking-tight text-zinc-950">
+              {settings.businessName}
+            </span>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Navigation Links */}
           <nav className="hidden items-center gap-8 md:flex">
             <a
+              href="#inicio"
+              className="text-xs font-medium uppercase tracking-wider text-zinc-600 transition hover:text-zinc-950"
+            >
+              Inicio
+            </a>
+            <a
+              href="#studio"
+              className="text-xs font-medium uppercase tracking-wider text-zinc-600 transition hover:text-zinc-950"
+            >
+              El Estudio
+            </a>
+            <a
               href="#servicios"
-              className="text-xs font-semibold text-zinc-600 transition hover:text-zinc-950"
+              className="text-xs font-medium uppercase tracking-wider text-zinc-600 transition hover:text-zinc-950"
             >
-              Servicios
+              Peluquería & Barbería
             </a>
             <a
-              href="#estudio"
-              className="text-xs font-semibold text-zinc-600 transition hover:text-zinc-950"
+              href="#estetica"
+              className="text-xs font-medium uppercase tracking-wider text-zinc-600 transition hover:text-zinc-950"
             >
-              Sobre el Estudio
-            </a>
-            <a
-              href="#galeria"
-              className="text-xs font-semibold text-zinc-600 transition hover:text-zinc-950"
-            >
-              Galería
-            </a>
-            <a
-              href="#equipo"
-              className="text-xs font-semibold text-zinc-600 transition hover:text-zinc-950"
-            >
-              Profesionales
+              Estética & Color
             </a>
             <a
               href="#contacto"
-              className="text-xs font-semibold text-zinc-600 transition hover:text-zinc-950"
+              className="text-xs font-medium uppercase tracking-wider text-zinc-600 transition hover:text-zinc-950"
             >
-              Horarios & Local
+              Contacto
             </a>
           </nav>
 
+          {/* Action buttons */}
           <div className="flex items-center gap-3">
             {user ? (
               <div className="flex items-center gap-2">
@@ -155,16 +121,16 @@ export default async function HomePage({
                 href="/admin/login"
                 className="hidden rounded-full border border-zinc-200 px-3.5 py-1.5 text-xs font-medium text-zinc-600 transition hover:border-zinc-300 hover:text-zinc-900 sm:inline-block"
               >
-                Equipo
+                Acceso staff
               </Link>
             )}
 
             <Link
               href="/reservar"
-              className="inline-flex items-center gap-1.5 rounded-full bg-zinc-950 px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-zinc-800 active:scale-95"
+              className="inline-flex min-h-[42px] items-center gap-2 rounded-full border border-zinc-950 bg-zinc-950 px-5 py-2 text-xs font-medium tracking-wide text-white transition hover:bg-zinc-800"
             >
-              <span>Agendar Cita</span>
-              <ArrowRight className="size-3.5" />
+              <Calendar className="size-3.5" />
+              <span>Marcar horario</span>
             </Link>
           </div>
         </div>
@@ -178,380 +144,281 @@ export default async function HomePage({
         </div>
       )}
 
-      {/* Hero Section (Sattis Style con Imagen Principal) */}
-      <section className="relative overflow-hidden border-b border-zinc-100 bg-gradient-to-b from-zinc-50/70 to-white py-16 sm:py-24">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="grid items-center gap-12 lg:grid-cols-12">
-            <div className="lg:col-span-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3.5 py-1 text-xs font-semibold text-zinc-700 shadow-xs">
-                <span className="size-1.5 rounded-full bg-emerald-500" />
-                <span>ESTUDIO PROFESIONAL · ATENCIÓN CON RESERVA</span>
-              </div>
+      {/* Hero Section (Sattis Style con Fondo Hero Real y Botón Minimalista) */}
+      <section
+        id="inicio"
+        className="relative flex h-[580px] w-full flex-col justify-end overflow-hidden px-8 pb-16 md:h-[680px] md:px-16"
+      >
+        <img
+          src="/studio/bg-hero.jpg"
+          alt="Sattis Studio Ambience"
+          className="absolute inset-0 size-full object-cover filter brightness-[0.75]"
+        />
 
-              <h1 className="mt-6 text-4xl font-black uppercase tracking-tight text-zinc-950 sm:text-5xl lg:text-6xl lg:leading-[1.08]">
-                Corte, Estilo & <br />
-                <span className="text-zinc-500">Cuidado Personal.</span>
-              </h1>
-
-              <p className="mt-5 text-base leading-relaxed text-zinc-600 sm:text-lg">
-                Un concepto contemporáneo de barbería, peluquería y estética. Atención personalizada,
-                espacio diseñado para tu confort y reserva online instantánea sin llamadas ni esperas.
-              </p>
-
-              <div className="mt-8 flex flex-wrap items-center gap-3">
-                <Link
-                  href="/reservar"
-                  className="inline-flex items-center gap-2 rounded-full bg-zinc-950 px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition hover:bg-zinc-800 active:scale-95"
-                >
-                  <span>Agendar Turno</span>
-                  <ArrowRight className="size-4" />
-                </Link>
-
-                <a
-                  href="#servicios"
-                  className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-zinc-700 shadow-xs transition hover:border-zinc-300 hover:text-zinc-950"
-                >
-                  Ver Servicios
-                </a>
-              </div>
-
-              {/* Badges / Metrics */}
-              <div className="mt-10 grid grid-cols-3 gap-4 border-t border-zinc-200 pt-6">
-                <div>
-                  <p className="text-xl font-black text-zinc-950">0 min</p>
-                  <p className="text-[11px] text-zinc-500 uppercase tracking-wide">Demora previa</p>
-                </div>
-                <div>
-                  <p className="text-xl font-black text-zinc-950">100%</p>
-                  <p className="text-[11px] text-zinc-500 uppercase tracking-wide">Dedicación individual</p>
-                </div>
-                <div>
-                  <p className="text-xl font-black text-zinc-950">24/7</p>
-                  <p className="text-[11px] text-zinc-500 uppercase tracking-wide">Agenda en línea</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Hero Image Showcase */}
-            <div className="lg:col-span-6">
-              <div className="relative mx-auto max-w-md lg:max-w-none">
-                <div className="overflow-hidden rounded-3xl border border-zinc-200 shadow-xl shadow-zinc-950/5">
-                  <img
-                    src="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=1200&q=80"
-                    alt="Sattis Studio Interior"
-                    className="aspect-[4/3] w-full object-cover transition duration-500 hover:scale-105"
-                  />
-                </div>
-                <div className="absolute -bottom-5 -left-5 rounded-2xl border border-zinc-200/80 bg-white/95 p-4 shadow-lg backdrop-blur-md">
-                  <div className="flex items-center gap-3">
-                    <div className="flex size-10 items-center justify-center rounded-xl bg-zinc-100 text-zinc-900">
-                      <Clock className="size-5" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-zinc-950">Atención puntual</p>
-                      <p className="text-[11px] text-zinc-500">Sin filas ni demoras</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+        <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-zinc-300">
+              {settings.businessName} · Studio & Grooming
+            </p>
+            <h1 className="mt-2 text-4xl font-light tracking-tight text-white sm:text-5xl md:text-6xl">
+              Corte, Estilo & <br />
+              <span className="font-medium">Cuidado Personal.</span>
+            </h1>
           </div>
+
+          <Link
+            href="/reservar"
+            className="inline-flex min-h-[48px] items-center gap-2.5 rounded-full border border-white/80 bg-white/10 px-7 py-3 text-sm font-medium text-white backdrop-blur-md transition hover:bg-white hover:text-zinc-950"
+          >
+            <span>Marcar horario</span>
+            <Calendar className="size-4" />
+          </Link>
         </div>
       </section>
 
-      {/* Services Section con Fotos Reales (Sattis Style) */}
-      <section id="servicios" className="py-20 bg-zinc-50/60 border-b border-zinc-200/80">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">
-                Carta de Servicios
-              </p>
-              <h2 className="mt-1 text-3xl font-black uppercase tracking-tight text-zinc-950 sm:text-4xl">
-                Cortes, Color & Cuidado
-              </h2>
-            </div>
-            <p className="text-xs text-zinc-500">
-              Precios transparentes · Incluyen diagnóstico de estilo y lavado profesional
+      {/* About Section: Transformamos estilo en expresión */}
+      <section id="studio" className="w-full overflow-hidden pt-24 md:pt-32">
+        <div className="mx-auto max-w-7xl px-8 md:px-16">
+          <div className="flex flex-col gap-6 md:w-3/5">
+            <h2 className="text-3xl font-light tracking-tight text-zinc-900 sm:text-4xl md:text-5xl">
+              Transformamos <br />
+              estilo en <span className="font-medium">expresión.</span>
+            </h2>
+            <p className="text-base font-normal leading-relaxed text-zinc-600 sm:text-lg">
+              Cuidamos tu estilo con precisión y arte, elevando cada detalle para reflejar tu identidad única.
+              Atención personalizada con reserva previa para garantizar dedicación exclusiva.
             </p>
           </div>
+        </div>
 
-          {/* Cards Grid con Imagen */}
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {services.map((service) => (
-              <article
-                key={service.id}
-                className="group flex flex-col justify-between overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-xs transition duration-200 hover:-translate-y-1 hover:border-zinc-300 hover:shadow-md"
-              >
-                {/* Service Photo */}
-                <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-100">
-                  <img
-                    src={getServiceImage(service.name)}
-                    alt={service.name}
-                    className="size-full object-cover transition duration-300 group-hover:scale-105"
-                  />
-                  <div className="absolute top-3 left-3">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-zinc-900 shadow-xs backdrop-blur-xs">
-                      <Clock className="size-3 text-zinc-500" />
-                      {service.durationMin} min
+        {/* Studio Lookbook Showcase Horizontal Strip */}
+        <div className="no-scrollbar mt-14 flex gap-4 overflow-x-auto pl-8 pr-8 pb-4 md:pl-16">
+          {studioLookbook.map((item, index) => (
+            <div
+              key={index}
+              className="group relative h-[320px] w-[240px] shrink-0 overflow-hidden rounded-2xl bg-zinc-100 shadow-sm md:h-[380px] md:w-[280px]"
+            >
+              <img
+                src={item.src}
+                alt={item.title}
+                className="size-full object-cover transition duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-4 text-white">
+                <p className="text-xs font-medium tracking-wide">{item.title}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Section 1: Peluquería & Barbería (Split Section Estilo Sattis) */}
+      <section id="servicios" className="mx-auto max-w-7xl px-6 pt-28 md:px-12">
+        <div className="flex flex-col gap-6 md:flex-row">
+          {/* Left: Full photo with huge overlay typography */}
+          <div className="relative min-h-[420px] w-full overflow-hidden rounded-2xl md:min-h-[560px] md:w-1/2">
+            <img
+              src="/studio/img-section-01.jpg"
+              alt="Barbería y Peluquería"
+              className="size-full object-cover"
+            />
+            <span className="absolute bottom-6 left-6 text-5xl font-light tracking-tight text-white md:text-6xl">
+              Barbería
+            </span>
+          </div>
+
+          {/* Right: Clean panel with description and services list */}
+          <div className="flex w-full flex-col justify-center rounded-2xl bg-zinc-100 p-8 sm:p-12 md:w-1/2 md:p-16">
+            <h3 className="text-2xl font-light text-zinc-900 sm:text-3xl">
+              Aquí, la tradición <br />
+              <span className="font-medium">encuentra la modernidad.</span>
+            </h3>
+
+            <p className="mt-4 text-sm leading-relaxed text-zinc-600">
+              En nuestro espacio, cada corte de cabello, barba o peinado está pensado para realzar tu
+              personalidad y asegurar que te lleves la mejor versión de vos mismo.
+            </p>
+
+            {/* Service Items List */}
+            <div className="mt-8 space-y-3">
+              {services.slice(0, 5).map((service) => (
+                <Link
+                  key={service.id}
+                  href={`/reservar?servicio=${service.id}`}
+                  className="group flex items-center justify-between border-b border-zinc-200/80 py-2.5 transition hover:border-zinc-950"
+                >
+                  <div className="flex items-center gap-3">
+                    <Check className="size-4 text-zinc-900" />
+                    <span className="text-xs font-semibold uppercase tracking-wider text-zinc-800 group-hover:text-zinc-950">
+                      {service.name}
                     </span>
                   </div>
-                </div>
-
-                {/* Content */}
-                <div className="flex flex-1 flex-col justify-between p-6">
-                  <div>
-                    <h3 className="text-lg font-bold text-zinc-950 group-hover:text-zinc-900">
-                      {service.name}
-                    </h3>
-                    <p className="mt-1.5 text-xs leading-relaxed text-zinc-500 line-clamp-2">
-                      {service.description ?? "Tratamiento personalizado en el estudio."}
-                    </p>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-zinc-500">{service.durationMin} min</span>
+                    <span className="text-sm font-semibold text-zinc-900">
+                      {formatPrice(service.priceCents, settings.currency)}
+                    </span>
                   </div>
+                </Link>
+              ))}
+            </div>
 
-                  <div className="mt-6 flex items-center justify-between border-t border-zinc-100 pt-4">
-                    <div>
-                      <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-400">
-                        Precio
+            <div className="mt-8">
+              <Link
+                href="/reservar"
+                className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-zinc-950 bg-transparent px-6 py-2.5 text-xs font-medium tracking-wide text-zinc-950 transition hover:bg-zinc-950 hover:text-white"
+              >
+                <span>Marcar horario</span>
+                <Calendar className="size-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Breath Section 1 (Statement con tipografía editorial pura) */}
+      <div className="mx-auto max-w-7xl px-8 py-24 text-right md:px-16 md:py-32">
+        <h3 className="text-3xl font-light leading-tight text-zinc-900 sm:text-4xl md:text-5xl">
+          Descubrí la fusión perfecta entre{" "}
+          <span className="block font-medium sm:inline">
+            estilo, arte y cuidado.
+          </span>
+        </h3>
+      </div>
+
+      {/* Section 2: Estética & Color (Flipped Split Section Estilo Sattis) */}
+      <section id="estetica" className="mx-auto max-w-7xl px-6 md:px-12">
+        <div className="flex flex-col gap-6 md:flex-row">
+          {/* Left: Content panel */}
+          <div className="order-2 flex w-full flex-col justify-center rounded-2xl bg-zinc-100 p-8 sm:p-12 md:order-1 md:w-1/2 md:p-16">
+            <h3 className="text-2xl font-light text-zinc-900 sm:text-3xl">
+              Estilo y actitud <br />
+              <span className="font-medium">en cada detalle.</span>
+            </h3>
+
+            <p className="mt-4 text-sm leading-relaxed text-zinc-600">
+              Tratamientos capilares, colorimetría, peinados y cuidado personal ejecutados con
+              técnicas de precisión y productos de primera línea para garantizar resultados duraderos.
+            </p>
+
+            <div className="mt-8 space-y-3">
+              {services.slice(5).length > 0 ? (
+                services.slice(5).map((service) => (
+                  <Link
+                    key={service.id}
+                    href={`/reservar?servicio=${service.id}`}
+                    className="group flex items-center justify-between border-b border-zinc-200/80 py-2.5 transition hover:border-zinc-950"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Check className="size-4 text-zinc-900" />
+                      <span className="text-xs font-semibold uppercase tracking-wider text-zinc-800 group-hover:text-zinc-950">
+                        {service.name}
                       </span>
-                      <p className="text-lg font-black text-zinc-950">
-                        {formatPrice(service.priceCents, settings.currency)}
-                      </p>
                     </div>
-
-                    <Link
-                      href={`/reservar?servicio=${service.id}`}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-zinc-950 px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-zinc-800 active:scale-95"
-                    >
-                      <span>Agendar</span>
-                      <ArrowRight className="size-3" />
-                    </Link>
-                  </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-zinc-500">{service.durationMin} min</span>
+                      <span className="text-sm font-semibold text-zinc-900">
+                        {formatPrice(service.priceCents, settings.currency)}
+                      </span>
+                    </div>
+                  </Link>
+                ))
+              ) : (
+                <div className="border-t border-zinc-200 pt-3 text-xs text-zinc-600">
+                  <p>Diagnóstico de estilo y asesoría personalizada en el salón.</p>
                 </div>
-              </article>
-            ))}
+              )}
+            </div>
+
+            <div className="mt-8 flex items-center gap-3">
+              <Link
+                href="/reservar"
+                className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-zinc-950 bg-transparent px-6 py-2.5 text-xs font-medium tracking-wide text-zinc-950 transition hover:bg-zinc-950 hover:text-white"
+              >
+                <span>Agendar servicio</span>
+                <Calendar className="size-3.5" />
+              </Link>
+            </div>
           </div>
 
-          {/* Quick Schedule Prompt */}
-          <div className="mt-10 rounded-3xl border border-zinc-200 bg-white p-6 sm:flex sm:items-center sm:justify-between sm:p-8 shadow-xs">
-            <div>
-              <h3 className="text-base font-bold text-zinc-950">
-                ¿Querés agendar una serie de citas periódicas o elegir un horario directo?
-              </h3>
-              <p className="mt-1 text-xs text-zinc-500 max-w-xl">
-                Nuestra plataforma te permite seleccionar cualquier profesional y verificar en tiempo
-                real los huecos libres disponibles.
-              </p>
-            </div>
-            <Link
-              href="/reservar"
-              className="mt-4 inline-flex shrink-0 items-center gap-2 rounded-full bg-zinc-950 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-zinc-800 sm:mt-0"
-            >
-              <span>Abrir Agenda Completa</span>
-              <ArrowRight className="size-3.5" />
-            </Link>
+          {/* Right: Full photo with huge overlay typography */}
+          <div className="order-1 relative min-h-[420px] w-full overflow-hidden rounded-2xl md:order-2 md:min-h-[560px] md:w-1/2">
+            <img
+              src="/studio/img-section-03.jpg"
+              alt="Estética y Cuidado"
+              className="size-full object-cover"
+            />
+            <span className="absolute bottom-6 left-6 text-5xl font-light tracking-tight text-white md:text-6xl">
+              Estética
+            </span>
           </div>
         </div>
       </section>
 
-      {/* Sobre el Estudio / Ambiance (Sattis Studio About) */}
-      <section id="estudio" className="py-20 border-b border-zinc-200/80">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="grid items-center gap-12 lg:grid-cols-12">
-            <div className="lg:col-span-6">
-              <div className="relative overflow-hidden rounded-3xl border border-zinc-200 shadow-md">
-                <img
-                  src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=1000&q=80"
-                  alt="Espacio del estudio"
-                  className="aspect-[4/3] w-full object-cover"
-                />
-              </div>
-            </div>
+      {/* Breath Section 2 (Statement izquierdo) */}
+      <div className="mx-auto max-w-7xl px-8 py-24 text-left md:px-16 md:py-32">
+        <h3 className="text-3xl font-light leading-tight text-zinc-900 sm:text-4xl md:text-5xl">
+          Cada detalle cuenta. <br />
+          <span className="font-medium">Elevá tu presencia con confianza.</span>
+        </h3>
+      </div>
 
-            <div className="lg:col-span-6">
-              <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">
-                Sobre Nosotros
-              </p>
-              <h2 className="mt-1 text-3xl font-black uppercase tracking-tight text-zinc-950 sm:text-4xl">
-                Un Espacio Pensado Para Vos
-              </h2>
-
-              <p className="mt-4 text-sm leading-relaxed text-zinc-600">
-                En nuestro estudio combinamos técnicas clásicas y de vanguardia para ofrecerte un
-                resultado que represente tu personalidad. Cada cita es individual, garantizando
-                dedicación absoluta desde que entrás hasta que terminás tu sesión.
-              </p>
-
-              <div className="mt-8 space-y-4">
-                <div className="flex items-start gap-3.5">
-                  <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-zinc-900">
-                    <Clock className="size-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold uppercase tracking-wide text-zinc-950">
-                      Puntualidad Garantizada
-                    </h4>
-                    <p className="text-xs text-zinc-500 mt-0.5">
-                      No superponemos turnos. Tu horario es exclusivo.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3.5">
-                  <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-zinc-900">
-                    <ShieldCheck className="size-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold uppercase tracking-wide text-zinc-950">
-                      Productos de Calidad Profesional
-                    </h4>
-                    <p className="text-xs text-zinc-500 mt-0.5">
-                      Tratamientos certificados para el cuidado de tu cabello y piel.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3.5">
-                  <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-zinc-900">
-                    <Compass className="size-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold uppercase tracking-wide text-zinc-950">
-                      Diagnóstico Personalizado
-                    </h4>
-                    <p className="text-xs text-zinc-500 mt-0.5">
-                      Te asesoramos para elegir el estilo que mejor se adapta a vos.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Lookbook / Galería de Trabajos (Grid de Fotos Reales) */}
-      <section id="galeria" className="py-20 bg-zinc-50/60 border-b border-zinc-200/80">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="text-center max-w-xl mx-auto">
-            <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">
-              Lookbook & Trabajos
-            </p>
-            <h2 className="mt-1 text-3xl font-black uppercase tracking-tight text-zinc-950 sm:text-4xl">
-              Nuestra Galería
-            </h2>
-            <p className="mt-2 text-xs text-zinc-500">
-              Cortes, estilos y terminaciones realizadas en nuestro estudio.
-            </p>
-          </div>
-
-          <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-            <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xs group">
-              <img
-                src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&w=600&q=80"
-                alt="Corte y textura"
-                className="aspect-square w-full object-cover transition duration-300 group-hover:scale-105"
-              />
-            </div>
-            <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xs group">
-              <img
-                src="https://images.unsplash.com/photo-1519699047748-de8e457a634e?auto=format&fit=crop&w=600&q=80"
-                alt="Color y nutrición"
-                className="aspect-square w-full object-cover transition duration-300 group-hover:scale-105"
-              />
-            </div>
-            <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xs group">
-              <img
-                src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&w=600&q=80"
-                alt="Detalle de barba"
-                className="aspect-square w-full object-cover transition duration-300 group-hover:scale-105"
-              />
-            </div>
-            <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xs group">
-              <img
-                src="https://images.unsplash.com/photo-1492106087820-71f1a00d2b11?auto=format&fit=crop&w=600&q=80"
-                alt="Corte bob y peinado"
-                className="aspect-square w-full object-cover transition duration-300 group-hover:scale-105"
-              />
-            </div>
-            <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xs group">
-              <img
-                src="https://images.unsplash.com/photo-1632345031435-8727f6897d53?auto=format&fit=crop&w=600&q=80"
-                alt="Uñas y esmaltado"
-                className="aspect-square w-full object-cover transition duration-300 group-hover:scale-105"
-              />
-            </div>
-            <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xs group">
-              <img
-                src="https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?auto=format&fit=crop&w=600&q=80"
-                alt="Fade y precisión"
-                className="aspect-square w-full object-cover transition duration-300 group-hover:scale-105"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Team Members con Foto */}
+      {/* Staff / Equipo */}
       {staffMembers.length > 0 && (
-        <section id="equipo" className="py-20 border-b border-zinc-200/80">
-          <div className="mx-auto max-w-6xl px-6">
+        <section id="equipo" className="border-t border-zinc-200/80 bg-zinc-50/50 py-24">
+          <div className="mx-auto max-w-7xl px-8 md:px-16">
             <div className="max-w-xl">
-              <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">
-                Staff Profesional
+              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                Staff
               </p>
-              <h2 className="mt-1 text-3xl font-black uppercase tracking-tight text-zinc-950 sm:text-4xl">
-                Nuestro Equipo
+              <h2 className="mt-1 text-3xl font-light tracking-tight text-zinc-900 sm:text-4xl">
+                Nuestro <span className="font-medium">Equipo</span>
               </h2>
-              <p className="mt-2 text-xs text-zinc-500">
-                Elegí a tu estilista o barbero de confianza para tu próximo servicio.
-              </p>
             </div>
 
             <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {staffMembers.map((member, index) => (
+              {staffMembers.map((member) => (
                 <div
                   key={member.id}
-                  className="overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-xs transition hover:border-zinc-300 hover:shadow-md"
+                  className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-xs"
                 >
-                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-100">
-                    <img
-                      src={getStaffImage(index)}
-                      alt={member.name}
-                      className="size-full object-cover"
-                    />
-                  </div>
-
-                  <div className="p-6">
-                    <h3 className="text-lg font-bold text-zinc-950">{member.name}</h3>
-                    <p className="text-xs text-zinc-500">Profesional del Estudio</p>
-
-                    {member.services.length > 0 && (
-                      <div className="mt-4 border-t border-zinc-100 pt-3">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5">
-                          Especialidades
-                        </p>
-                        <div className="flex flex-wrap gap-1">
-                          {member.services.map((s) => (
-                            <span
-                              key={s.id}
-                              className="rounded-md bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-700"
-                            >
-                              {s.name}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    <Link
-                      href="/reservar"
-                      className="mt-5 flex w-full items-center justify-center gap-1.5 rounded-full border border-zinc-200 bg-zinc-50 py-2.5 text-xs font-bold text-zinc-900 transition hover:border-zinc-300 hover:bg-zinc-100"
+                  <div className="flex items-center gap-4">
+                    <div
+                      className="flex size-12 items-center justify-center rounded-xl text-sm font-semibold text-white"
+                      style={{ backgroundColor: member.color }}
                     >
-                      <span>Ver turnos con {member.name}</span>
-                      <ArrowRight className="size-3" />
-                    </Link>
+                      {member.name.slice(0, 1).toUpperCase()}
+                    </div>
+                    <div>
+                      <h3 className="text-base font-medium text-zinc-950">{member.name}</h3>
+                      <p className="text-xs text-zinc-500">Profesional del estudio</p>
+                    </div>
                   </div>
+
+                  {member.services.length > 0 && (
+                    <div className="mt-5 border-t border-zinc-100 pt-4">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 mb-2">
+                        Especialidades
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {member.services.map((s) => (
+                          <span
+                            key={s.id}
+                            className="rounded-md bg-zinc-100 px-2 py-0.5 text-xs text-zinc-700"
+                          >
+                            {s.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <Link
+                    href="/reservar"
+                    className="mt-6 flex w-full items-center justify-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 py-2.5 text-xs font-medium text-zinc-900 transition hover:bg-zinc-100"
+                  >
+                    <span>Ver disponibilidad</span>
+                    <ArrowRight className="size-3.5" />
+                  </Link>
                 </div>
               ))}
             </div>
@@ -559,128 +426,97 @@ export default async function HomePage({
         </section>
       )}
 
-      {/* Horarios & Local (Contacto) */}
-      <section id="contacto" className="py-20 bg-zinc-50/60 border-b border-zinc-200/80">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="grid gap-8 lg:grid-cols-12">
-            <div className="lg:col-span-7">
-              <p className="text-xs font-bold uppercase tracking-widest text-zinc-500">
-                Información Práctica
+      {/* Footer Estilo Sattis Studio */}
+      <footer id="contacto" className="border-t border-zinc-200 bg-white pt-20 pb-12">
+        <div className="mx-auto max-w-7xl px-8 md:px-16">
+          <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4 pb-16 border-b border-zinc-200/80">
+            {/* Brand */}
+            <div>
+              <p className="text-lg font-medium text-zinc-950">{settings.businessName}</p>
+              <p className="mt-2 text-xs leading-relaxed text-zinc-600">
+                Espacio multifuncional dedicado a cortes, cuidado personal, estética y estilo con reserva previa.
               </p>
-              <h2 className="mt-1 text-3xl font-black uppercase tracking-tight text-zinc-950">
-                Horarios & Ubicación
-              </h2>
-
-              <div className="mt-8 space-y-4">
-                <div className="flex items-start gap-4 rounded-2xl border border-zinc-200 bg-white p-5 shadow-xs">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-zinc-900">
-                    <Clock className="size-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold uppercase tracking-wide text-zinc-950">
-                      Horarios de Atención
-                    </h4>
-                    <p className="text-xs text-zinc-600 mt-1">
-                      Martes a Sábado: 10:00 a 20:00 hs
-                    </p>
-                    <p className="text-xs text-zinc-600">Domingos y Lunes: Cerrado</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4 rounded-2xl border border-zinc-200 bg-white p-5 shadow-xs">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-zinc-900">
-                    <MapPin className="size-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold uppercase tracking-wide text-zinc-950">
-                      Dirección del Estudio
-                    </h4>
-                    <p className="text-xs text-zinc-600 mt-1">
-                      Atención en espacio privado con cita previa para garantizar dedicación
-                      exclusiva.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4 rounded-2xl border border-zinc-200 bg-white p-5 shadow-xs">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-zinc-900">
-                    <CheckCircle2 className="size-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold uppercase tracking-wide text-zinc-950">
-                      Tolerancia y Cancelación
-                    </h4>
-                    <p className="text-xs text-zinc-600 mt-1">
-                      10 minutos de tolerancia. Podés cancelar o reprogramar tu cita sin costo
-                      avisando con hasta 24 hs de anticipación.
-                    </p>
-                  </div>
-                </div>
+              <div className="mt-6">
+                <Link
+                  href="/reservar"
+                  className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-zinc-950 bg-zinc-950 px-6 py-2.5 text-xs font-medium text-white transition hover:bg-zinc-800"
+                >
+                  <Calendar className="size-3.5" />
+                  <span>Marcar horario</span>
+                </Link>
               </div>
             </div>
 
-            {/* CTA Box */}
-            <div className="lg:col-span-5">
-              <div className="rounded-3xl border border-zinc-200 bg-white p-8 shadow-sm flex flex-col justify-between h-full">
-                <div>
-                  <span className="inline-block rounded-full bg-zinc-100 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-zinc-700">
-                    Reserva Fácil
-                  </span>
-                  <h3 className="mt-4 text-2xl font-black uppercase tracking-tight text-zinc-950">
-                    Asegurá tu lugar en la agenda
-                  </h3>
-                  <p className="mt-2 text-xs leading-relaxed text-zinc-600">
-                    Sin llamadas, sin esperas y desde tu celular en 4 pasos simples. Elegí tu servicio
-                    y horario preferido.
-                  </p>
-                </div>
+            {/* Horarios */}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-900">
+                Horario de atención
+              </p>
+              <p className="mt-3 text-xs text-zinc-600">
+                Martes a Sábado: <br />
+                09:30 a 12:30 hs y 14:30 a 19:00 hs
+              </p>
+              <p className="mt-2 text-xs text-zinc-600">
+                Encerrados: Domingo, Lunes y Feriados seleccionados.
+              </p>
+            </div>
 
-                <div className="mt-8 pt-6 border-t border-zinc-100">
-                  <Link
-                    href="/reservar"
-                    className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full bg-zinc-950 px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition hover:bg-zinc-800 active:scale-95"
-                  >
-                    <span>Agendar mi turno</span>
-                    <ArrowRight className="size-4" />
-                  </Link>
-                </div>
-              </div>
+            {/* Ubicación y Contacto */}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-900">
+                Contacto y Estudio
+              </p>
+              <p className="mt-3 text-xs leading-relaxed text-zinc-600">
+                Atención con turno programado para garantizar puntualidad y dedicación.
+              </p>
+              <p className="mt-2 text-xs text-zinc-600">
+                Cancelaciones o cambios sin cargo con 24 hs de anticipación.
+              </p>
+            </div>
+
+            {/* Navegación y Staff */}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-900">
+                Navegación
+              </p>
+              <ul className="mt-3 space-y-2 text-xs text-zinc-600">
+                <li>
+                  <a href="#inicio" className="transition hover:text-zinc-950">
+                    Inicio
+                  </a>
+                </li>
+                <li>
+                  <a href="#servicios" className="transition hover:text-zinc-950">
+                    Barbería & Servicios
+                  </a>
+                </li>
+                <li>
+                  <a href="#estetica" className="transition hover:text-zinc-950">
+                    Estética
+                  </a>
+                </li>
+                <li>
+                  {user ? (
+                    <Link href="/admin" className="font-semibold text-zinc-950 hover:underline">
+                      Panel Administrativo
+                    </Link>
+                  ) : (
+                    <Link href="/admin/login" className="transition hover:text-zinc-950">
+                      Acceso Profesionales
+                    </Link>
+                  )}
+                </li>
+              </ul>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Footer */}
-      <footer className="border-t border-zinc-200 bg-white py-12 text-xs text-zinc-500">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-6 sm:flex-row">
-          <div className="flex items-center gap-3">
-            <span className="flex size-7 items-center justify-center rounded-md bg-zinc-950 text-[10px] font-bold text-white">
-              ST
-            </span>
+          <div className="pt-8 text-center sm:flex sm:items-center sm:justify-between sm:text-left text-xs text-zinc-500">
             <p>
-              © {new Date().getFullYear()} {settings.businessName} · Studio & Barbershop.
+              © {new Date().getFullYear()} {settings.businessName}. Todos los derechos reservados.
             </p>
-          </div>
-
-          <div className="flex items-center gap-6">
-            <a href="#servicios" className="transition hover:text-zinc-900 font-medium">
-              Servicios
-            </a>
-            <a href="#galeria" className="transition hover:text-zinc-900 font-medium">
-              Galería
-            </a>
-            <Link href="/reservar" className="transition hover:text-zinc-900 font-bold">
-              Reservar
-            </Link>
-            {user ? (
-              <Link href="/admin" className="font-semibold text-zinc-900 hover:underline">
-                Panel administrativo
-              </Link>
-            ) : (
-              <Link href="/admin/login" className="transition hover:text-zinc-900">
-                Acceso del equipo
-              </Link>
-            )}
+            <p className="mt-2 sm:mt-0">
+              Diseñado con precisión e identidad editorial.
+            </p>
           </div>
         </div>
       </footer>
