@@ -5,7 +5,7 @@ import { Loader2, LogIn } from "lucide-react";
 
 import { loginAction, type LoginState } from "../actions";
 
-export function LoginForm() {
+export function LoginForm({ next }: { next?: string }) {
   const [state, formAction, pending] = useActionState<LoginState, FormData>(
     loginAction,
     {},
@@ -13,6 +13,7 @@ export function LoginForm() {
 
   return (
     <form action={formAction} className="mt-6 space-y-4">
+      {next && <input type="hidden" name="next" value={next} />}
       <label className="block">
         <span className="mb-1.5 block text-sm font-medium">Email</span>
         <input

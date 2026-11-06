@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { BookingWizard } from "@/components/booking-wizard";
+import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
 import { dateKey, nowWallClock } from "@/lib/time";
@@ -16,6 +18,12 @@ export default async function ReservarPage({
   searchParams: Promise<{ servicio?: string }>;
 }) {
   const params = await searchParams;
+  const user = await getCurrentUser();
+  const next = params.servicio
+    ? `/reservar?servicio=${encodeURIComponent(params.servicio)}`
+    : "/reservar";
+  if (!user) redirect(`/admin/login?next=${encodeURIComponent(next)}`);
+
   const settings = await getSettings();
 
   const [services, staffRecords] = await Promise.all([

@@ -103,10 +103,10 @@ export default async function HomePage({
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
-              href="/reservar"
+              href={user ? "/reservar" : "/admin/login"}
               className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-ink transition hover:bg-brand-soft"
             >
-              Reservar ahora
+              {user ? "Reservar ahora" : "Ingresar"}
               <ArrowRight className="size-4" />
             </Link>
             <span className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-3 text-sm text-white/70">
@@ -129,7 +129,7 @@ export default async function HomePage({
           <Feature
             icon={<CalendarDays className="size-4" />}
             title="Reserva online"
-            text="Elegí servicio, profesional y horario en segundos."
+            text="Elegí servicio, profesional y horario. Requiere iniciar sesión."
           />
           <Feature
             icon={<Repeat className="size-4" />}

@@ -42,6 +42,7 @@
 | T10 | S3 | inline | hecho | `README.md` + build + smoke HTTP |
 | T11 | S5 | inline | hecho | asignación servicio↔profesional + fix de selección doble |
 | T12 | S4 | inline | hecho | landing pública con funcionalidades + `/salir`; `/admin` sigue protegido |
+| T13 | S4 | inline | hecho | landing separada del manejo: reservar, confirmación y POST de reservas requieren sesión |
 
 ## Log
 
@@ -88,3 +89,11 @@ Se implementaron las 10 tareas inline. El sandbox bloquea escribir `.env`, así 
 - `/salir` borra la cookie de sesión y redirige a `/`; el panel `/admin` sigue redirigiendo a login sin sesión.
 - Verificado: `/` 200 con "Funcionalidades"; `/salir` 307 a `/` con cookie expirada; `/admin` sin sesión 307 a login.
 - Sin sesión el header muestra `Ingresar`; con sesión muestra `Panel` y `Salir`. `/salir` redirige a `/?sesion=cerrada` y la landing muestra el aviso "Sesión cerrada".
+
+### L7 — separación landing / manejo
+
+- La landing `/` es la única página pública de la app.
+- `/reservar`, `/reserva/[id]` y `POST /api/bookings` requieren sesión: redirigen a `/admin/login?next=...` o devuelven 401.
+- El login acepta `next` y vuelve al destino original después de ingresar; por defecto va a `/admin`.
+- Sin sesión, el CTA del hero dice "Ingresar"; con sesión dice "Reservar ahora".
+- Verificado: `/reservar` 307 a login con `next=%2Freservar`; `/reserva/test-id` 307 a login; POST de reserva 401; `/salir` 307 a `/?sesion=cerrada`; landing 200 con CTA "Ingresar".

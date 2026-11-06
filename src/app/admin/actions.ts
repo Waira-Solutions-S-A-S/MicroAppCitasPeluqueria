@@ -55,7 +55,8 @@ export async function loginAction(
   }
 
   await createSession(user.id);
-  redirect("/admin");
+  const next = String(formData.get("next") ?? "");
+  redirect(next.startsWith("/") && !next.startsWith("//") ? next : "/admin");
 }
 
 export async function logoutAction(): Promise<void> {

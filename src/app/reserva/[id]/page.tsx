@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import {
   CalendarDays,
   CheckCircle2,
@@ -12,6 +12,7 @@ import {
   XCircle,
 } from "lucide-react";
 
+import { getCurrentUser } from "@/lib/auth";
 import { formatPrice, STATUS_CLASSES, STATUS_LABELS } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
@@ -32,6 +33,9 @@ export default async function ReservaPage({
 }) {
   const { id } = await params;
   const { nueva } = await searchParams;
+
+  const user = await getCurrentUser();
+  if (!user) redirect(`/admin/login?next=${encodeURIComponent(`/reserva/${id}`)}`);
 
   const [appointment, settings] = await Promise.all([
     prisma.appointment.findUnique({
