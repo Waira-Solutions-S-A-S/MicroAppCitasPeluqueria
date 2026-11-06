@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 
@@ -14,6 +15,8 @@ import {
 } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = { title: "Agenda de citas · Panel" };
 
 export default async function AgendaPage({
   searchParams,
@@ -43,11 +46,13 @@ export default async function AgendaPage({
   ).length;
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
+    <div className="space-y-6 antialiased text-zinc-900">
+      <header className="flex flex-wrap items-end justify-between gap-4 border-b border-zinc-200 pb-5">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-brand">Agenda</p>
-          <h1 className="mt-1 text-2xl font-semibold capitalize tracking-tight">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+            Agenda del Estudio
+          </p>
+          <h1 className="mt-1 text-2xl font-black uppercase tracking-tight text-zinc-950 capitalize sm:text-3xl">
             {labelDateLong(day)}
           </h1>
         </div>
@@ -55,27 +60,27 @@ export default async function AgendaPage({
         <div className="flex flex-wrap items-center gap-2">
           <Link
             href="/admin/reservar"
-            className="inline-flex items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-white transition hover:bg-brand/90"
+            className="inline-flex items-center gap-1.5 rounded-full bg-zinc-950 px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-zinc-800"
           >
-            <Plus className="size-4" />
-            Nueva reserva
+            <Plus className="size-3.5" />
+            <span>Cargar reserva</span>
           </Link>
           <Link
             href={`/admin/agenda?fecha=${dateKey(addDays(day, -1))}`}
-            className="grid size-9 place-items-center rounded-full border border-ink/10 bg-white transition hover:border-brand/40 hover:text-brand"
+            className="grid size-9 place-items-center rounded-full border border-zinc-200 bg-white text-zinc-700 shadow-xs transition hover:border-zinc-400 hover:text-zinc-950"
             aria-label="Día anterior"
           >
             <ChevronLeft className="size-4" />
           </Link>
           <Link
             href={`/admin/agenda?fecha=${dateKey(today)}`}
-            className="rounded-full border border-ink/10 bg-white px-3 py-2 text-xs font-semibold transition hover:border-brand/40 hover:text-brand"
+            className="rounded-full border border-zinc-200 bg-white px-3 py-2 text-xs font-bold text-zinc-800 shadow-xs transition hover:border-zinc-400 hover:text-zinc-950"
           >
             Hoy
           </Link>
           <Link
             href={`/admin/agenda?fecha=${dateKey(addDays(day, 1))}`}
-            className="grid size-9 place-items-center rounded-full border border-ink/10 bg-white transition hover:border-brand/40 hover:text-brand"
+            className="grid size-9 place-items-center rounded-full border border-zinc-200 bg-white text-zinc-700 shadow-xs transition hover:border-zinc-400 hover:text-zinc-950"
             aria-label="Día siguiente"
           >
             <ChevronRight className="size-4" />
@@ -83,21 +88,22 @@ export default async function AgendaPage({
         </div>
       </header>
 
-      <div className="flex flex-wrap gap-2 text-xs font-medium">
-        <span className="rounded-full bg-white px-3 py-1.5 text-ink ring-1 ring-ink/10">
-          {active.length} turnos
+      {/* Status chips */}
+      <div className="flex flex-wrap gap-2 text-xs font-bold">
+        <span className="rounded-full border border-zinc-200 bg-white px-3.5 py-1 text-zinc-800 shadow-xs">
+          {active.length} turnos totales
         </span>
-        <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-700 ring-1 ring-emerald-200">
+        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-1 text-emerald-800 shadow-xs">
           {confirmed} confirmados
         </span>
-        <span className="rounded-full bg-amber-50 px-3 py-1.5 text-amber-700 ring-1 ring-amber-200">
+        <span className="rounded-full border border-amber-200 bg-amber-50 px-3.5 py-1 text-amber-800 shadow-xs">
           {pending} pendientes
         </span>
       </div>
 
       {appointments.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-ink/15 bg-white/60 p-6 text-sm text-muted">
-          Este día no tiene turnos.
+        <div className="rounded-2xl border border-dashed border-zinc-200 bg-white p-12 text-center text-xs text-zinc-500">
+          No hay turnos agendados para este día.
         </div>
       ) : (
         <div className="space-y-3">

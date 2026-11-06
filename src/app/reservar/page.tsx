@@ -50,17 +50,23 @@ export default async function ReservarPage({
 
   if (services.length === 0 || staff.length === 0) {
     return (
-      <div className="mx-auto flex min-h-dvh w-full max-w-lg flex-col items-center justify-center gap-4 px-6 text-center">
-        <h1 className="text-2xl font-semibold">Todavía no hay servicios disponibles</h1>
-        <p className="text-sm text-muted">
-          Estamos preparando los turnos. Volvé a consultar en unos momentos.
-        </p>
-        <Link
-          href="/"
-          className="rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-white"
-        >
-          Volver al inicio
-        </Link>
+      <div className="flex min-h-dvh w-full items-center justify-center bg-zinc-50 px-6 py-12">
+        <div className="w-full max-w-md rounded-2xl border border-zinc-200/80 bg-white p-8 text-center shadow-sm">
+          <h1 className="text-xl font-medium tracking-tight text-zinc-900">
+            Servicios no disponibles en este momento
+          </h1>
+          <p className="mt-2 text-sm leading-relaxed text-zinc-600">
+            Estamos configurando los turnos y servicios. Por favor volvé a consultar en unos instantes.
+          </p>
+          <div className="mt-6 flex justify-center">
+            <Link
+              href="/"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-zinc-950 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950"
+            >
+              Volver al inicio
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }

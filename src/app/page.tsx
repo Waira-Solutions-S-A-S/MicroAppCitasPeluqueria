@@ -583,7 +583,7 @@ export default async function HomePage({
                     <p className="text-xs text-zinc-600 mt-1">
                       Martes a Sábado: 10:00 a 20:00 hs
                     </p>
-                    <p className="text-xs text-zinc-400">Domingos y Lunes: Cerrado</p>
+                    <p className="text-xs text-zinc-600">Domingos y Lunes: Cerrado</p>
                   </div>
                 </div>
 
@@ -629,7 +629,7 @@ export default async function HomePage({
                   <h3 className="mt-4 text-2xl font-black uppercase tracking-tight text-zinc-950">
                     Asegurá tu lugar en la agenda
                   </h3>
-                  <p className="mt-2 text-xs leading-relaxed text-zinc-500">
+                  <p className="mt-2 text-xs leading-relaxed text-zinc-600">
                     Sin llamadas, sin esperas y desde tu celular en 4 pasos simples. Elegí tu servicio
                     y horario preferido.
                   </p>
@@ -638,7 +638,7 @@ export default async function HomePage({
                 <div className="mt-8 pt-6 border-t border-zinc-100">
                   <Link
                     href="/reservar"
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-zinc-950 px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition hover:bg-zinc-800 active:scale-95"
+                    className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full bg-zinc-950 px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition hover:bg-zinc-800 active:scale-95"
                   >
                     <span>Agendar mi turno</span>
                     <ArrowRight className="size-4" />

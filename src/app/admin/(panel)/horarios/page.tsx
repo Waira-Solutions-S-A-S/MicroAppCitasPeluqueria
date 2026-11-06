@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Plus, Save } from "lucide-react";
 
 import {
@@ -11,6 +12,8 @@ import { prisma } from "@/lib/prisma";
 import { minutesToLabel, WEEKDAYS } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = { title: "Equipo y Horarios · Panel" };
 
 export default async function HorariosPage({
   searchParams,
@@ -35,96 +38,142 @@ export default async function HorariosPage({
   ]);
 
   return (
-    <div className="space-y-6">
-      <header>
-        <p className="text-xs font-semibold uppercase tracking-wide text-brand">Equipo</p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight">Profesionales y horarios</h1>
-        <p className="mt-1 text-sm text-muted">
-          La disponibilidad se calcula con estos horarios, la duración del servicio y los
-          turnos ya reservados.
+    <div className="space-y-8 antialiased text-zinc-900">
+      <header className="border-b border-zinc-200 pb-5">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Staff</p>
+        <h1 className="mt-1 text-2xl font-black uppercase tracking-tight text-zinc-950 sm:text-3xl">
+          Equipo y Horarios
+        </h1>
+        <p className="mt-1 text-xs text-zinc-500">
+          La disponibilidad se calcula con estos horarios de atención, la duración de cada servicio y
+          las citas reservadas.
         </p>
       </header>
 
       <Flash ok={params.ok} error={params.error} />
 
-      <section className="space-y-4">
+      {/* Agregar nuevo profesional */}
+      <section className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-xs sm:p-8">
+        <h2 className="flex items-center gap-2 text-base font-bold text-zinc-950">
+          <Plus className="size-4 text-zinc-950" />
+          Registrar nuevo profesional
+        </h2>
+
+        <form action={createStaffAction} className="mt-6 flex flex-wrap items-end gap-3">
+          <label className="block">
+            <span className="mb-1 block text-xs font-semibold text-zinc-700">Nombre</span>
+            <input
+              name="name"
+              required
+              minLength={2}
+              placeholder="Ej. Lucas García"
+              className="rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-1 block text-xs font-semibold text-zinc-700">Color distintivo</span>
+            <input
+              name="color"
+              type="color"
+              defaultValue="#18181b"
+              className="h-10 w-20 cursor-pointer rounded-xl border border-zinc-200 bg-white px-2 py-1"
+            />
+          </label>
+
+          <button
+            type="submit"
+            className="inline-flex items-center gap-2 rounded-full bg-zinc-950 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-zinc-800"
+          >
+            <Plus className="size-3.5" />
+            <span>Agregar miembro</span>
+          </button>
+        </form>
+      </section>
+
+      {/* Lista de profesionales */}
+      <section className="space-y-6">
         {staff.map((member) => {
           const byDay = new Map(member.workingHours.map((hours) => [hours.weekday, hours]));
 
           return (
             <div
               key={member.id}
-              className="rounded-2xl border border-ink/10 bg-white p-5 shadow-sm"
+              className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-xs sm:p-8"
             >
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-100 pb-5">
+                <div className="flex items-center gap-3.5">
                   <span
-                    className="grid size-10 place-items-center rounded-full text-sm font-semibold text-white"
+                    className="grid size-11 place-items-center rounded-2xl text-sm font-bold text-white shadow-xs"
                     style={{ backgroundColor: member.color }}
                   >
-                    {member.name.slice(0, 1)}
+                    {member.name.slice(0, 1).toUpperCase()}
                   </span>
                   <div>
-                    <p className="font-semibold">
+                    <p className="text-base font-bold text-zinc-950">
                       {member.name}
                       {!member.isActive && (
-                        <span className="ml-2 rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-stone-500">
+                        <span className="ml-2 rounded-full bg-zinc-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
                           pausado
                         </span>
                       )}
                     </p>
-                    <p className="text-xs text-muted">
+                    <p className="text-xs text-zinc-500 mt-0.5">
                       {member.services.length > 0
                         ? member.services.map((service) => service.name).join(" · ")
-                        : "Sin servicios asignados"}
+                        : "Sin servicios vinculados"}
                     </p>
                   </div>
                 </div>
+
                 <form action={toggleStaffAction}>
                   <input type="hidden" name="id" value={member.id} />
                   <button
                     type="submit"
-                    className="text-xs font-semibold text-muted underline-offset-2 hover:text-ink hover:underline"
+                    className="text-xs font-semibold text-zinc-500 hover:text-zinc-950 underline transition"
                   >
-                    {member.isActive ? "Pausar" : "Activar"}
+                    {member.isActive ? "Pausar profesional" : "Reactivar profesional"}
                   </button>
                 </form>
               </div>
 
-              <details className="mt-3">
-                <summary className="cursor-pointer text-xs font-medium text-brand">
-                  Editar nombre y color
+              {/* Editar nombre y asignaciones */}
+              <details className="mt-4">
+                <summary className="cursor-pointer text-xs font-bold text-zinc-900 hover:underline">
+                  Editar datos y servicios de {member.name}
                 </summary>
-                <form action={updateStaffAction} className="mt-3 flex flex-wrap items-end gap-3">
+                <form action={updateStaffAction} className="mt-4 grid gap-4 border-t border-zinc-100 pt-4 sm:grid-cols-2">
                   <input type="hidden" name="id" value={member.id} />
-                  <label>
-                    <span className="mb-1 block text-xs font-medium text-muted">Nombre</span>
+                  <label className="block">
+                    <span className="mb-1 block text-xs font-semibold text-zinc-700">Nombre</span>
                     <input
                       name="name"
                       defaultValue={member.name}
                       required
                       minLength={2}
-                      className="rounded-xl border border-ink/15 px-3 py-2 text-sm outline-none focus:border-brand"
+                      className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
                     />
                   </label>
-                  <label>
-                    <span className="mb-1 block text-xs font-medium text-muted">Color</span>
+
+                  <label className="block">
+                    <span className="mb-1 block text-xs font-semibold text-zinc-700">Color</span>
                     <input
                       name="color"
                       type="color"
                       defaultValue={member.color}
-                      className="h-10 w-20 cursor-pointer rounded-xl border border-ink/15 bg-white px-1"
+                      className="h-10 w-full cursor-pointer rounded-xl border border-zinc-200 bg-white px-2 py-1"
                     />
                   </label>
-                  <fieldset className="w-full">
-                    <legend className="mb-1 block text-xs font-medium text-muted">
-                      Servicios que atiende
+
+                  <fieldset className="sm:col-span-2">
+                    <legend className="mb-2 block text-xs font-semibold text-zinc-700">
+                      Servicios que realiza
                     </legend>
                     <div className="flex flex-wrap gap-2">
                       {services.map((service) => (
                         <label
                           key={service.id}
-                          className="inline-flex items-center gap-2 rounded-full border border-ink/10 px-3 py-1.5 text-xs"
+                          className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50/50 px-3 py-1.5 text-xs text-zinc-800 transition hover:bg-zinc-100"
                         >
                           <input
                             type="checkbox"
@@ -133,26 +182,34 @@ export default async function HorariosPage({
                             defaultChecked={member.services.some(
                               (assigned) => assigned.id === service.id,
                             )}
-                            className="size-3.5 accent-[var(--color-brand)]"
+                            className="size-3.5 accent-zinc-950"
                           />
-                          {service.name}
+                          <span>{service.name}</span>
                         </label>
                       ))}
                     </div>
                   </fieldset>
-                  <button
-                    type="submit"
-                    className="inline-flex items-center gap-2 rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white"
-                  >
-                    <Save className="size-4" />
-                    Guardar
-                  </button>
+
+                  <div className="sm:col-span-2 pt-2">
+                    <button
+                      type="submit"
+                      className="inline-flex items-center gap-2 rounded-full bg-zinc-950 px-5 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-zinc-800"
+                    >
+                      <Save className="size-3.5" />
+                      <span>Guardar cambios</span>
+                    </button>
+                  </div>
                 </form>
               </details>
 
-              <form action={saveHoursAction} className="mt-4 border-t border-ink/10 pt-4">
+              {/* Horarios semanales */}
+              <form action={saveHoursAction} className="mt-6 border-t border-zinc-100 pt-5">
                 <input type="hidden" name="staffId" value={member.id} />
-                <div className="space-y-2">
+                <p className="text-xs font-bold text-zinc-950 uppercase tracking-wide mb-3">
+                  Horarios laborales semanales
+                </p>
+
+                <div className="space-y-2.5">
                   {WEEKDAYS.map((label, day) => {
                     const hours = byDay.get(day);
                     const isOpen = hours ? !hours.isClosed : day !== 0;
@@ -162,80 +219,46 @@ export default async function HorariosPage({
                     return (
                       <div
                         key={label}
-                        className="grid grid-cols-[5.5rem_auto_1fr_1fr] items-center gap-2"
+                        className="grid grid-cols-[6rem_auto_1fr_1fr] items-center gap-3 rounded-xl border border-zinc-100 bg-zinc-50/50 p-2 text-xs"
                       >
-                        <span className="text-sm font-medium">{label}</span>
-                        <label className="flex items-center gap-1.5 text-xs text-muted">
+                        <span className="font-bold text-zinc-900">{label}</span>
+                        <label className="flex cursor-pointer items-center gap-1.5 text-zinc-600">
                           <input
                             type="checkbox"
                             name={`open-${day}`}
                             defaultChecked={isOpen}
-                            className="size-4 accent-[var(--color-brand)]"
+                            className="size-3.5 accent-zinc-950"
                           />
-                          Abre
+                          <span>Atiende</span>
                         </label>
                         <input
                           type="time"
                           name={`start-${day}`}
                           defaultValue={minutesToLabel(start)}
-                          className="rounded-lg border border-ink/15 px-2 py-1.5 text-sm outline-none focus:border-brand"
+                          className="rounded-lg border border-zinc-200 bg-white px-2 py-1 text-xs text-zinc-900 outline-none focus:border-zinc-950"
                         />
                         <input
                           type="time"
                           name={`end-${day}`}
                           defaultValue={minutesToLabel(end)}
-                          className="rounded-lg border border-ink/15 px-2 py-1.5 text-sm outline-none focus:border-brand"
+                          className="rounded-lg border border-zinc-200 bg-white px-2 py-1 text-xs text-zinc-900 outline-none focus:border-zinc-950"
                         />
                       </div>
                     );
                   })}
                 </div>
+
                 <button
                   type="submit"
-                  className="mt-4 inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
+                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-zinc-950 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-zinc-800"
                 >
-                  <Save className="size-4" />
-                  Guardar horarios
+                  <Save className="size-3.5" />
+                  <span>Guardar horarios de {member.name}</span>
                 </button>
               </form>
             </div>
           );
         })}
-      </section>
-
-      <section className="rounded-2xl border border-ink/10 bg-white p-5 shadow-sm">
-        <h2 className="flex items-center gap-2 text-base font-semibold">
-          <Plus className="size-4 text-brand" />
-          Nuevo profesional
-        </h2>
-        <form action={createStaffAction} className="mt-4 flex flex-wrap items-end gap-3">
-          <label>
-            <span className="mb-1 block text-xs font-medium text-muted">Nombre</span>
-            <input
-              name="name"
-              required
-              minLength={2}
-              placeholder="Nombre"
-              className="rounded-xl border border-ink/15 px-3 py-2 text-sm outline-none focus:border-brand"
-            />
-          </label>
-          <label>
-            <span className="mb-1 block text-xs font-medium text-muted">Color</span>
-            <input
-              name="color"
-              type="color"
-              defaultValue="#0ea5e9"
-              className="h-10 w-20 cursor-pointer rounded-xl border border-ink/15 bg-white px-1"
-            />
-          </label>
-          <button
-            type="submit"
-            className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
-          >
-            <Plus className="size-4" />
-            Agregar
-          </button>
-        </form>
       </section>
     </div>
   );

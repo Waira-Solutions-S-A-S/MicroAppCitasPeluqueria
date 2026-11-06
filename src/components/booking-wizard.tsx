@@ -294,13 +294,13 @@ export function BookingWizard({
           {/* Paso 1: Servicios */}
           {step === 0 && (
             <section className="animate-rise">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
                 Paso 1 de 4
               </span>
-              <h1 className="mt-1 text-2xl font-black uppercase tracking-tight text-zinc-950 sm:text-3xl">
+              <h1 className="mt-1 text-2xl font-medium tracking-tight text-zinc-900 sm:text-3xl">
                 Elegí tu servicio
               </h1>
-              <p className="mt-1.5 text-xs text-zinc-500">
+              <p className="mt-1.5 text-xs text-zinc-600">
                 Seleccioná qué querés hacerte. Podés cambiarlo o sumar notas en el último paso.
               </p>
 
@@ -359,13 +359,13 @@ export function BookingWizard({
           {/* Paso 2: Profesional */}
           {step === 1 && (
             <section className="animate-rise">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
                 Paso 2 de 4
               </span>
-              <h1 className="mt-1 text-2xl font-black uppercase tracking-tight text-zinc-950 sm:text-3xl">
+              <h1 className="mt-1 text-2xl font-medium tracking-tight text-zinc-900 sm:text-3xl">
                 ¿Con quién te atendés?
               </h1>
-              <p className="mt-1.5 text-xs text-zinc-500">
+              <p className="mt-1.5 text-xs text-zinc-600">
                 Elegí un profesional específico o seleccioná «Cualquiera disponible» para ver más
                 horarios.
               </p>
@@ -434,13 +434,13 @@ export function BookingWizard({
           {/* Paso 3: Fecha y horario */}
           {step === 2 && (
             <section className="animate-rise">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
                 Paso 3 de 4
               </span>
-              <h1 className="mt-1 text-2xl font-black uppercase tracking-tight text-zinc-950 sm:text-3xl">
+              <h1 className="mt-1 text-2xl font-medium tracking-tight text-zinc-900 sm:text-3xl">
                 Seleccioná fecha y hora
               </h1>
-              <p className="mt-1.5 text-xs text-zinc-500">
+              <p className="mt-1.5 text-xs text-zinc-600">
                 {longDate(date)} · Duración aproximada: {service?.durationMin} min
               </p>
 
@@ -534,33 +534,33 @@ export function BookingWizard({
           {/* Paso 4: Datos del cliente */}
           {step === 3 && (
             <section className="animate-rise">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
                 Paso 4 de 4
               </span>
-              <h1 className="mt-1 text-2xl font-black uppercase tracking-tight text-zinc-950 sm:text-3xl">
+              <h1 className="mt-1 text-2xl font-medium tracking-tight text-zinc-900 sm:text-3xl">
                 Tus datos de reserva
               </h1>
-              <p className="mt-1.5 text-xs text-zinc-500">
+              <p className="mt-1.5 text-xs text-zinc-600">
                 Ingresá tus datos para enviarte la confirmación de tu turno.
               </p>
 
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
                 <label className="sm:col-span-1">
-                  <span className="mb-1 block text-xs font-semibold text-zinc-700">
-                    Nombre y apellido <span className="text-zinc-400">*</span>
+                  <span className="mb-1 block text-xs font-semibold text-zinc-800">
+                    Nombre y apellido <span className="text-zinc-500">*</span>
                   </span>
                   <input
                     value={clientName}
                     onChange={(event) => setClientName(event.target.value)}
                     placeholder="Tu nombre completo"
                     autoComplete="name"
-                    className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+                    className="w-full min-h-[44px] rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
                   />
                 </label>
 
                 <label className="sm:col-span-1">
-                  <span className="mb-1 block text-xs font-semibold text-zinc-700">
-                    WhatsApp / Teléfono <span className="text-zinc-400">*</span>
+                  <span className="mb-1 block text-xs font-semibold text-zinc-800">
+                    WhatsApp / Teléfono <span className="text-zinc-500">*</span>
                   </span>
                   <input
                     value={clientPhone}
@@ -568,13 +568,13 @@ export function BookingWizard({
                     placeholder="Ej. 11 2345 6789"
                     autoComplete="tel"
                     inputMode="tel"
-                    className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+                    className="w-full min-h-[44px] rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
                   />
                 </label>
 
                 <label className="sm:col-span-2">
-                  <span className="mb-1 block text-xs font-semibold text-zinc-700">
-                    Email <span className="font-normal text-zinc-400">(opcional)</span>
+                  <span className="mb-1 block text-xs font-semibold text-zinc-800">
+                    Email <span className="font-normal text-zinc-500">(opcional)</span>
                   </span>
                   <input
                     value={clientEmail}
@@ -582,20 +582,20 @@ export function BookingWizard({
                     placeholder="tucorreo@ejemplo.com"
                     autoComplete="email"
                     inputMode="email"
-                    className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+                    className="w-full min-h-[44px] rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
                   />
                 </label>
 
                 <label className="sm:col-span-2">
-                  <span className="mb-1 block text-xs font-semibold text-zinc-700">
-                    Comentarios para el profesional <span className="font-normal text-zinc-400">(opcional)</span>
+                  <span className="mb-1 block text-xs font-semibold text-zinc-800">
+                    Comentarios para el profesional <span className="font-normal text-zinc-500">(opcional)</span>
                   </span>
                   <textarea
                     value={notes}
                     onChange={(event) => setNotes(event.target.value)}
                     rows={2}
                     placeholder="Detalles sobre tu corte, diseño, alergias o referencias…"
-                    className="w-full resize-none rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+                    className="w-full min-h-[72px] resize-none rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
                   />
                 </label>
               </div>
@@ -673,7 +673,7 @@ export function BookingWizard({
               type="button"
               onClick={() => setStep((current) => Math.max(0, current - 1))}
               disabled={step === 0 || submitting}
-              className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold text-zinc-500 transition hover:text-zinc-950 disabled:opacity-30"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold text-zinc-600 transition hover:text-zinc-950 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
             >
               <ArrowLeft className="size-3.5" />
               <span>Atrás</span>
@@ -684,7 +684,7 @@ export function BookingWizard({
                 type="button"
                 onClick={() => setStep((current) => Math.min(3, current + 1))}
                 disabled={!canContinue}
-                className="inline-flex items-center gap-2 rounded-full bg-zinc-950 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-zinc-800 active:scale-95 disabled:opacity-30"
+                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-zinc-950 px-6 py-2.5 text-xs font-medium text-white shadow-xs transition hover:bg-zinc-800 active:scale-98 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
               >
                 <span>Siguiente paso</span>
                 <ArrowRight className="size-3.5" />
@@ -694,7 +694,7 @@ export function BookingWizard({
                 type="button"
                 onClick={submit}
                 disabled={!canContinue || submitting}
-                className="inline-flex items-center gap-2 rounded-full bg-zinc-950 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-zinc-800 active:scale-95 disabled:opacity-30"
+                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-zinc-950 px-6 py-2.5 text-xs font-medium text-white shadow-xs transition hover:bg-zinc-800 active:scale-98 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
               >
                 {submitting ? (
                   <>

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Plus, Save } from "lucide-react";
 
 import {
@@ -11,6 +12,8 @@ import { getSettings } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
 
+export const metadata: Metadata = { title: "Gestión de Servicios · Panel" };
+
 export default async function ServiciosPage({
   searchParams,
 }: {
@@ -23,45 +26,51 @@ export default async function ServiciosPage({
   ]);
 
   return (
-    <div className="space-y-6">
-      <header>
-        <p className="text-xs font-semibold uppercase tracking-wide text-brand">Catálogo</p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight">Servicios</h1>
-        <p className="mt-1 text-sm text-muted">
-          Los servicios activos aparecen en la PWA para reservar.
+    <div className="space-y-8 antialiased text-zinc-900">
+      <header className="border-b border-zinc-200 pb-5">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Catálogo</p>
+        <h1 className="mt-1 text-2xl font-black uppercase tracking-tight text-zinc-950 sm:text-3xl">
+          Servicios del Estudio
+        </h1>
+        <p className="mt-1 text-xs text-zinc-500">
+          Los servicios activos se muestran de inmediato en la carta y en el asistente de reservas.
         </p>
       </header>
 
       <Flash ok={params.ok} error={params.error} />
 
-      <section className="rounded-2xl border border-ink/10 bg-white p-5 shadow-sm">
-        <h2 className="flex items-center gap-2 text-base font-semibold">
-          <Plus className="size-4 text-brand" />
-          Nuevo servicio
+      {/* Formulario nuevo servicio */}
+      <section className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-xs sm:p-8">
+        <h2 className="flex items-center gap-2 text-base font-bold text-zinc-950">
+          <Plus className="size-4 text-zinc-950" />
+          Crear nuevo servicio
         </h2>
-        <form action={createServiceAction} className="mt-4 grid gap-3 sm:grid-cols-2">
-          <label className="sm:col-span-2">
-            <span className="mb-1 block text-xs font-medium text-muted">Nombre</span>
+
+        <form action={createServiceAction} className="mt-6 grid gap-4 sm:grid-cols-2">
+          <label className="sm:col-span-2 block">
+            <span className="mb-1 block text-xs font-semibold text-zinc-700">Nombre del servicio</span>
             <input
               name="name"
               required
               minLength={2}
-              placeholder="Corte de pelo"
-              className="w-full rounded-xl border border-ink/15 px-3 py-2 text-sm outline-none focus:border-brand"
+              placeholder="Ej. Corte de autor & styling"
+              className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
             />
           </label>
-          <label className="sm:col-span-2">
-            <span className="mb-1 block text-xs font-medium text-muted">
-              Descripción (opcional)
+
+          <label className="sm:col-span-2 block">
+            <span className="mb-1 block text-xs font-semibold text-zinc-700">
+              Descripción detallada (opcional)
             </span>
             <input
               name="description"
-              placeholder="Incluye lavado y styling"
-              className="w-full rounded-xl border border-ink/15 px-3 py-2 text-sm outline-none focus:border-brand"
+              placeholder="Incluye diagnóstico capilar, lavado profesional y peinado final."
+              className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
             />
           </label>
-          <label>
-            <span className="mb-1 block text-xs font-medium text-muted">Duración (min)</span>
+
+          <label className="block">
+            <span className="mb-1 block text-xs font-semibold text-zinc-700">Duración estimada (min)</span>
             <input
               name="durationMin"
               type="number"
@@ -70,11 +79,12 @@ export default async function ServiciosPage({
               step={5}
               defaultValue={45}
               required
-              className="w-full rounded-xl border border-ink/15 px-3 py-2 text-sm outline-none focus:border-brand"
+              className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
             />
           </label>
-          <label>
-            <span className="mb-1 block text-xs font-medium text-muted">
+
+          <label className="block">
+            <span className="mb-1 block text-xs font-semibold text-zinc-700">
               Precio ({settings.currency})
             </span>
             <input
@@ -84,146 +94,157 @@ export default async function ServiciosPage({
               step={100}
               defaultValue={10000}
               required
-              className="w-full rounded-xl border border-ink/15 px-3 py-2 text-sm outline-none focus:border-brand"
+              className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
             />
           </label>
-          <label>
-            <span className="mb-1 block text-xs font-medium text-muted">Color</span>
+
+          <label className="block">
+            <span className="mb-1 block text-xs font-semibold text-zinc-700">Color distintivo</span>
             <input
               name="color"
               type="color"
-              defaultValue="#8b5cf6"
-              className="h-10 w-full cursor-pointer rounded-xl border border-ink/15 bg-white px-1"
+              defaultValue="#18181b"
+              className="h-10 w-full cursor-pointer rounded-xl border border-zinc-200 bg-white px-2 py-1"
             />
           </label>
-          <div className="flex items-end">
+
+          <div className="flex items-end pt-2">
             <button
               type="submit"
-              className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
+              className="inline-flex items-center gap-2 rounded-full bg-zinc-950 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-zinc-800"
             >
-              <Plus className="size-4" />
-              Crear servicio
+              <Plus className="size-3.5" />
+              <span>Añadir al catálogo</span>
             </button>
           </div>
         </form>
       </section>
 
-      <section className="space-y-3">
-        {services.length === 0 && (
-          <p className="rounded-2xl border border-dashed border-ink/15 bg-white/60 p-6 text-sm text-muted">
-            Todavía no hay servicios.
-          </p>
-        )}
-
-        {services.map((service) => (
-          <details
-            key={service.id}
-            className="group rounded-2xl border border-ink/10 bg-white p-4 shadow-sm"
-          >
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <span
-                  className="size-3 rounded-full"
-                  style={{ backgroundColor: service.color }}
-                />
-                <div>
-                  <p className="font-semibold">
-                    {service.name}
-                    {!service.isActive && (
-                      <span className="ml-2 rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-stone-500">
-                        pausado
-                      </span>
-                    )}
-                  </p>
-                  <p className="text-xs text-muted">
-                    {service.durationMin} min ·{" "}
-                    {formatPrice(service.priceCents, settings.currency)}
-                  </p>
+      {/* Lista de servicios existentes */}
+      <section className="space-y-4">
+        {services.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-zinc-200 bg-white p-8 text-center text-xs text-zinc-500">
+            Todavía no hay servicios creados.
+          </div>
+        ) : (
+          services.map((service) => (
+            <details
+              key={service.id}
+              className="group rounded-3xl border border-zinc-200 bg-white p-6 shadow-xs transition hover:border-zinc-300"
+            >
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
+                <div className="flex items-center gap-3.5">
+                  <span
+                    className="size-3 rounded-full ring-2 ring-zinc-100"
+                    style={{ backgroundColor: service.color }}
+                  />
+                  <div>
+                    <p className="text-base font-bold text-zinc-950">
+                      {service.name}
+                      {!service.isActive && (
+                        <span className="ml-2 rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                          pausado
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-xs text-zinc-500 mt-0.5">
+                      {service.durationMin} min ·{" "}
+                      {formatPrice(service.priceCents, settings.currency)}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <span className="text-xs font-medium text-muted group-open:hidden">
-                Editar
-              </span>
-            </summary>
-
-            <form action={updateServiceAction} className="mt-4 grid gap-3 border-t border-ink/10 pt-4 sm:grid-cols-2">
-              <input type="hidden" name="id" value={service.id} />
-              <label className="sm:col-span-2">
-                <span className="mb-1 block text-xs font-medium text-muted">Nombre</span>
-                <input
-                  name="name"
-                  defaultValue={service.name}
-                  required
-                  minLength={2}
-                  className="w-full rounded-xl border border-ink/15 px-3 py-2 text-sm outline-none focus:border-brand"
-                />
-              </label>
-              <label className="sm:col-span-2">
-                <span className="mb-1 block text-xs font-medium text-muted">Descripción</span>
-                <input
-                  name="description"
-                  defaultValue={service.description ?? ""}
-                  className="w-full rounded-xl border border-ink/15 px-3 py-2 text-sm outline-none focus:border-brand"
-                />
-              </label>
-              <label>
-                <span className="mb-1 block text-xs font-medium text-muted">Duración (min)</span>
-                <input
-                  name="durationMin"
-                  type="number"
-                  min={5}
-                  max={480}
-                  step={5}
-                  defaultValue={service.durationMin}
-                  required
-                  className="w-full rounded-xl border border-ink/15 px-3 py-2 text-sm outline-none focus:border-brand"
-                />
-              </label>
-              <label>
-                <span className="mb-1 block text-xs font-medium text-muted">
-                  Precio ({settings.currency})
+                <span className="text-xs font-semibold text-zinc-500 group-open:hidden transition hover:text-zinc-950">
+                  Editar
                 </span>
-                <input
-                  name="price"
-                  type="number"
-                  min={0}
-                  step={100}
-                  defaultValue={service.priceCents / 100}
-                  required
-                  className="w-full rounded-xl border border-ink/15 px-3 py-2 text-sm outline-none focus:border-brand"
-                />
-              </label>
-              <label>
-                <span className="mb-1 block text-xs font-medium text-muted">Color</span>
-                <input
-                  name="color"
-                  type="color"
-                  defaultValue={service.color}
-                  className="h-10 w-full cursor-pointer rounded-xl border border-ink/15 bg-white px-1"
-                />
-              </label>
-              <div className="flex items-end gap-2">
+              </summary>
+
+              <form
+                action={updateServiceAction}
+                className="mt-6 grid gap-4 border-t border-zinc-100 pt-5 sm:grid-cols-2"
+              >
+                <input type="hidden" name="id" value={service.id} />
+                <label className="sm:col-span-2 block">
+                  <span className="mb-1 block text-xs font-semibold text-zinc-700">Nombre</span>
+                  <input
+                    name="name"
+                    defaultValue={service.name}
+                    required
+                    minLength={2}
+                    className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+                  />
+                </label>
+
+                <label className="sm:col-span-2 block">
+                  <span className="mb-1 block text-xs font-semibold text-zinc-700">Descripción</span>
+                  <input
+                    name="description"
+                    defaultValue={service.description ?? ""}
+                    className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="mb-1 block text-xs font-semibold text-zinc-700">Duración (min)</span>
+                  <input
+                    name="durationMin"
+                    type="number"
+                    min={5}
+                    max={480}
+                    step={5}
+                    defaultValue={service.durationMin}
+                    required
+                    className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="mb-1 block text-xs font-semibold text-zinc-700">
+                    Precio ({settings.currency})
+                  </span>
+                  <input
+                    name="price"
+                    type="number"
+                    min={0}
+                    step={100}
+                    defaultValue={service.priceCents / 100}
+                    required
+                    className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="mb-1 block text-xs font-semibold text-zinc-700">Color distintivo</span>
+                  <input
+                    name="color"
+                    type="color"
+                    defaultValue={service.color}
+                    className="h-10 w-full cursor-pointer rounded-xl border border-zinc-200 bg-white px-2 py-1"
+                  />
+                </label>
+
+                <div className="flex items-end gap-2 pt-2 sm:col-span-2">
+                  <button
+                    type="submit"
+                    className="inline-flex items-center gap-2 rounded-full bg-zinc-950 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-zinc-800"
+                  >
+                    <Save className="size-3.5" />
+                    <span>Guardar cambios</span>
+                  </button>
+                </div>
+              </form>
+
+              <form action={toggleServiceAction} className="mt-4 pt-3 border-t border-zinc-100">
+                <input type="hidden" name="id" value={service.id} />
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark"
+                  className="text-xs font-semibold text-zinc-500 hover:text-zinc-950 underline transition"
                 >
-                  <Save className="size-4" />
-                  Guardar
+                  {service.isActive ? "Pausar servicio temporalmente" : "Reactivar servicio"}
                 </button>
-              </div>
-            </form>
-
-            <form action={toggleServiceAction} className="mt-3">
-              <input type="hidden" name="id" value={service.id} />
-              <button
-                type="submit"
-                className="text-xs font-semibold text-muted underline-offset-2 hover:text-ink hover:underline"
-              >
-                {service.isActive ? "Pausar servicio" : "Activar servicio"}
-              </button>
-            </form>
-          </details>
-        ))}
+              </form>
+            </details>
+          ))
+        )}
       </section>
     </div>
   );
@@ -233,10 +254,10 @@ function Flash({ ok, error }: { ok?: string; error?: string }) {
   if (!ok && !error) return null;
   return (
     <div
-      className={`rounded-xl border px-4 py-3 text-sm ${
+      className={`rounded-2xl border px-4 py-3 text-xs font-semibold shadow-xs ${
         error
           ? "border-red-200 bg-red-50 text-red-700"
-          : "border-emerald-200 bg-emerald-50 text-emerald-700"
+          : "border-emerald-200 bg-emerald-50 text-emerald-800"
       }`}
     >
       {error ?? ok}

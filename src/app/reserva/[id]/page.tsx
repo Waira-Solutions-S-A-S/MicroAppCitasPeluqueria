@@ -57,12 +57,12 @@ export default async function ReservaPage({
   return (
     <div className="mx-auto w-full max-w-xl px-6 pb-20 pt-8 antialiased text-zinc-900">
       <header className="mb-6 flex items-center justify-between border-b border-zinc-200 pb-4">
-        <Link href="/" className="text-base font-black tracking-tight text-zinc-950 uppercase">
+        <Link href="/" className="text-base font-semibold tracking-tight text-zinc-950">
           {settings.businessName}
         </Link>
         <Link
           href={user ? "/admin/reservar" : "/reservar"}
-          className="rounded-full border border-zinc-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-zinc-700 shadow-xs transition hover:bg-zinc-50 hover:text-zinc-950"
+          className="inline-flex min-h-[38px] items-center rounded-full border border-zinc-200 bg-white px-4 py-1.5 text-xs font-semibold text-zinc-700 shadow-xs transition hover:bg-zinc-50 hover:text-zinc-950"
         >
           Nueva reserva
         </Link>
@@ -82,15 +82,15 @@ export default async function ReservaPage({
       <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-xs sm:p-8">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-100 pb-5">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
               Comprobante de turno
             </p>
-            <h1 className="mt-1 text-2xl font-black uppercase tracking-tight text-zinc-950">
+            <h1 className="mt-1 text-2xl font-medium tracking-tight text-zinc-900">
               {appointment.service.name}
             </h1>
           </div>
           <span
-            className={`rounded-full px-3 py-1 text-xs font-bold ring-1 ${
+            className={`rounded-full px-3 py-1 text-xs font-semibold ring-1 ${
               STATUS_CLASSES[appointment.status] ?? "bg-zinc-100 text-zinc-800 ring-zinc-200"
             }`}
           >
@@ -184,12 +184,12 @@ export default async function ReservaPage({
               <input type="hidden" name="id" value={appointment.id} />
               <button
                 type="submit"
-                className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-white px-4 py-2 text-xs font-semibold text-red-700 shadow-xs transition hover:bg-red-50 hover:border-red-300"
+                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border border-red-200 bg-white px-5 py-2.5 text-xs font-semibold text-red-700 shadow-xs transition hover:bg-red-50 hover:border-red-300 active:scale-98 cursor-pointer"
               >
-                <XCircle className="size-3.5" />
+                <XCircle className="size-4" />
                 <span>Cancelar este turno</span>
               </button>
-              <p className="mt-2 text-[11px] text-zinc-400">
+              <p className="mt-2 text-xs text-zinc-600">
                 Se liberará el horario de forma inmediata para que otra persona pueda reservarlo.
               </p>
             </form>
@@ -197,8 +197,8 @@ export default async function ReservaPage({
         )}
       </div>
 
-      <p className="mt-6 text-center text-xs text-zinc-400">
-        Guardá este enlace para consultar tu turno en cualquier momento.
+      <p className="mt-6 text-center text-xs text-zinc-500">
+        Guardá este enlace para consultar o gestionar tu turno en cualquier momento.
       </p>
     </div>
   );
