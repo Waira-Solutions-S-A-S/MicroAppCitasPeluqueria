@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 
 import { AppointmentCard } from "@/components/admin/appointment-card";
 import { prisma } from "@/lib/prisma";
@@ -52,7 +52,14 @@ export default async function AgendaPage({
           </h1>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/admin/reservar"
+            className="inline-flex items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-white transition hover:bg-brand/90"
+          >
+            <Plus className="size-4" />
+            Nueva reserva
+          </Link>
           <Link
             href={`/admin/agenda?fecha=${dateKey(addDays(day, -1))}`}
             className="grid size-9 place-items-center rounded-full border border-ink/10 bg-white transition hover:border-brand/40 hover:text-brand"

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   CalendarDays,
+  CalendarPlus,
   Clock,
   ExternalLink,
   LayoutDashboard,
@@ -16,6 +17,7 @@ import { getSettings } from "@/lib/settings";
 const NAV = [
   { href: "/admin", label: "Resumen", icon: LayoutDashboard },
   { href: "/admin/agenda", label: "Agenda", icon: CalendarDays },
+  { href: "/admin/reservar", label: "Nueva reserva", icon: CalendarPlus },
   { href: "/admin/servicios", label: "Servicios", icon: Scissors },
   { href: "/admin/horarios", label: "Equipo y horarios", icon: Clock },
   { href: "/admin/ajustes", label: "Ajustes", icon: Settings },

@@ -1,15 +1,5 @@
 import Link from "next/link";
-import {
-  ArrowRight,
-  CalendarDays,
-  Clock,
-  LayoutDashboard,
-  Repeat,
-  Scissors,
-  Sparkles,
-  Star,
-  WifiOff,
-} from "lucide-react";
+import { ArrowRight, CalendarDays, Clock, Palette, Scissors, Sparkles } from "lucide-react";
 
 import { getCurrentUser } from "@/lib/auth";
 import { formatPrice } from "@/lib/format";
@@ -25,15 +15,11 @@ export default async function HomePage({
   searchParams: Promise<{ sesion?: string }>;
 }) {
   const params = await searchParams;
-  const [settings, services, staff] = await Promise.all([
+  const [settings, services] = await Promise.all([
     getSettings(),
     prisma.service.findMany({
       where: { isActive: true },
       orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-    }),
-    prisma.staffMember.findMany({
-      where: { isActive: true },
-      orderBy: { createdAt: "asc" },
     }),
   ]);
 
@@ -89,7 +75,7 @@ export default async function HomePage({
         <div className="relative max-w-2xl">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/80 ring-1 ring-white/15">
             <Sparkles className="size-3.5" />
-            Reservas online · también recurrentes
+            Servicios y precios
           </span>
           <h1 className="mt-5 text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">
             Tu próximo turno,
@@ -97,16 +83,15 @@ export default async function HomePage({
             <span className="text-brand-soft">a un toque.</span>
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-white/70 sm:text-lg">
-            Te damos la bienvenida. Elegí servicio, profesional y horario. Confirmá en
-            segundos y, si tu color necesita mantenimiento, reservá la serie completa de una
-            sola vez.
+            Conocé nuestros servicios y precios. Para reservar un turno, ingresá al panel del
+            negocio.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
-              href={user ? "/reservar" : "/admin/login"}
+              href={user ? "/admin" : "/admin/login"}
               className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-ink transition hover:bg-brand-soft"
             >
-              {user ? "Reservar ahora" : "Ingresar"}
+              {user ? "Ir al panel" : "Ingresar"}
               <ArrowRight className="size-4" />
             </Link>
             <span className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-3 text-sm text-white/70">
@@ -118,53 +103,20 @@ export default async function HomePage({
       </section>
 
       <section className="mt-14">
-        <div>
-          <h2 className="text-2xl font-semibold tracking-tight">Funcionalidades</h2>
-          <p className="mt-1 text-sm text-muted">
-            Lo esencial para reservar y gestionar el estudio, sin vueltas.
-          </p>
-        </div>
-
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Feature
-            icon={<CalendarDays className="size-4" />}
-            title="Reserva online"
-            text="Elegí servicio, profesional y horario. Requiere iniciar sesión."
-          />
-          <Feature
-            icon={<Repeat className="size-4" />}
-            title="Turnos recurrentes"
-            text="Reservá tintes o mantenimientos cada N semanas."
-          />
-          <Feature
-            icon={<LayoutDashboard className="size-4" />}
-            title="Panel del negocio"
-            text="Agenda, servicios, equipo y horarios. Requiere iniciar sesión."
-          />
-          <Feature
-            icon={<WifiOff className="size-4" />}
-            title="PWA offline"
-            text="Instalala en el celular y abrí la app sin conexión."
-          />
-        </div>
-      </section>
-
-      <section className="mt-14">
         <div className="flex items-end justify-between gap-4">
           <div>
             <h2 className="text-2xl font-semibold tracking-tight">Servicios</h2>
             <p className="mt-1 text-sm text-muted">
-              Precios de referencia. El turno se confirma desde el panel.
+              Precios de referencia. El turno se gestiona desde el panel.
             </p>
           </div>
         </div>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {services.map((service) => (
-            <Link
+            <article
               key={service.id}
-              href={`/reservar?servicio=${service.id}`}
-              className="group flex flex-col justify-between rounded-3xl border border-ink/8 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-md"
+              className="flex flex-col justify-between rounded-3xl border border-ink/8 bg-white p-6 shadow-sm"
             >
               <div>
                 <span
@@ -185,49 +137,45 @@ export default async function HomePage({
                   {formatPrice(service.priceCents, settings.currency)}
                 </span>
               </div>
-            </Link>
+            </article>
           ))}
         </div>
       </section>
 
-      <section className="mt-14 grid gap-4 rounded-3xl border border-ink/8 bg-white p-6 sm:grid-cols-2 sm:p-8">
+      <section className="mt-14">
         <div>
-          <h2 className="text-2xl font-semibold tracking-tight">Nuestro equipo</h2>
+          <h2 className="text-2xl font-semibold tracking-tight">Galería demo</h2>
           <p className="mt-1 text-sm text-muted">
-            Elegí profesional al reservar o dejá que te asignemos el primero disponible.
+            Imágenes de ejemplo para mostrar el estilo del estudio.
           </p>
-          <ul className="mt-5 space-y-3">
-            {staff.map((member) => (
-              <li key={member.id} className="flex items-center gap-3">
-                <span
-                  className="grid size-9 place-items-center rounded-full text-sm font-semibold text-white"
-                  style={{ backgroundColor: member.color }}
-                >
-                  {member.name.slice(0, 1)}
-                </span>
-                <span className="font-medium">{member.name}</span>
-              </li>
-            ))}
-          </ul>
         </div>
-        <div className="rounded-2xl bg-cream-deep/70 p-6">
-          <div className="flex items-center gap-1 text-accent">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <Star key={index} className="size-4 fill-current" />
-            ))}
-          </div>
-          <p className="mt-3 text-sm leading-relaxed text-ink/80">
-            “Reservé el corte y el retoque de color cada 6 semanas en una sola pantalla.
-            Nunca más el ida y vuelta por WhatsApp.”
-          </p>
-          <p className="mt-3 text-xs font-medium text-muted">— Clienta frecuente</p>
+
+        <div className="mt-6 grid gap-4 sm:grid-cols-3">
+          <DemoCard
+            title="Corte"
+            caption="Ejemplo de corte y styling."
+            gradient="from-violet-500 via-fuchsia-500 to-rose-400"
+            icon={<Scissors className="size-7" strokeWidth={1.8} />}
+          />
+          <DemoCard
+            title="Color"
+            caption="Ejemplo de color y nutrición."
+            gradient="from-rose-400 via-orange-400 to-amber-300"
+            icon={<Palette className="size-7" strokeWidth={1.8} />}
+          />
+          <DemoCard
+            title="Uñas"
+            caption="Ejemplo de esculpidas y semipermanente."
+            gradient="from-sky-500 via-cyan-400 to-teal-300"
+            icon={<Sparkles className="size-7" strokeWidth={1.8} />}
+          />
         </div>
       </section>
 
       <footer className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-ink/8 pt-6 text-sm text-muted sm:flex-row">
         <p>
-          {settings.businessName} · Instalá la app desde el navegador para reservar más
-          rápido.
+          {settings.businessName} · Información y servicios. Las reservas se gestionan desde
+          el panel.
         </p>
         {user ? (
           <a href="/salir" className="font-medium text-brand hover:underline">
@@ -243,22 +191,33 @@ export default async function HomePage({
   );
 }
 
-function Feature({
-  icon,
+function DemoCard({
   title,
-  text,
+  caption,
+  gradient,
+  icon,
 }: {
-  icon: React.ReactNode;
   title: string;
-  text: string;
+  caption: string;
+  gradient: string;
+  icon: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-ink/8 bg-white p-5 shadow-sm">
-      <span className="grid size-9 place-items-center rounded-xl bg-brand-soft text-brand">
-        {icon}
-      </span>
-      <h3 className="mt-3 font-semibold tracking-tight">{title}</h3>
-      <p className="mt-1 text-sm leading-relaxed text-muted">{text}</p>
-    </div>
+    <article className="overflow-hidden rounded-3xl border border-ink/8 bg-white shadow-sm">
+      <div
+        className={`relative flex aspect-[4/3] items-center justify-center bg-gradient-to-br ${gradient}`}
+      >
+        <span className="grid size-16 place-items-center rounded-full bg-white/20 text-white ring-1 ring-white/40 backdrop-blur-sm">
+          {icon}
+        </span>
+        <span className="absolute left-3 top-3 rounded-full bg-black/20 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white">
+          Demo
+        </span>
+      </div>
+      <div className="p-4">
+        <h3 className="font-semibold tracking-tight">{title}</h3>
+        <p className="mt-1 text-xs text-muted">{caption}</p>
+      </div>
+    </article>
   );
 }

@@ -62,7 +62,7 @@ export default async function ReservaPage({
           {settings.businessName}
         </Link>
         <Link
-          href="/reservar"
+          href="/admin/reservar"
           className="rounded-full border border-ink/10 bg-white/70 px-4 py-2 text-sm font-medium transition hover:border-brand/40 hover:text-brand"
         >
           Nueva reserva

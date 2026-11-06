@@ -44,6 +44,7 @@ type Props = {
   todayKey: string;
   maxAdvanceDays: number;
   initialServiceId?: string;
+  embedded?: boolean;
 };
 
 const DAY_MS = 86_400_000;
@@ -81,6 +82,7 @@ export function BookingWizard({
   todayKey,
   maxAdvanceDays,
   initialServiceId,
+  embedded = false,
 }: Props) {
   const router = useRouter();
 
@@ -198,7 +200,11 @@ export function BookingWizard({
         return;
       }
 
-      router.push(`/reserva/${data.id}?nueva=1`);
+      if (embedded) {
+        router.push(`/admin/agenda?fecha=${date}`);
+      } else {
+        router.push(`/reserva/${data.id}?nueva=1`);
+      }
     } catch {
       setError("No pudimos conectar con el servidor. Revisá tu conexión.");
     } finally {
@@ -207,17 +213,19 @@ export function BookingWizard({
   }
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-5 pb-20">
-      <header className="flex items-center justify-between py-6">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 rounded-full border border-ink/10 bg-white/70 px-4 py-2 text-sm font-medium transition hover:border-brand/40 hover:text-brand"
-        >
-          <ChevronLeft className="size-4" />
-          Volver
-        </Link>
-        <span className="text-sm font-semibold tracking-tight">{businessName}</span>
-      </header>
+    <div className={embedded ? "w-full pb-10" : "mx-auto w-full max-w-5xl px-5 pb-20"}>
+      {!embedded && (
+        <header className="flex items-center justify-between py-6">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 rounded-full border border-ink/10 bg-white/70 px-4 py-2 text-sm font-medium transition hover:border-brand/40 hover:text-brand"
+          >
+            <ChevronLeft className="size-4" />
+            Volver
+          </Link>
+          <span className="text-sm font-semibold tracking-tight">{businessName}</span>
+        </header>
+      )}
 
       <div className="mb-8 flex items-center gap-2">
         {STEPS.map((label, index) => (
