@@ -41,6 +41,7 @@
 | T9 | S1 | inline | hecho | `manifest.ts`, `public/sw.js`, iconos 192/512/maskable |
 | T10 | S3 | inline | hecho | `README.md` + build + smoke HTTP |
 | T11 | S5 | inline | hecho | asignación servicio↔profesional + fix de selección doble |
+| T12 | S4 | inline | hecho | landing pública con funcionalidades + `/salir`; `/admin` sigue protegido |
 
 ## Log
 
@@ -80,3 +81,9 @@ Se implementaron las 10 tareas inline. El sandbox bloquea escribir `.env`, así 
 - `getAvailability` filtra profesionales por servicio; `createBooking` rechaza un profesional no habilitado; `/api/services` y el wizard reciben `serviceIds`.
 - Verificación: `npm run build` OK; `/api/services` devuelve 5 servicios y 2 profesionales con 5 servicios cada uno; página de login 200.
 - Credenciales del panel: `admin@estudio.local` / `admin123`.
+
+### L6 — landing y cierre de sesión
+
+- La landing `/` es pública, muestra las funcionalidades (reserva online, recurrentes, panel, PWA) y no exige login.
+- `/salir` borra la cookie de sesión y redirige a `/`; el panel `/admin` sigue redirigiendo a login sin sesión.
+- Verificado: `/` 200 con "Funcionalidades"; `/salir` 307 a `/` con cookie expirada; `/admin` sin sesión 307 a login.

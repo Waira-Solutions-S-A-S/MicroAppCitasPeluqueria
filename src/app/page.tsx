@@ -3,11 +3,15 @@ import {
   ArrowRight,
   CalendarDays,
   Clock,
+  LayoutDashboard,
+  Repeat,
   Scissors,
   Sparkles,
   Star,
+  WifiOff,
 } from "lucide-react";
 
+import { getCurrentUser } from "@/lib/auth";
 import { formatPrice } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
@@ -29,6 +33,7 @@ export default async function HomePage() {
   ]);
 
   const today = nowWallClock(settings.timezone);
+  const user = await getCurrentUser();
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-6xl flex-col px-5 pb-16">
@@ -80,6 +85,38 @@ export default async function HomePage() {
               {labelDateLong(today)}
             </span>
           </div>
+        </div>
+      </section>
+
+      <section className="mt-14">
+        <div>
+          <h2 className="text-2xl font-semibold tracking-tight">Funcionalidades</h2>
+          <p className="mt-1 text-sm text-muted">
+            Lo esencial para reservar y gestionar el estudio, sin vueltas.
+          </p>
+        </div>
+
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Feature
+            icon={<CalendarDays className="size-4" />}
+            title="Reserva online"
+            text="Elegí servicio, profesional y horario en segundos."
+          />
+          <Feature
+            icon={<Repeat className="size-4" />}
+            title="Turnos recurrentes"
+            text="Reservá tintes o mantenimientos cada N semanas."
+          />
+          <Feature
+            icon={<LayoutDashboard className="size-4" />}
+            title="Panel del negocio"
+            text="Agenda, servicios, equipo y horarios. Requiere iniciar sesión."
+          />
+          <Feature
+            icon={<WifiOff className="size-4" />}
+            title="PWA offline"
+            text="Instalala en el celular y abrí la app sin conexión."
+          />
         </div>
       </section>
 
@@ -163,10 +200,36 @@ export default async function HomePage() {
           {settings.businessName} · Instalá la app desde el navegador para reservar más
           rápido.
         </p>
-        <Link href="/admin/login" className="font-medium text-brand hover:underline">
-          Acceso del negocio
-        </Link>
+        {user ? (
+          <a href="/salir" className="font-medium text-brand hover:underline">
+            Cerrar sesión
+          </a>
+        ) : (
+          <Link href="/admin/login" className="font-medium text-brand hover:underline">
+            Acceso del negocio
+          </Link>
+        )}
       </footer>
+    </div>
+  );
+}
+
+function Feature({
+  icon,
+  title,
+  text,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  text: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-ink/8 bg-white p-5 shadow-sm">
+      <span className="grid size-9 place-items-center rounded-xl bg-brand-soft text-brand">
+        {icon}
+      </span>
+      <h3 className="mt-3 font-semibold tracking-tight">{title}</h3>
+      <p className="mt-1 text-sm leading-relaxed text-muted">{text}</p>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { SignJWT, jwtVerify } from "jose";
 
 import { prisma } from "@/lib/prisma";
 
-const COOKIE_NAME = "reservas_sesion";
+export const SESSION_COOKIE_NAME = "reservas_sesion";
 const SESSION_DAYS = 7;
 // Development fallback. In production set AUTH_SECRET.
 const DEV_SECRET = "reservas-pwa-dev-secret-do-not-use-in-production-2f8a1c";
@@ -28,7 +28,7 @@ export async function createSession(userId: string): Promise<void> {
     .sign(getSecret());
 
   const store = await cookies();
-  store.set(COOKIE_NAME, token, {
+  store.set(SESSION_COOKIE_NAME, token, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
@@ -39,12 +39,12 @@ export async function createSession(userId: string): Promise<void> {
 
 export async function destroySession(): Promise<void> {
   const store = await cookies();
-  store.delete(COOKIE_NAME);
+  store.delete(SESSION_COOKIE_NAME);
 }
 
 export async function getCurrentUser(): Promise<SessionUser | null> {
   const store = await cookies();
-  const token = store.get(COOKIE_NAME)?.value;
+  const token = store.get(SESSION_COOKIE_NAME)?.value;
   if (!token) return null;
 
   try {
