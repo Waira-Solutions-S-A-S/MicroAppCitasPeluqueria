@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Estudio Nube — PWA de reservas
 
-## Getting Started
+Micro app para reservar turnos de peluquería, uñas y color, con PWA instalable y panel
+del negocio. Corre 100% local: no necesita cuentas ni servicios externos.
 
-First, run the development server:
+## Stack
+
+- Next.js 16 (App Router) + TypeScript + Tailwind CSS v4
+- Prisma 6 + SQLite (`prisma/dev.db`)
+- Auth propia: contraseñas con `scrypt` y sesión en cookie firmada con `jose`
+- Service worker + manifest para instalar como PWA
+
+## Puesta en marcha
 
 ```bash
+npm install
+npm run db:setup   # crea la base y carga datos de ejemplo
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abrí <http://localhost:3000>.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Acceso al panel
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- URL: <http://localhost:3000/admin>
+- Email: `admin@estudio.local`
+- Contraseña: `admin123`
 
-## Learn More
+Cambiá la contraseña desde **Ajustes → Seguridad**.
 
-To learn more about Next.js, take a look at the following resources:
+## Qué incluye
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Cliente (PWA)**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Landing con servicios y equipo.
+- Reserva en 4 pasos: servicio → profesional → fecha y horario → datos.
+- Reservas recurrentes: tinte o mantenimiento cada N semanas durante X turnos, creados
+  de forma atómica (si una fecha choca, no se crea ninguna).
+- Confirmación con enlace para consultar y cancelar.
+- Instalable en el celular, con pantalla offline.
 
-## Deploy on Vercel
+**Panel del negocio**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Login con sesión.
+- Resumen del día: turnos, pendientes e ingreso estimado.
+- Agenda por día con confirmar / completar / cancelar.
+- CRUD de servicios (precio, duración, color, pausar).
+- Profesionales y horarios por día de la semana.
+- Ajustes: nombre, moneda, zona horaria, paso de horarios, buffer, anticipación mínima y
+  máxima.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Scripts
+
+| Script | Qué hace |
+| --- | --- |
+| `npm run dev` | Servidor de desarrollo |
+| `npm run build` | Build de producción |
+| `npm run start` | Sirve el build |
+| `npm run db:setup` | `prisma db push` + seed |
+| `npm run db:seed` | Carga datos de ejemplo (idempotente) |
+| `npm run db:studio` | Prisma Studio |
+| `npm run icons` | Regenera los iconos PNG de la PWA |
+
+## Notas técnicas
+
+- **Zona horaria:** las horas se guardan como hora local del negocio codificada en UTC.
+  Así el cálculo de disponibilidad no depende de conversiones de zona y funciona bien en
+  Argentina (sin horario de verano). La zona se configura en Ajustes.
+- **Anti doble reserva:** la creación de un turno vuelve a verificar conflictos dentro de
+  una transacción, además de validar horario laboral, anticipación y buffer.
+- **Variables de entorno:** el proyecto no necesita `.env`. La URL de SQLite está en
+  `prisma/schema.prisma` y hay un secreto de desarrollo en `src/lib/auth.ts`. Para
+  producción definí `AUTH_SECRET` (mínimo 32 caracteres) y cambiá la base a Postgres si
+  hace falta.
+- **Producción:** `npm run build && npm run start`. Si desplegás en un host efímero,
+  movés la base a un volumen persistente o a Postgres.
+
+## Estructura
+
+```
+prisma/            schema + seed
+src/app/
+  page.tsx         landing
+  reservar/        wizard de reserva
+  reserva/[id]/    confirmación pública
+  admin/           panel (login + rutas protegidas)
+  api/             services, availability, bookings
+  manifest.ts      manifest PWA
+  offline/         fallback sin conexión
+src/components/    wizard, PWA register, tarjetas de turno
+src/lib/           auth, time, availability, booking, validación
+public/sw.js       service worker
+scripts/gen-icons  generador de iconos sin dependencias
+```
