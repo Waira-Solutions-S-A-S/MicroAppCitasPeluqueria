@@ -6,12 +6,12 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
+  Calendar,
   Check,
   ChevronLeft,
   Clock,
   Loader2,
   Repeat,
-  Scissors,
   User,
 } from "lucide-react";
 
@@ -48,15 +48,18 @@ type Props = {
 };
 
 const DAY_MS = 86_400_000;
-const STEPS = ["Servicio", "Profesional", "Horario", "Tus datos"];
+const STEPS = ["Servicio", "Profesional", "Fecha y hora", "Tus datos"];
 
-function dayLabel(iso: string): { weekday: string; day: string } {
+function dayLabel(iso: string): { weekday: string; day: string; month: string } {
   const date = new Date(`${iso}T00:00:00Z`);
   return {
     weekday: new Intl.DateTimeFormat("es-AR", { weekday: "short", timeZone: "UTC" })
       .format(date)
       .replace(".", ""),
     day: new Intl.DateTimeFormat("es-AR", { day: "2-digit", timeZone: "UTC" }).format(date),
+    month: new Intl.DateTimeFormat("es-AR", { month: "short", timeZone: "UTC" })
+      .format(date)
+      .replace(".", ""),
   };
 }
 
@@ -100,76 +103,94 @@ export function BookingWizard({
   const [clientPhone, setClientPhone] = useState("");
   const [clientEmail, setClientEmail] = useState("");
   const [notes, setNotes] = useState("");
+
   const [repeatEnabled, setRepeatEnabled] = useState(false);
   const [intervalWeeks, setIntervalWeeks] = useState(4);
-  const [occurrences, setOccurrences] = useState(3);
+  const [occurrences, setOccurrences] = useState(4);
 
   const service = services.find((item) => item.id === serviceId);
-  const staffForService = useMemo(
-    () => (serviceId ? staff.filter((member) => member.serviceIds.includes(serviceId)) : staff),
-    [staff, serviceId],
-  );
-  const selectedSlot = slots.find((slot) => slotKeyFor(slot) === slotKey);
+
+  const staffForService = useMemo(() => {
+    if (!serviceId) return [];
+    return staff.filter((member) => member.serviceIds.includes(serviceId));
+  }, [serviceId, staff]);
 
   const days = useMemo(() => {
-    const base = Date.parse(`${todayKey}T00:00:00Z`);
-    const count = Math.min(14, Math.max(1, maxAdvanceDays));
-    return Array.from({ length: count }, (_, index) =>
-      new Date(base + index * DAY_MS).toISOString().slice(0, 10),
-    );
+    const list: string[] = [];
+    const base = new Date(`${todayKey}T00:00:00Z`).getTime();
+    for (let i = 0; i < maxAdvanceDays; i++) {
+      const current = new Date(base + i * DAY_MS);
+      list.push(current.toISOString().slice(0, 10));
+    }
+    return list;
   }, [todayKey, maxAdvanceDays]);
 
   useEffect(() => {
-    if (!serviceId) return;
+    if (!serviceId || !date) return;
     let cancelled = false;
-    setLoadingSlots(true);
-    setSlots([]);
-    setSlotKey("");
-    setError("");
 
-    const query = new URLSearchParams({ serviceId, date });
-    if (staffId !== "any") query.set("staffId", staffId);
-
-    fetch(`/api/availability?${query.toString()}`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (cancelled) return;
-        setSlots(Array.isArray(data.slots) ? data.slots : []);
-      })
-      .catch(() => {
-        if (!cancelled) setError("No pudimos cargar los horarios. Probá de nuevo.");
-      })
-      .finally(() => {
+    async function fetchSlots() {
+      setLoadingSlots(true);
+      setError("");
+      try {
+        const query = new URLSearchParams({
+          serviceId,
+          date,
+          staffId: staffId === "any" ? "" : staffId,
+        });
+        const response = await fetch(`/api/availability?${query.toString()}`);
+        if (!response.ok) {
+          throw new Error("No se pudieron cargar los horarios");
+        }
+        const data = (await response.json()) as { slots: Slot[] };
+        if (!cancelled) {
+          setSlots(data.slots);
+          if (slotKey && !data.slots.some((s) => slotKeyFor(s) === slotKey)) {
+            setSlotKey("");
+          }
+        }
+      } catch {
+        if (!cancelled) {
+          setError("No se pudieron consultar los horarios disponibles.");
+          setSlots([]);
+        }
+      } finally {
         if (!cancelled) setLoadingSlots(false);
-      });
+      }
+    }
 
+    void fetchSlots();
     return () => {
       cancelled = true;
     };
-  }, [serviceId, staffId, date]);
+  }, [serviceId, staffId, date, slotKey]);
+
+  const selectedSlot = slots.find((s) => slotKeyFor(s) === slotKey);
 
   const groups = useMemo(() => {
-    const morning = slots.filter((slot) => new Date(slot.startAt).getUTCHours() < 12);
-    const afternoon = slots.filter((slot) => {
-      const hour = new Date(slot.startAt).getUTCHours();
-      return hour >= 12 && hour < 18;
-    });
-    const evening = slots.filter((slot) => new Date(slot.startAt).getUTCHours() >= 18);
-    return [
-      { label: "Mañana", items: morning },
-      { label: "Tarde", items: afternoon },
-      { label: "Noche", items: evening },
-    ].filter((group) => group.items.length > 0);
+    const morning: Slot[] = [];
+    const afternoon: Slot[] = [];
+    for (const slot of slots) {
+      const hour = Number(slot.startAt.slice(11, 13));
+      if (hour < 13) {
+        morning.push(slot);
+      } else {
+        afternoon.push(slot);
+      }
+    }
+    const result: { label: string; items: Slot[] }[] = [];
+    if (morning.length > 0) result.push({ label: "Turnos de la mañana", items: morning });
+    if (afternoon.length > 0) result.push({ label: "Turnos de la tarde", items: afternoon });
+    return result;
   }, [slots]);
 
-  const canContinue =
-    step === 0
-      ? Boolean(serviceId)
-      : step === 1
-        ? staffForService.length > 0
-        : step === 2
-          ? Boolean(slotKey)
-          : clientName.trim().length >= 2 && clientPhone.trim().length >= 6;
+  const canContinue = useMemo(() => {
+    if (step === 0) return Boolean(serviceId);
+    if (step === 1) return Boolean(staffId);
+    if (step === 2) return Boolean(selectedSlot);
+    if (step === 3) return clientName.trim().length >= 2 && clientPhone.trim().length >= 6;
+    return false;
+  }, [step, serviceId, staffId, selectedSlot, clientName, clientPhone]);
 
   async function submit() {
     if (!service || !selectedSlot) return;
@@ -177,26 +198,26 @@ export function BookingWizard({
     setError("");
 
     try {
+      const body = {
+        serviceId: service.id,
+        staffId: selectedSlot.staffId,
+        startAt: selectedSlot.startAt,
+        clientName: clientName.trim(),
+        clientPhone: clientPhone.trim(),
+        clientEmail: clientEmail.trim() || undefined,
+        notes: notes.trim() || undefined,
+        recurring: repeatEnabled ? { intervalWeeks, occurrences } : undefined,
+      };
+
       const response = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          serviceId: service.id,
-          staffId: selectedSlot.staffId,
-          startAt: selectedSlot.startAt,
-          clientName,
-          clientPhone,
-          clientEmail,
-          notes,
-          repeat: repeatEnabled
-            ? { intervalWeeks, occurrences }
-            : null,
-        }),
+        body: JSON.stringify(body),
       });
 
-      const data = await response.json();
-      if (!response.ok) {
-        setError(data.error ?? "No pudimos crear la reserva.");
+      const data = (await response.json()) as { id?: string; error?: string };
+      if (!response.ok || !data.id) {
+        setError(data.error ?? "No se pudo confirmar la reserva. Probá nuevamente.");
         return;
       }
 
@@ -213,55 +234,77 @@ export function BookingWizard({
   }
 
   return (
-    <div className={embedded ? "w-full pb-10" : "mx-auto w-full max-w-5xl px-5 pb-20"}>
+    <div className={embedded ? "w-full pb-10" : "mx-auto w-full max-w-5xl px-6 pb-20 pt-6 text-zinc-900"}>
       {!embedded && (
-        <header className="flex items-center justify-between py-6">
+        <header className="mb-8 flex items-center justify-between border-b border-zinc-200 pb-5">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 rounded-full border border-ink/10 bg-white/70 px-4 py-2 text-sm font-medium transition hover:border-brand/40 hover:text-brand"
+            className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-zinc-700 shadow-xs transition hover:bg-zinc-50 hover:text-zinc-950"
           >
-            <ChevronLeft className="size-4" />
-            Volver
+            <ChevronLeft className="size-3.5" />
+            <span>Volver a la portada</span>
           </Link>
-          <span className="text-sm font-semibold tracking-tight">{businessName}</span>
+          <span className="text-xs font-bold tracking-widest uppercase text-zinc-500">
+            {businessName}
+          </span>
         </header>
       )}
 
-      <div className="mb-8 flex items-center gap-2">
-        {STEPS.map((label, index) => (
-          <div key={label} className="flex flex-1 items-center gap-2">
-            <span
-              className={`grid size-7 shrink-0 place-items-center rounded-full text-xs font-semibold transition ${
-                index <= step
-                  ? "bg-brand text-white"
-                  : "bg-white text-muted ring-1 ring-ink/10"
-              }`}
-            >
-              {index < step ? <Check className="size-3.5" /> : index + 1}
-            </span>
-            <span
-              className={`hidden text-xs font-medium sm:block ${
-                index <= step ? "text-ink" : "text-muted"
-              }`}
-            >
-              {label}
-            </span>
-            {index < STEPS.length - 1 && (
-              <span
-                className={`h-px flex-1 ${index < step ? "bg-brand" : "bg-ink/10"}`}
-              />
-            )}
-          </div>
-        ))}
+      {/* Stepper (Sattis Style Light) */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between gap-2">
+          {STEPS.map((label, index) => {
+            const isDone = index < step;
+            const isCurrent = index === step;
+            return (
+              <div key={label} className="flex flex-1 items-center gap-2">
+                <div
+                  className={`flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition ${
+                    isDone
+                      ? "bg-zinc-950 text-white"
+                      : isCurrent
+                        ? "border-2 border-zinc-950 bg-white text-zinc-950"
+                        : "border border-zinc-200 bg-white text-zinc-400"
+                  }`}
+                >
+                  {isDone ? <Check className="size-3.5" strokeWidth={3} /> : index + 1}
+                </div>
+                <span
+                  className={`hidden text-xs font-medium sm:block ${
+                    isCurrent ? "text-zinc-950 font-bold" : isDone ? "text-zinc-700" : "text-zinc-400"
+                  }`}
+                >
+                  {label}
+                </span>
+                {index < STEPS.length - 1 && (
+                  <span
+                    className={`h-px flex-1 transition ${
+                      index < step ? "bg-zinc-950" : "bg-zinc-200"
+                    }`}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <div className="rounded-3xl border border-ink/10 bg-white p-5 shadow-sm sm:p-7">
+      <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr]">
+        <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-xs sm:p-8">
+          {/* Paso 1: Servicios */}
           {step === 0 && (
             <section className="animate-rise">
-              <h1 className="text-2xl font-semibold tracking-tight">¿Qué te vas a hacer?</h1>
-              <p className="mt-1 text-sm text-muted">Elegí el servicio. Podés cambiarlo después.</p>
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+                Paso 1 de 4
+              </span>
+              <h1 className="mt-1 text-2xl font-black uppercase tracking-tight text-zinc-950 sm:text-3xl">
+                Elegí tu servicio
+              </h1>
+              <p className="mt-1.5 text-xs text-zinc-500">
+                Seleccioná qué querés hacerte. Podés cambiarlo o sumar notas en el último paso.
+              </p>
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 {services.map((item) => {
                   const active = item.id === serviceId;
                   return (
@@ -273,29 +316,39 @@ export function BookingWizard({
                         setStaffId("any");
                         setSlotKey("");
                       }}
-                      className={`rounded-2xl border p-4 text-left transition ${
+                      className={`relative flex flex-col justify-between rounded-2xl border p-5 text-left transition duration-150 ${
                         active
-                          ? "border-brand bg-brand-soft/60 ring-2 ring-brand/20"
-                          : "border-ink/10 hover:border-brand/30 hover:bg-cream/60"
+                          ? "border-zinc-950 bg-zinc-50 shadow-xs ring-1 ring-zinc-950"
+                          : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50/50"
                       }`}
                     >
-                      <span
-                        className="mb-3 block size-2.5 rounded-full"
-                        style={{ backgroundColor: item.color }}
-                      />
-                      <span className="block font-semibold">{item.name}</span>
-                      <span className="mt-0.5 block text-xs leading-relaxed text-muted">
-                        {item.description}
-                      </span>
-                      <span className="mt-3 flex items-center justify-between text-sm">
-                        <span className="inline-flex items-center gap-1.5 text-muted">
-                          <Clock className="size-3.5" />
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span
+                            className="size-2 rounded-full"
+                            style={{ backgroundColor: item.color }}
+                          />
+                          {active && (
+                            <span className="rounded-full bg-zinc-950 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                              Elegido
+                            </span>
+                          )}
+                        </div>
+                        <h3 className="mt-3 text-base font-bold text-zinc-950">{item.name}</h3>
+                        <p className="mt-1 text-xs text-zinc-500 line-clamp-2 leading-relaxed">
+                          {item.description}
+                        </p>
+                      </div>
+
+                      <div className="mt-5 flex items-center justify-between border-t border-zinc-100 pt-3">
+                        <span className="inline-flex items-center gap-1 text-xs text-zinc-500">
+                          <Clock className="size-3 text-zinc-400" />
                           {item.durationMin} min
                         </span>
-                        <span className="font-semibold">
+                        <span className="text-base font-black text-zinc-950">
                           {formatPrice(item.priceCents, currency)}
                         </span>
-                      </span>
+                      </div>
                     </button>
                   );
                 })}
@@ -303,36 +356,46 @@ export function BookingWizard({
             </section>
           )}
 
+          {/* Paso 2: Profesional */}
           {step === 1 && (
             <section className="animate-rise">
-              <h1 className="text-2xl font-semibold tracking-tight">¿Con quién?</h1>
-              <p className="mt-1 text-sm text-muted">
-                Elegí una profesional o dejá que te asignemos la primera disponible.
+              <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+                Paso 2 de 4
+              </span>
+              <h1 className="mt-1 text-2xl font-black uppercase tracking-tight text-zinc-950 sm:text-3xl">
+                ¿Con quién te atendés?
+              </h1>
+              <p className="mt-1.5 text-xs text-zinc-500">
+                Elegí un profesional específico o seleccioná «Cualquiera disponible» para ver más
+                horarios.
               </p>
+
               {staffForService.length === 0 ? (
-                <p className="mt-5 rounded-2xl border border-dashed border-ink/15 bg-cream/50 p-5 text-sm text-muted">
-                  Este servicio todavía no tiene profesionales asignados. Probá con otro
-                  servicio.
-                </p>
+                <div className="mt-6 rounded-2xl border border-dashed border-zinc-200 bg-zinc-50 p-6 text-center text-xs text-zinc-500">
+                  No hay profesionales disponibles para este servicio en este momento.
+                </div>
               ) : (
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                <div className="mt-6 grid gap-3 sm:grid-cols-2">
                   <button
                     type="button"
                     onClick={() => setStaffId("any")}
-                    className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition ${
+                    className={`flex items-center gap-3.5 rounded-2xl border p-4 text-left transition ${
                       staffId === "any"
-                        ? "border-brand bg-brand-soft/60 ring-2 ring-brand/20"
-                        : "border-ink/10 hover:border-brand/30"
+                        ? "border-zinc-950 bg-zinc-50 shadow-xs ring-1 ring-zinc-950"
+                        : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50/50"
                     }`}
                   >
-                    <span className="grid size-10 place-items-center rounded-full bg-brand text-white">
+                    <div className="flex size-10 items-center justify-center rounded-xl bg-zinc-100 text-zinc-800">
                       <User className="size-5" />
-                    </span>
-                    <span>
-                      <span className="block font-semibold">Cualquiera</span>
-                      <span className="block text-xs text-muted">Primera disponible</span>
-                    </span>
+                    </div>
+                    <div>
+                      <span className="block text-sm font-bold text-zinc-950">
+                        Cualquiera disponible
+                      </span>
+                      <span className="block text-xs text-zinc-500">Mayor disponibilidad</span>
+                    </div>
                   </button>
+
                   {staffForService.map((member) => {
                     const active = staffId === member.id;
                     return (
@@ -340,19 +403,26 @@ export function BookingWizard({
                         key={member.id}
                         type="button"
                         onClick={() => setStaffId(member.id)}
-                        className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition ${
+                        className={`flex items-center gap-3.5 rounded-2xl border p-4 text-left transition ${
                           active
-                            ? "border-brand bg-brand-soft/60 ring-2 ring-brand/20"
-                            : "border-ink/10 hover:border-brand/30"
+                            ? "border-zinc-950 bg-zinc-50 shadow-xs ring-1 ring-zinc-950"
+                            : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50/50"
                         }`}
                       >
-                        <span
-                          className="grid size-10 place-items-center rounded-full text-sm font-semibold text-white"
+                        <div
+                          className="flex size-10 items-center justify-center rounded-xl text-xs font-bold text-white shadow-xs"
                           style={{ backgroundColor: member.color }}
                         >
-                          {member.name.slice(0, 1)}
-                        </span>
-                        <span className="font-semibold">{member.name}</span>
+                          {member.name.slice(0, 1).toUpperCase()}
+                        </div>
+                        <div>
+                          <span className="block text-sm font-bold text-zinc-950">
+                            {member.name}
+                          </span>
+                          <span className="block text-xs text-zinc-500">
+                            Profesional
+                          </span>
+                        </div>
                       </button>
                     );
                   })}
@@ -361,14 +431,21 @@ export function BookingWizard({
             </section>
           )}
 
+          {/* Paso 3: Fecha y horario */}
           {step === 2 && (
             <section className="animate-rise">
-              <h1 className="text-2xl font-semibold tracking-tight">¿Cuándo?</h1>
-              <p className="mt-1 text-sm text-muted">
-                {longDate(date)} · duración {service?.durationMin} min
+              <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+                Paso 3 de 4
+              </span>
+              <h1 className="mt-1 text-2xl font-black uppercase tracking-tight text-zinc-950 sm:text-3xl">
+                Seleccioná fecha y hora
+              </h1>
+              <p className="mt-1.5 text-xs text-zinc-500">
+                {longDate(date)} · Duración aproximada: {service?.durationMin} min
               </p>
 
-              <div className="no-scrollbar mt-5 flex gap-2 overflow-x-auto pb-1">
+              {/* Day selection strip */}
+              <div className="no-scrollbar mt-6 flex gap-2 overflow-x-auto pb-2">
                 {days.map((iso) => {
                   const active = iso === date;
                   const label = dayLabel(iso);
@@ -377,36 +454,43 @@ export function BookingWizard({
                       key={iso}
                       type="button"
                       onClick={() => setDate(iso)}
-                      className={`flex min-w-16 shrink-0 flex-col items-center rounded-2xl border px-3 py-2.5 transition ${
+                      className={`flex min-w-[4.75rem] shrink-0 flex-col items-center rounded-2xl border py-3 px-2 transition ${
                         active
-                          ? "border-brand bg-brand text-white"
-                          : "border-ink/10 bg-white hover:border-brand/30"
+                          ? "border-zinc-950 bg-zinc-950 text-white shadow-xs"
+                          : "border-zinc-200 bg-white text-zinc-800 hover:border-zinc-300 hover:bg-zinc-50"
                       }`}
                     >
-                      <span className="text-[11px] font-medium uppercase tracking-wide opacity-80">
+                      <span className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                         {label.weekday}
                       </span>
-                      <span className="text-lg font-semibold leading-tight">{label.day}</span>
+                      <span className="text-xl font-black leading-tight">
+                        {label.day}
+                      </span>
+                      <span className="text-[10px] font-semibold opacity-70 uppercase">
+                        {label.month}
+                      </span>
                     </button>
                   );
                 })}
               </div>
 
-              <div className="mt-6 min-h-40">
+              {/* Time slots */}
+              <div className="mt-6 min-h-44 border-t border-zinc-100 pt-5">
                 {loadingSlots ? (
-                  <div className="flex items-center gap-2 py-10 text-sm text-muted">
-                    <Loader2 className="size-4 animate-spin" />
-                    Buscando horarios…
+                  <div className="flex items-center justify-center gap-2 py-12 text-xs font-medium text-zinc-500">
+                    <Loader2 className="size-4 animate-spin text-zinc-400" />
+                    Consultando disponibilidad en tiempo real…
                   </div>
                 ) : groups.length === 0 ? (
-                  <div className="rounded-2xl border border-dashed border-ink/15 bg-cream/50 p-6 text-sm text-muted">
-                    No quedan horarios para este día. Probá con otra fecha o profesional.
+                  <div className="rounded-2xl border border-dashed border-zinc-200 bg-zinc-50 p-6 text-center text-xs text-zinc-500">
+                    No hay turnos disponibles para esta fecha. Probá seleccionando otro día o
+                    eligiendo «Cualquiera disponible».
                   </div>
                 ) : (
-                  <div className="space-y-5">
+                  <div className="space-y-6">
                     {groups.map((group) => (
                       <div key={group.label}>
-                        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                        <p className="mb-2.5 text-[11px] font-bold uppercase tracking-wider text-zinc-400">
                           {group.label}
                         </p>
                         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
@@ -417,17 +501,19 @@ export function BookingWizard({
                                 key={`${slot.startAt}-${slot.staffId}`}
                                 type="button"
                                 onClick={() => setSlotKey(slotKeyFor(slot))}
-                                className={`rounded-xl border px-2 py-2.5 text-sm font-semibold transition ${
+                                className={`rounded-xl border py-2.5 px-3 text-center transition ${
                                   active
-                                    ? "border-brand bg-brand text-white"
-                                    : "border-ink/10 hover:border-brand/40 hover:bg-brand-soft/40"
+                                    ? "border-zinc-950 bg-zinc-950 text-white shadow-xs"
+                                    : "border-zinc-200 bg-white text-zinc-800 hover:border-zinc-300 hover:bg-zinc-50"
                                 }`}
                               >
-                                {slot.startAt.slice(11, 16)}
+                                <span className="block text-sm font-bold tracking-tight">
+                                  {slot.startAt.slice(11, 16)}
+                                </span>
                                 {staffId === "any" && (
                                   <span
-                                    className={`mt-0.5 block text-[10px] font-medium ${
-                                      active ? "text-white/70" : "text-muted"
+                                    className={`mt-0.5 block truncate text-[10px] ${
+                                      active ? "text-zinc-300 font-semibold" : "text-zinc-500"
                                     }`}
                                   >
                                     {slot.staffName}
@@ -445,112 +531,126 @@ export function BookingWizard({
             </section>
           )}
 
+          {/* Paso 4: Datos del cliente */}
           {step === 3 && (
             <section className="animate-rise">
-              <h1 className="text-2xl font-semibold tracking-tight">Tus datos</h1>
-              <p className="mt-1 text-sm text-muted">
-                Te vamos a contactar para confirmar el turno.
+              <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+                Paso 4 de 4
+              </span>
+              <h1 className="mt-1 text-2xl font-black uppercase tracking-tight text-zinc-950 sm:text-3xl">
+                Tus datos de reserva
+              </h1>
+              <p className="mt-1.5 text-xs text-zinc-500">
+                Ingresá tus datos para enviarte la confirmación de tu turno.
               </p>
 
-              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
                 <label className="sm:col-span-1">
-                  <span className="mb-1.5 block text-sm font-medium">Nombre</span>
+                  <span className="mb-1 block text-xs font-semibold text-zinc-700">
+                    Nombre y apellido <span className="text-zinc-400">*</span>
+                  </span>
                   <input
                     value={clientName}
                     onChange={(event) => setClientName(event.target.value)}
-                    placeholder="Tu nombre"
+                    placeholder="Tu nombre completo"
                     autoComplete="name"
-                    className="w-full rounded-xl border border-ink/15 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                    className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
                   />
                 </label>
+
                 <label className="sm:col-span-1">
-                  <span className="mb-1.5 block text-sm font-medium">Teléfono</span>
+                  <span className="mb-1 block text-xs font-semibold text-zinc-700">
+                    WhatsApp / Teléfono <span className="text-zinc-400">*</span>
+                  </span>
                   <input
                     value={clientPhone}
                     onChange={(event) => setClientPhone(event.target.value)}
-                    placeholder="11 5555 1234"
+                    placeholder="Ej. 11 2345 6789"
                     autoComplete="tel"
                     inputMode="tel"
-                    className="w-full rounded-xl border border-ink/15 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                    className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
                   />
                 </label>
+
                 <label className="sm:col-span-2">
-                  <span className="mb-1.5 block text-sm font-medium">
-                    Email <span className="font-normal text-muted">(opcional)</span>
+                  <span className="mb-1 block text-xs font-semibold text-zinc-700">
+                    Email <span className="font-normal text-zinc-400">(opcional)</span>
                   </span>
                   <input
                     value={clientEmail}
                     onChange={(event) => setClientEmail(event.target.value)}
-                    placeholder="vos@email.com"
+                    placeholder="tucorreo@ejemplo.com"
                     autoComplete="email"
                     inputMode="email"
-                    className="w-full rounded-xl border border-ink/15 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                    className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
                   />
                 </label>
+
                 <label className="sm:col-span-2">
-                  <span className="mb-1.5 block text-sm font-medium">
-                    Notas <span className="font-normal text-muted">(opcional)</span>
+                  <span className="mb-1 block text-xs font-semibold text-zinc-700">
+                    Comentarios para el profesional <span className="font-normal text-zinc-400">(opcional)</span>
                   </span>
                   <textarea
                     value={notes}
                     onChange={(event) => setNotes(event.target.value)}
                     rows={2}
-                    placeholder="Alergias, referencia de color, lo que quieras contarnos…"
-                    className="w-full resize-none rounded-xl border border-ink/15 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20"
+                    placeholder="Detalles sobre tu corte, diseño, alergias o referencias…"
+                    className="w-full resize-none rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
                   />
                 </label>
               </div>
 
-              <div className="mt-5 rounded-2xl border border-ink/10 bg-cream/60 p-4">
+              {/* Turnos periódicos */}
+              <div className="mt-6 rounded-2xl border border-zinc-200 bg-zinc-50/70 p-4">
                 <label className="flex cursor-pointer items-start gap-3">
                   <input
                     type="checkbox"
                     checked={repeatEnabled}
                     onChange={(event) => setRepeatEnabled(event.target.checked)}
-                    className="mt-0.5 size-4 accent-[var(--color-brand)]"
+                    className="mt-0.5 size-4 accent-zinc-950"
                   />
-                  <span>
-                    <span className="flex items-center gap-1.5 text-sm font-semibold">
-                      <Repeat className="size-4" />
-                      Repetir este turno
+                  <div>
+                    <span className="flex items-center gap-1.5 text-xs font-bold text-zinc-950">
+                      <Repeat className="size-3.5 text-zinc-600" />
+                      Agendar serie periódica de turnos
                     </span>
-                    <span className="mt-0.5 block text-xs leading-relaxed text-muted">
-                      Ideal para tintes o mantenimientos. Reservamos la serie completa de
-                      una vez.
+                    <span className="mt-0.5 block text-xs text-zinc-500 leading-relaxed">
+                      Ideal para mantenimiento de corte, retoque de barba o color cada ciertas semanas.
                     </span>
-                  </span>
+                  </div>
                 </label>
 
                 {repeatEnabled && (
-                  <div className="mt-4 grid grid-cols-2 gap-3 border-t border-ink/10 pt-4">
+                  <div className="mt-4 grid grid-cols-2 gap-3 border-t border-zinc-200 pt-3">
                     <label>
-                      <span className="mb-1 block text-xs font-medium text-muted">
-                        Cada cuántas semanas
+                      <span className="mb-1 block text-[11px] font-semibold text-zinc-600">
+                        Frecuencia
                       </span>
                       <select
                         value={intervalWeeks}
                         onChange={(event) => setIntervalWeeks(Number(event.target.value))}
-                        className="w-full rounded-xl border border-ink/15 bg-white px-3 py-2 text-sm outline-none focus:border-brand"
+                        className="w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-900 outline-none focus:border-zinc-950"
                       >
-                        {[1, 2, 3, 4, 5, 6, 8, 10, 12].map((weeks) => (
-                          <option key={weeks} value={weeks}>
-                            Cada {weeks} {weeks === 1 ? "semana" : "semanas"}
+                        {[1, 2, 3, 4, 5, 6, 8].map((w) => (
+                          <option key={w} value={w}>
+                            Cada {w} {w === 1 ? "semana" : "semanas"}
                           </option>
                         ))}
                       </select>
                     </label>
+
                     <label>
-                      <span className="mb-1 block text-xs font-medium text-muted">
-                        Cuántas veces
+                      <span className="mb-1 block text-[11px] font-semibold text-zinc-600">
+                        Cantidad de turnos
                       </span>
                       <select
                         value={occurrences}
                         onChange={(event) => setOccurrences(Number(event.target.value))}
-                        className="w-full rounded-xl border border-ink/15 bg-white px-3 py-2 text-sm outline-none focus:border-brand"
+                        className="w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-900 outline-none focus:border-zinc-950"
                       >
-                        {Array.from({ length: 11 }, (_, index) => index + 2).map((times) => (
-                          <option key={times} value={times}>
-                            {times} turnos
+                        {[2, 3, 4, 6, 8].map((t) => (
+                          <option key={t} value={t}>
+                            {t} turnos en total
                           </option>
                         ))}
                       </select>
@@ -562,20 +662,21 @@ export function BookingWizard({
           )}
 
           {error && (
-            <div className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div className="mt-5 rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700">
               {error}
             </div>
           )}
 
-          <div className="mt-6 flex items-center justify-between gap-3">
+          {/* Botones de navegación */}
+          <div className="mt-8 flex items-center justify-between border-t border-zinc-100 pt-5">
             <button
               type="button"
               onClick={() => setStep((current) => Math.max(0, current - 1))}
               disabled={step === 0 || submitting}
-              className="inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-medium text-muted transition hover:text-ink disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold text-zinc-500 transition hover:text-zinc-950 disabled:opacity-30"
             >
-              <ArrowLeft className="size-4" />
-              Atrás
+              <ArrowLeft className="size-3.5" />
+              <span>Atrás</span>
             </button>
 
             {step < 3 ? (
@@ -583,27 +684,27 @@ export function BookingWizard({
                 type="button"
                 onClick={() => setStep((current) => Math.min(3, current + 1))}
                 disabled={!canContinue}
-                className="inline-flex items-center gap-1.5 rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark disabled:opacity-40"
+                className="inline-flex items-center gap-2 rounded-full bg-zinc-950 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-zinc-800 active:scale-95 disabled:opacity-30"
               >
-                Continuar
-                <ArrowRight className="size-4" />
+                <span>Siguiente paso</span>
+                <ArrowRight className="size-3.5" />
               </button>
             ) : (
               <button
                 type="button"
                 onClick={submit}
                 disabled={!canContinue || submitting}
-                className="inline-flex items-center gap-2 rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark disabled:opacity-40"
+                className="inline-flex items-center gap-2 rounded-full bg-zinc-950 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-zinc-800 active:scale-95 disabled:opacity-30"
               >
                 {submitting ? (
                   <>
-                    <Loader2 className="size-4 animate-spin" />
-                    Reservando…
+                    <Loader2 className="size-3.5 animate-spin" />
+                    <span>Confirmando turno…</span>
                   </>
                 ) : (
                   <>
-                    Confirmar reserva
-                    <Check className="size-4" />
+                    <span>Confirmar mi turno</span>
+                    <Check className="size-3.5" strokeWidth={3} />
                   </>
                 )}
               </button>
@@ -611,57 +712,65 @@ export function BookingWizard({
           </div>
         </div>
 
-        <aside className="h-fit rounded-3xl border border-ink/10 bg-ink p-5 text-white sm:p-6 lg:sticky lg:top-6">
-          <p className="text-xs font-semibold uppercase tracking-wide text-white/50">
-            Tu reserva
+        {/* Resumen lateral */}
+        <aside className="h-fit rounded-3xl border border-zinc-200 bg-zinc-50 p-6 shadow-xs lg:sticky lg:top-6">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+            Resumen de la cita
           </p>
 
-          <div className="mt-4 flex items-center gap-3">
-            <span className="grid size-10 place-items-center rounded-xl bg-white/10">
-              <Scissors className="size-5" />
-            </span>
-            <div>
-              <p className="font-semibold">{service?.name ?? "Elegí un servicio"}</p>
-              <p className="text-xs text-white/60">
-                {service ? `${service.durationMin} min` : "Paso 1"}
-              </p>
-            </div>
+          <div className="mt-4 border-b border-zinc-200/80 pb-4">
+            <p className="text-lg font-black text-zinc-950">
+              {service?.name ?? "Seleccioná un servicio"}
+            </p>
+            <p className="mt-0.5 text-xs text-zinc-500">
+              {service ? `${service.durationMin} minutos de atención` : "Paso 1"}
+            </p>
           </div>
 
-          <dl className="mt-5 space-y-3 border-t border-white/10 pt-4 text-sm">
-            <div className="flex items-center justify-between gap-4">
-              <dt className="text-white/60">Profesional</dt>
-              <dd className="text-right font-medium">
+          <dl className="mt-4 space-y-3 text-xs text-zinc-600">
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-zinc-400">Profesional</dt>
+              <dd className="font-semibold text-zinc-950">
                 {staffId === "any"
-                  ? "Cualquiera"
-                  : (staff.find((member) => member.id === staffId)?.name ?? "—")}
+                  ? "Cualquiera disponible"
+                  : (staff.find((m) => m.id === staffId)?.name ?? "—")}
               </dd>
             </div>
-            <div className="flex items-center justify-between gap-4">
-              <dt className="text-white/60">Fecha</dt>
-              <dd className="text-right font-medium">{longDate(date)}</dd>
+
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-zinc-400">Fecha</dt>
+              <dd className="font-semibold text-zinc-950">
+                {date ? longDate(date) : "—"}
+              </dd>
             </div>
-            <div className="flex items-center justify-between gap-4">
-              <dt className="text-white/60">Hora</dt>
-              <dd className="text-right font-medium">
+
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-zinc-400">Horario</dt>
+              <dd className="font-semibold text-zinc-950">
                 {selectedSlot ? `${selectedSlot.startAt.slice(11, 16)} hs` : "—"}
               </dd>
             </div>
+
             {repeatEnabled && (
-              <div className="flex items-center justify-between gap-4">
-                <dt className="text-white/60">Repetición</dt>
-                <dd className="text-right font-medium">
-                  {occurrences} turnos · cada {intervalWeeks} sem.
+              <div className="flex items-center justify-between gap-3">
+                <dt className="text-zinc-400">Serie periódica</dt>
+                <dd className="font-semibold text-zinc-950">
+                  {occurrences} turnos (c/{intervalWeeks} sem)
                 </dd>
               </div>
             )}
-            <div className="flex items-center justify-between gap-4 border-t border-white/10 pt-3 text-base">
-              <dt className="text-white/60">Total</dt>
-              <dd className="font-semibold">
+
+            <div className="flex items-center justify-between gap-3 border-t border-zinc-200 pt-4 text-sm font-bold text-zinc-950">
+              <dt>Total a abonar</dt>
+              <dd className="text-base font-black">
                 {service ? formatPrice(service.priceCents, currency) : "—"}
               </dd>
             </div>
           </dl>
+
+          <div className="mt-5 rounded-xl border border-zinc-200 bg-white p-3 text-[11px] text-zinc-500 leading-relaxed shadow-xs">
+            Se abona en el estudio al finalizar el servicio. Atención puntual garantizada.
+          </div>
         </aside>
       </div>
     </div>

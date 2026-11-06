@@ -22,7 +22,7 @@ import { cancelPublicAppointment } from "../actions";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = { title: "Tu reserva" };
+export const metadata: Metadata = { title: "Confirmación de Turno" };
 
 export default async function ReservaPage({
   params,
@@ -55,136 +55,150 @@ export default async function ReservaPage({
     appointment.status === "PENDING" || appointment.status === "CONFIRMED";
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-5 pb-20">
-      <header className="flex items-center justify-between py-6">
-        <Link href="/" className="text-sm font-semibold tracking-tight">
+    <div className="mx-auto w-full max-w-xl px-6 pb-20 pt-8 antialiased text-zinc-900">
+      <header className="mb-6 flex items-center justify-between border-b border-zinc-200 pb-4">
+        <Link href="/" className="text-base font-black tracking-tight text-zinc-950 uppercase">
           {settings.businessName}
         </Link>
         <Link
           href={user ? "/admin/reservar" : "/reservar"}
-          className="rounded-full border border-ink/10 bg-white/70 px-4 py-2 text-sm font-medium transition hover:border-brand/40 hover:text-brand"
+          className="rounded-full border border-zinc-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-zinc-700 shadow-xs transition hover:bg-zinc-50 hover:text-zinc-950"
         >
           Nueva reserva
         </Link>
       </header>
 
       {isNew && (
-        <div className="mb-5 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-          <CheckCircle2 className="mt-0.5 size-5 shrink-0" />
-          <p>
-            ¡Listo! Guardamos tu turno. El estudio va a confirmarlo y te contacta por
-            teléfono.
+        <div className="mb-6 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 text-xs text-emerald-900 shadow-xs">
+          <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-600" />
+          <p className="leading-relaxed">
+            ¡Tu turno fue registrado exitosamente! Te esperamos en el estudio en la fecha y horario
+            indicados.
           </p>
         </div>
       )}
 
-      <div className="rounded-3xl border border-ink/10 bg-white p-6 shadow-sm sm:p-8">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      {/* Comprobante Sattis Studio */}
+      <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-xs sm:p-8">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-100 pb-5">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted">
-              Reserva
+            <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+              Comprobante de turno
             </p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight">
+            <h1 className="mt-1 text-2xl font-black uppercase tracking-tight text-zinc-950">
               {appointment.service.name}
             </h1>
           </div>
           <span
-            className={`rounded-full px-3 py-1 text-xs font-semibold ring-1 ${
-              STATUS_CLASSES[appointment.status] ?? "bg-stone-100 text-stone-700 ring-stone-200"
+            className={`rounded-full px-3 py-1 text-xs font-bold ring-1 ${
+              STATUS_CLASSES[appointment.status] ?? "bg-zinc-100 text-zinc-800 ring-zinc-200"
             }`}
           >
             {STATUS_LABELS[appointment.status] ?? appointment.status}
           </span>
         </div>
 
-        <dl className="mt-6 space-y-3.5 text-sm">
+        <dl className="mt-6 space-y-4 text-xs text-zinc-600">
           <div className="flex items-start gap-3">
-            <CalendarDays className="mt-0.5 size-4 shrink-0 text-brand" />
+            <CalendarDays className="mt-0.5 size-4 shrink-0 text-zinc-400" />
             <div>
-              <dt className="text-muted">Fecha</dt>
-              <dd className="font-medium capitalize">{labelDateLong(appointment.startAt)}</dd>
+              <dt className="text-zinc-400">Fecha</dt>
+              <dd className="font-semibold text-zinc-950 capitalize">
+                {labelDateLong(appointment.startAt)}
+              </dd>
             </div>
           </div>
+
           <div className="flex items-start gap-3">
-            <Clock className="mt-0.5 size-4 shrink-0 text-brand" />
+            <Clock className="mt-0.5 size-4 shrink-0 text-zinc-400" />
             <div>
-              <dt className="text-muted">Horario</dt>
-              <dd className="font-medium">
+              <dt className="text-zinc-400">Horario</dt>
+              <dd className="font-semibold text-zinc-950">
                 {labelTime(appointment.startAt)} a {labelTime(appointment.endAt)} hs
               </dd>
             </div>
           </div>
+
           <div className="flex items-start gap-3">
-            <User className="mt-0.5 size-4 shrink-0 text-brand" />
+            <User className="mt-0.5 size-4 shrink-0 text-zinc-400" />
             <div>
-              <dt className="text-muted">Profesional</dt>
-              <dd className="font-medium">{appointment.staff.name}</dd>
+              <dt className="text-zinc-400">Profesional a cargo</dt>
+              <dd className="font-semibold text-zinc-950">{appointment.staff.name}</dd>
             </div>
           </div>
+
           <div className="flex items-start gap-3">
-            <Scissors className="mt-0.5 size-4 shrink-0 text-brand" />
+            <Scissors className="mt-0.5 size-4 shrink-0 text-zinc-400" />
             <div>
-              <dt className="text-muted">Duración</dt>
-              <dd className="font-medium">{appointment.service.durationMin} minutos</dd>
+              <dt className="text-zinc-400">Duración</dt>
+              <dd className="font-semibold text-zinc-950">
+                {appointment.service.durationMin} minutos
+              </dd>
             </div>
           </div>
+
           <div className="flex items-start gap-3">
-            <Phone className="mt-0.5 size-4 shrink-0 text-brand" />
+            <Phone className="mt-0.5 size-4 shrink-0 text-zinc-400" />
             <div>
-              <dt className="text-muted">Contacto</dt>
-              <dd className="font-medium">
+              <dt className="text-zinc-400">Titular del turno</dt>
+              <dd className="font-semibold text-zinc-950">
                 {appointment.clientName} · {appointment.clientPhone}
               </dd>
             </div>
           </div>
+
           {seriesCount > 1 && (
             <div className="flex items-start gap-3">
-              <Repeat className="mt-0.5 size-4 shrink-0 text-brand" />
+              <Repeat className="mt-0.5 size-4 shrink-0 text-zinc-400" />
               <div>
-                <dt className="text-muted">Serie recurrente</dt>
-                <dd className="font-medium">
-                  {seriesCount} turnos reservados en esta serie
+                <dt className="text-zinc-400">Serie periódica</dt>
+                <dd className="font-semibold text-zinc-950">
+                  {seriesCount} turnos reservados en total
                 </dd>
               </div>
             </div>
           )}
+
           {appointment.notes && (
-            <div className="rounded-xl bg-cream/70 px-4 py-3">
-              <dt className="text-xs font-semibold uppercase tracking-wide text-muted">
+            <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3.5">
+              <dt className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
                 Notas
               </dt>
-              <dd className="mt-1 text-ink/80">{appointment.notes}</dd>
+              <dd className="mt-1 text-xs text-zinc-700 leading-relaxed">
+                {appointment.notes}
+              </dd>
             </div>
           )}
         </dl>
 
-        <div className="mt-6 flex items-center justify-between border-t border-ink/10 pt-4">
-          <span className="text-sm text-muted">Precio de referencia</span>
-          <span className="text-lg font-semibold">
+        <div className="mt-6 flex items-center justify-between border-t border-zinc-100 pt-5 text-sm">
+          <span className="text-xs text-zinc-500">Total a abonar en el estudio</span>
+          <span className="text-lg font-black text-zinc-950">
             {formatPrice(appointment.service.priceCents, settings.currency)}
           </span>
         </div>
 
         {canCancel && (
-          <form action={cancelPublicAppointment} className="mt-6">
-            <input type="hidden" name="id" value={appointment.id} />
-            <button
-              type="submit"
-              className="inline-flex items-center gap-2 rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-700 transition hover:bg-red-50"
-            >
-              <XCircle className="size-4" />
-              Cancelar este turno
-            </button>
-            <p className="mt-2 text-xs text-muted">
-              Se libera el horario para otra persona. Si es parte de una serie, cancelá
-              cada turno por separado.
-            </p>
-          </form>
+          <div className="mt-8 border-t border-zinc-100 pt-5">
+            <form action={cancelPublicAppointment}>
+              <input type="hidden" name="id" value={appointment.id} />
+              <button
+                type="submit"
+                className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-white px-4 py-2 text-xs font-semibold text-red-700 shadow-xs transition hover:bg-red-50 hover:border-red-300"
+              >
+                <XCircle className="size-3.5" />
+                <span>Cancelar este turno</span>
+              </button>
+              <p className="mt-2 text-[11px] text-zinc-400">
+                Se liberará el horario de forma inmediata para que otra persona pueda reservarlo.
+              </p>
+            </form>
+          </div>
         )}
       </div>
 
-      <p className="mt-6 text-center text-xs text-muted">
-        Guardá este enlace para consultar o cancelar tu turno.
+      <p className="mt-6 text-center text-xs text-zinc-400">
+        Guardá este enlace para consultar tu turno en cualquier momento.
       </p>
     </div>
   );

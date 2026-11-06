@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Scissors } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 
 import { getCurrentUser } from "@/lib/auth";
 import { getSettings } from "@/lib/settings";
@@ -10,7 +10,7 @@ import { LoginForm } from "./login-form";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = { title: "Ingresar" };
+export const metadata: Metadata = { title: "Acceso Equipo · Panel" };
 
 export default async function LoginPage({
   searchParams,
@@ -27,32 +27,43 @@ export default async function LoginPage({
   if (user) redirect(next ?? "/admin");
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-6 py-12">
-      <div className="flex items-center gap-2.5">
-        <span className="grid size-10 place-items-center rounded-2xl bg-brand text-white shadow-lg shadow-brand/30">
-          <Scissors className="size-5" strokeWidth={2.4} />
-        </span>
-        <div className="leading-tight">
-          <p className="text-base font-semibold tracking-tight">{settings.businessName}</p>
-          <p className="text-xs text-muted">Panel del negocio</p>
+    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-6 py-12 antialiased text-zinc-900">
+      <div className="mb-6">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-zinc-950 transition"
+        >
+          <ChevronLeft className="size-3.5" />
+          <span>Volver al sitio</span>
+        </Link>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <div className="flex size-9 items-center justify-center rounded-lg bg-zinc-950 text-xs font-black tracking-widest text-white">
+          ST
+        </div>
+        <div>
+          <p className="text-sm font-bold tracking-tight text-zinc-950 uppercase">
+            {settings.businessName}
+          </p>
+          <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Acceso de administración</p>
         </div>
       </div>
 
-      <div className="mt-8 rounded-3xl border border-ink/10 bg-white p-6 shadow-sm sm:p-8">
-        <h1 className="text-2xl font-semibold tracking-tight">Ingresá</h1>
-        <p className="mt-1 text-sm text-muted">Gestioná turnos, servicios y horarios.</p>
+      <div className="mt-8 rounded-3xl border border-zinc-200 bg-white p-6 shadow-xs sm:p-8">
+        <h1 className="text-2xl font-black uppercase tracking-tight text-zinc-950">
+          Iniciar sesión
+        </h1>
+        <p className="mt-1 text-xs text-zinc-500">
+          Ingresá con tu cuenta para gestionar turnos, agenda y servicios.
+        </p>
 
         <LoginForm next={next} />
       </div>
 
-      <p className="mt-4 text-center text-xs text-muted">
-        Demo local: <span className="font-medium">admin@estudio.local</span> /{" "}
-        <span className="font-medium">admin123</span>
-      </p>
-      <p className="mt-4 text-center text-sm">
-        <Link href="/" className="font-medium text-brand hover:underline">
-          Volver al sitio
-        </Link>
+      <p className="mt-6 text-center text-xs text-zinc-400">
+        Demo local: <span className="font-semibold text-zinc-700">admin@estudio.local</span> /{" "}
+        <span className="font-semibold text-zinc-700">admin123</span>
       </p>
     </div>
   );

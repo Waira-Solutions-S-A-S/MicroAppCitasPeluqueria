@@ -1,37 +1,38 @@
 @import "tailwindcss";
 
 @theme {
-  --color-cream: #f8f3ec;
-  --color-cream-deep: #f1e7da;
-  --color-ink: #241d2e;
-  --color-muted: #6f6579;
-  --color-brand: #7c3aed;
-  --color-brand-dark: #5b21b6;
-  --color-brand-soft: #f0e8ff;
-  --color-accent: #db2777;
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif;
+  --color-brand: #18181b;
+  --color-brand-dark: #09090b;
+  --color-brand-soft: #f4f4f5;
+  --color-accent: #d97706;
+  --color-ink: #09090b;
+  --color-muted: #71717a;
+  --color-cream: #fafafa;
+  --color-cream-deep: #f4f4f5;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 html {
   scroll-behavior: smooth;
+  color-scheme: light;
 }
 
 body {
-  background-color: var(--color-cream);
-  color: var(--color-ink);
+  background-color: #ffffff;
+  color: #09090b;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: #ded1ff;
+  background: #e4e4e7;
+  color: #09090b;
 }
 
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -40,7 +41,7 @@ body {
 }
 
 .animate-rise {
-  animation: rise 0.45s ease both;
+  animation: rise 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .no-scrollbar::-webkit-scrollbar {

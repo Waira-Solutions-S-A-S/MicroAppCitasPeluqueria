@@ -18,36 +18,38 @@ export type AppointmentRow = {
 
 export function AppointmentCard({ appointment }: { appointment: AppointmentRow }) {
   return (
-    <article className="rounded-2xl border border-ink/10 bg-white p-4 shadow-sm">
+    <article className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-xs transition hover:border-zinc-300">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
           <div className="w-14 shrink-0">
-            <p className="text-base font-semibold leading-tight">
+            <p className="text-base font-bold leading-tight text-zinc-950">
               {labelTime(appointment.startAt)}
             </p>
-            <p className="text-[11px] text-muted">{labelTime(appointment.endAt)} hs</p>
+            <p className="text-[11px] text-zinc-400">{labelTime(appointment.endAt)} hs</p>
           </div>
           <div className="min-w-0">
-            <p className="truncate font-semibold">{appointment.service.name}</p>
-            <p className="truncate text-sm text-muted">
+            <p className="truncate font-bold text-zinc-950">{appointment.service.name}</p>
+            <p className="truncate text-xs text-zinc-600">
               {appointment.clientName} · {appointment.clientPhone}
             </p>
-            <p className="mt-0.5 flex items-center gap-1.5 text-xs text-muted">
+            <p className="mt-1 flex items-center gap-1.5 text-[11px] text-zinc-500">
               <span
-                className="inline-block size-2 rounded-full"
+                className="inline-block size-2 rounded-full ring-1 ring-zinc-300"
                 style={{ backgroundColor: appointment.staff.color }}
               />
               {appointment.staff.name}
             </p>
             {appointment.notes && (
-              <p className="mt-1.5 line-clamp-2 text-xs text-ink/60">{appointment.notes}</p>
+              <p className="mt-2 line-clamp-2 rounded-lg bg-zinc-50 p-2 text-xs text-zinc-600">
+                {appointment.notes}
+              </p>
             )}
           </div>
         </div>
 
         <span
-          className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ${
-            STATUS_CLASSES[appointment.status] ?? "bg-stone-100 text-stone-700 ring-stone-200"
+          className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 ${
+            STATUS_CLASSES[appointment.status] ?? "bg-zinc-100 text-zinc-700 ring-zinc-200"
           }`}
         >
           {STATUS_LABELS[appointment.status] ?? appointment.status}
@@ -55,7 +57,7 @@ export function AppointmentCard({ appointment }: { appointment: AppointmentRow }
       </div>
 
       {(appointment.status === "PENDING" || appointment.status === "CONFIRMED") && (
-        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-ink/10 pt-3">
+        <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-zinc-100 pt-3">
           {appointment.status === "PENDING" && (
             <StatusButton id={appointment.id} status="CONFIRMED" tone="confirm">
               <Check className="size-3.5" />
@@ -91,10 +93,10 @@ function StatusButton({
 }) {
   const classes =
     tone === "cancel"
-      ? "border-red-200 text-red-700 hover:bg-red-50"
+      ? "border-zinc-200 text-zinc-600 hover:border-red-300 hover:bg-red-50 hover:text-red-700"
       : tone === "complete"
-        ? "border-sky-200 text-sky-700 hover:bg-sky-50"
-        : "border-emerald-200 text-emerald-700 hover:bg-emerald-50";
+        ? "border-zinc-200 text-zinc-600 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700"
+        : "border-zinc-950 bg-zinc-950 text-white hover:bg-zinc-800";
 
   return (
     <form action={updateAppointmentStatusAction}>
@@ -102,7 +104,7 @@ function StatusButton({
       <input type="hidden" name="status" value={status} />
       <button
         type="submit"
-        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${classes}`}
+        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold transition ${classes}`}
       >
         {children}
       </button>
