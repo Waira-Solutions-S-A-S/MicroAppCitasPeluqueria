@@ -19,7 +19,12 @@ import { labelDateLong, nowWallClock } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sesion?: string }>;
+}) {
+  const params = await searchParams;
   const [settings, services, staff] = await Promise.all([
     getSettings(),
     prisma.service.findMany({
@@ -47,13 +52,36 @@ export default async function HomePage() {
             <p className="text-xs text-muted">{settings.tagline}</p>
           </div>
         </div>
-        <Link
-          href="/admin"
-          className="rounded-full border border-ink/10 bg-white/70 px-4 py-2 text-sm font-medium text-ink backdrop-blur transition hover:border-brand/40 hover:text-brand"
-        >
-          Panel del negocio
-        </Link>
+        {user ? (
+          <div className="flex items-center gap-2">
+            <Link
+              href="/admin"
+              className="rounded-full border border-ink/10 bg-white/70 px-4 py-2 text-sm font-medium text-ink backdrop-blur transition hover:border-brand/40 hover:text-brand"
+            >
+              Panel
+            </Link>
+            <a
+              href="/salir"
+              className="rounded-full border border-ink/10 bg-white/70 px-4 py-2 text-sm font-medium text-muted backdrop-blur transition hover:border-red-200 hover:text-red-600"
+            >
+              Salir
+            </a>
+          </div>
+        ) : (
+          <Link
+            href="/admin/login"
+            className="rounded-full border border-ink/10 bg-white/70 px-4 py-2 text-sm font-medium text-ink backdrop-blur transition hover:border-brand/40 hover:text-brand"
+          >
+            Ingresar
+          </Link>
+        )}
       </header>
+
+      {params.sesion === "cerrada" && (
+        <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          Sesión cerrada. Podés volver a ingresar cuando quieras.
+        </div>
+      )}
 
       <section className="relative mt-6 overflow-hidden rounded-[2rem] bg-ink px-6 py-14 text-white sm:px-12 sm:py-20">
         <div className="pointer-events-none absolute -right-24 -top-24 size-80 rounded-full bg-brand/40 blur-3xl" />
@@ -69,8 +97,9 @@ export default async function HomePage() {
             <span className="text-brand-soft">a un toque.</span>
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-white/70 sm:text-lg">
-            Elegí servicio, profesional y horario. Confirmá en segundos y, si tu color
-            necesita mantenimiento, reservá la serie completa de una sola vez.
+            Te damos la bienvenida. Elegí servicio, profesional y horario. Confirmá en
+            segundos y, si tu color necesita mantenimiento, reservá la serie completa de una
+            sola vez.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link

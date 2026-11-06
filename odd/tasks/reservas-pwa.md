@@ -87,3 +87,4 @@ Se implementaron las 10 tareas inline. El sandbox bloquea escribir `.env`, así 
 - La landing `/` es pública, muestra las funcionalidades (reserva online, recurrentes, panel, PWA) y no exige login.
 - `/salir` borra la cookie de sesión y redirige a `/`; el panel `/admin` sigue redirigiendo a login sin sesión.
 - Verificado: `/` 200 con "Funcionalidades"; `/salir` 307 a `/` con cookie expirada; `/admin` sin sesión 307 a login.
+- Sin sesión el header muestra `Ingresar`; con sesión muestra `Panel` y `Salir`. `/salir` redirige a `/?sesion=cerrada` y la landing muestra el aviso "Sesión cerrada".
