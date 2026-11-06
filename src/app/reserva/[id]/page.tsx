@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import {
   CalendarDays,
   CheckCircle2,
@@ -35,7 +35,6 @@ export default async function ReservaPage({
   const { nueva } = await searchParams;
 
   const user = await getCurrentUser();
-  if (!user) redirect(`/admin/login?next=${encodeURIComponent(`/reserva/${id}`)}`);
 
   const [appointment, settings] = await Promise.all([
     prisma.appointment.findUnique({
@@ -62,7 +61,7 @@ export default async function ReservaPage({
           {settings.businessName}
         </Link>
         <Link
-          href="/admin/reservar"
+          href={user ? "/admin/reservar" : "/reservar"}
           className="rounded-full border border-ink/10 bg-white/70 px-4 py-2 text-sm font-medium transition hover:border-brand/40 hover:text-brand"
         >
           Nueva reserva

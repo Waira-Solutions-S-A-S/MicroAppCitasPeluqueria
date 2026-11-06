@@ -75,7 +75,7 @@ export default async function HomePage({
         <div className="relative max-w-2xl">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/80 ring-1 ring-white/15">
             <Sparkles className="size-3.5" />
-            Servicios y precios
+            Reservas online al instante
           </span>
           <h1 className="mt-5 text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">
             Tu próximo turno,
@@ -83,17 +83,24 @@ export default async function HomePage({
             <span className="text-brand-soft">a un toque.</span>
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-white/70 sm:text-lg">
-            Conocé nuestros servicios y precios. Para reservar un turno, ingresá al panel del
-            negocio.
+            Elegí servicio, profesional y horario en pocos pasos. Reservá online las 24 horas y asegurá tu lugar sin esperas.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
-              href={user ? "/admin" : "/admin/login"}
+              href="/reservar"
               className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-ink transition hover:bg-brand-soft"
             >
-              {user ? "Ir al panel" : "Ingresar"}
+              Reservar ahora
               <ArrowRight className="size-4" />
             </Link>
+            {user && (
+              <Link
+                href="/admin"
+                className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20"
+              >
+                Ir al panel
+              </Link>
+            )}
             <span className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-3 text-sm text-white/70">
               <CalendarDays className="size-4" />
               {labelDateLong(today)}
@@ -107,23 +114,26 @@ export default async function HomePage({
           <div>
             <h2 className="text-2xl font-semibold tracking-tight">Servicios</h2>
             <p className="mt-1 text-sm text-muted">
-              Precios de referencia. El turno se gestiona desde el panel.
+              Elegí un servicio para iniciar tu reserva.
             </p>
           </div>
         </div>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {services.map((service) => (
-            <article
+            <Link
               key={service.id}
-              className="flex flex-col justify-between rounded-3xl border border-ink/8 bg-white p-6 shadow-sm"
+              href={`/reservar?servicio=${service.id}`}
+              className="group flex flex-col justify-between rounded-3xl border border-ink/8 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-md"
             >
               <div>
                 <span
                   className="mb-4 inline-block size-3 rounded-full"
                   style={{ backgroundColor: service.color }}
                 />
-                <h3 className="text-lg font-semibold tracking-tight">{service.name}</h3>
+                <h3 className="text-lg font-semibold tracking-tight group-hover:text-brand transition-colors">
+                  {service.name}
+                </h3>
                 <p className="mt-1 text-sm leading-relaxed text-muted">
                   {service.description ?? "Servicio del estudio."}
                 </p>
@@ -137,7 +147,7 @@ export default async function HomePage({
                   {formatPrice(service.priceCents, settings.currency)}
                 </span>
               </div>
-            </article>
+            </Link>
           ))}
         </div>
       </section>
@@ -174,8 +184,7 @@ export default async function HomePage({
 
       <footer className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-ink/8 pt-6 text-sm text-muted sm:flex-row">
         <p>
-          {settings.businessName} · Información y servicios. Las reservas se gestionan desde
-          el panel.
+          {settings.businessName} · Reservas online y gestión para profesionales.
         </p>
         {user ? (
           <a href="/salir" className="font-medium text-brand hover:underline">

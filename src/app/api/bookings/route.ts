@@ -1,4 +1,3 @@
-import { getCurrentUser } from "@/lib/auth";
 import { createBooking } from "@/lib/booking";
 import { rateLimit } from "@/lib/rate-limit";
 import { bookingSchema } from "@/lib/validation";
@@ -12,11 +11,6 @@ function clientIp(request: Request): string {
 }
 
 export async function POST(request: Request) {
-  const user = await getCurrentUser();
-  if (!user) {
-    return Response.json({ error: "Iniciá sesión para reservar." }, { status: 401 });
-  }
-
   const limit = rateLimit(`booking:${clientIp(request)}`, 10, 10 * 60_000);
   if (!limit.ok) {
     return Response.json(

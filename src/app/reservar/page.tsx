@@ -1,5 +1,84 @@
-import { redirect } from "next/navigation";
+import type { Metadata } from "next";
+import Link from "next/link";
 
-export default function ReservarPage() {
-  redirect("/admin/reservar");
+import { BookingWizard } from "@/components/booking-wizard";
+import { prisma } from "@/lib/prisma";
+import { getSettings } from "@/lib/settings";
+import { dateKey, nowWallClock } from "@/lib/time";
+
+export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = { title: "Reservar turno" };
+
+export default async function ReservarPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ servicio?: string }>;
+}) {
+  const params = await searchParams;
+  const settings = await getSettings();
+
+  const [services, staffRecords] = await Promise.all([
+    prisma.service.findMany({
+      where: { isActive: true },
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        durationMin: true,
+        priceCents: true,
+        color: true,
+      },
+    }),
+    prisma.staffMember.findMany({
+      where: { isActive: true },
+      orderBy: { createdAt: "asc" },
+      select: {
+        id: true,
+        name: true,
+        color: true,
+        services: { select: { id: true } },
+      },
+    }),
+  ]);
+
+  const staff = staffRecords.map(({ services: staffServices, ...member }) => ({
+    ...member,
+    serviceIds: staffServices.map((service) => service.id),
+  }));
+
+  if (services.length === 0 || staff.length === 0) {
+    return (
+      <div className="mx-auto flex min-h-dvh w-full max-w-lg flex-col items-center justify-center gap-4 px-6 text-center">
+        <h1 className="text-2xl font-semibold">Todavía no hay servicios disponibles</h1>
+        <p className="text-sm text-muted">
+          Estamos preparando los turnos. Volvé a consultar en unos momentos.
+        </p>
+        <Link
+          href="/"
+          className="rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-white"
+        >
+          Volver al inicio
+        </Link>
+      </div>
+    );
+  }
+
+  const initialServiceId = services.some((service) => service.id === params.servicio)
+    ? params.servicio
+    : undefined;
+
+  return (
+    <BookingWizard
+      businessName={settings.businessName}
+      currency={settings.currency}
+      services={services}
+      staff={staff}
+      todayKey={dateKey(nowWallClock(settings.timezone))}
+      maxAdvanceDays={settings.maxAdvanceDays}
+      initialServiceId={initialServiceId}
+      embedded={false}
+    />
+  );
 }
