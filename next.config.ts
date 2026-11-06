@@ -1,9 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
+  // Dynamic auth + database reads everywhere: no route-level prerender cache.
+  cacheComponents: false,
+  serverExternalPackages: ["@prisma/client"],
   turbopack: {
     rules: {
       "*.css": {

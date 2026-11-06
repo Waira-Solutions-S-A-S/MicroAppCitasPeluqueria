@@ -1,0 +1,107 @@
+// Reservas PWA — esquema de datos
+// SQLite local. Las fechas se guardan como "wall clock" codificado en UTC
+// para evitar conversiones de zona horaria (Argentina no tiene DST).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         String   @default("ADMIN")
+  createdAt    DateTime @default(now())
+}
+
+model Service {
+  id           String        @id @default(cuid())
+  name         String
+  description  String?
+  durationMin  Int
+  priceCents   Int           @default(0)
+  color        String        @default("#8b5cf6")
+  isActive     Boolean       @default(true)
+  sortOrder    Int           @default(0)
+  createdAt    DateTime      @default(now())
+  appointments Appointment[]
+}
+
+model StaffMember {
+  id           String         @id @default(cuid())
+  name         String
+  color        String         @default("#0ea5e9")
+  isActive     Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  appointments Appointment[]
+  workingHours WorkingHours[]
+  timeOff      TimeOff[]
+}
+
+model WorkingHours {
+  id       String      @id @default(cuid())
+  staffId  String
+  staff    StaffMember @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  weekday  Int // 0 = domingo ... 6 = sábado
+  startMin Int
+  endMin   Int
+  isClosed Boolean     @default(false)
+
+  @@unique([staffId, weekday])
+}
+
+model TimeOff {
+  id      String      @id @default(cuid())
+  staffId String
+  staff   StaffMember @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  startAt DateTime
+  endAt   DateTime
+  reason  String?
+}
+
+model Appointment {
+  id          String          @id @default(cuid())
+  serviceId   String
+  service     Service         @relation(fields: [serviceId], references: [id])
+  staffId     String
+  staff       StaffMember     @relation(fields: [staffId], references: [id])
+  clientName  String
+  clientPhone String
+  clientEmail String?
+  startAt     DateTime
+  endAt       DateTime
+  status      String          @default("PENDING") // PENDING | CONFIRMED | COMPLETED | CANCELLED
+  notes       String?
+  seriesId    String?
+  series      RecurringSeries? @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  createdAt   DateTime        @default(now())
+
+  @@index([staffId, startAt])
+  @@index([startAt])
+}
+
+model RecurringSeries {
+  id           String        @id @default(cuid())
+  intervalWeeks Int
+  occurrences  Int
+  createdAt    DateTime      @default(now())
+  appointments Appointment[]
+}
+
+model Settings {
+  id            String   @id @default("singleton")
+  businessName  String   @default("Estudio Nube")
+  tagline       String   @default("Turnos de belleza sin vueltas")
+  timezone      String   @default("America/Argentina/Buenos_Aires")
+  currency      String   @default("ARS")
+  slotStepMin   Int      @default(15)
+  bufferMin     Int      @default(10)
+  minLeadHours  Int      @default(2)
+  maxAdvanceDays Int     @default(180)
+}
