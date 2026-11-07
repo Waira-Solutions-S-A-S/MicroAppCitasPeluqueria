@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Calendar, Check } from "lucide-react";
 
 import { getCurrentUser } from "@/lib/auth";
@@ -147,13 +148,13 @@ export default async function HomePage({
               <div className="flex items-center gap-2">
                 <Link
                   href="/admin"
-                  className="rounded-full border border-zinc-200 bg-zinc-50 px-3.5 py-1.5 text-xs font-medium text-zinc-800 transition hover:bg-zinc-100"
+                  className="inline-flex min-h-[44px] items-center rounded-full border border-zinc-200 bg-zinc-50 px-3.5 py-1.5 text-xs font-medium text-zinc-800 transition hover:bg-zinc-100"
                 >
                   Mi cuenta
                 </Link>
                 <a
                   href="/salir"
-                  className="rounded-full px-3 py-1.5 text-xs font-medium text-zinc-500 transition hover:text-red-600"
+                  className="inline-flex min-h-[44px] items-center rounded-full px-3 py-1.5 text-xs font-medium text-zinc-500 transition hover:text-red-600"
                 >
                   Salir
                 </a>
@@ -161,7 +162,7 @@ export default async function HomePage({
             ) : (
               <Link
                 href="/admin/login"
-                className="hidden rounded-full border border-zinc-200 px-3.5 py-1.5 text-xs font-medium text-zinc-600 transition hover:border-zinc-300 hover:text-zinc-900 sm:inline-block"
+                className="hidden min-h-[44px] items-center rounded-full border border-zinc-200 px-3.5 py-1.5 text-xs font-medium text-zinc-600 transition hover:border-zinc-300 hover:text-zinc-900 sm:inline-flex"
               >
                 Ingresar
               </Link>
@@ -191,9 +192,12 @@ export default async function HomePage({
         id="inicio"
         className="relative flex h-[580px] w-full flex-col justify-end overflow-hidden px-8 pb-16 md:h-[680px] md:px-16"
       >
-        <img
+        <Image
           src="/studio/bg-hero.jpg"
           alt="Estudio de belleza con agenda organizada"
+          fill
+          priority
+          sizes="100vw"
           className="absolute inset-0 size-full object-cover filter brightness-[0.75]"
         />
 
@@ -254,9 +258,11 @@ export default async function HomePage({
               key={index}
               className="group relative h-[320px] w-[240px] shrink-0 overflow-hidden rounded-2xl bg-zinc-100 shadow-sm md:h-[380px] md:w-[280px]"
             >
-              <img
+              <Image
                 src={item.src}
                 alt={item.title}
+                fill
+                sizes="(min-width: 768px) 280px, 240px"
                 className="size-full object-cover transition duration-500 group-hover:scale-105"
               />
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-4 text-white">
@@ -272,9 +278,11 @@ export default async function HomePage({
         <div className="flex flex-col gap-6 md:flex-row">
           {/* Left: Full photo with huge overlay typography */}
           <div className="relative min-h-[420px] w-full overflow-hidden rounded-2xl md:min-h-[560px] md:w-1/2">
-            <img
+            <Image
               src="/studio/img-section-01.jpg"
               alt="Barbería con reservas online"
+              fill
+              sizes="(min-width: 768px) 50vw, 100vw"
               className="size-full object-cover"
             />
             <span className="absolute bottom-6 left-6 text-5xl font-light tracking-tight text-white md:text-6xl">
@@ -380,9 +388,11 @@ export default async function HomePage({
 
           {/* Right: Full photo with huge overlay typography */}
           <div className="order-1 relative min-h-[420px] w-full overflow-hidden rounded-2xl md:order-2 md:min-h-[560px] md:w-1/2">
-            <img
+            <Image
               src="/studio/img-section-03.jpg"
               alt="Estética y fidelización de clientes"
+              fill
+              sizes="(min-width: 768px) 50vw, 100vw"
               className="size-full object-cover"
             />
             <span className="absolute bottom-6 left-6 text-5xl font-light tracking-tight text-white md:text-6xl">
@@ -440,7 +450,7 @@ export default async function HomePage({
 
                 <Link
                   href="#precios"
-                  className="mt-6 flex w-full items-center justify-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 py-2.5 text-xs font-medium text-zinc-900 transition hover:bg-zinc-100"
+                  className="mt-6 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 py-2.5 text-xs font-medium text-zinc-900 transition hover:bg-zinc-100"
                 >
                   <span>Empezar gratis</span>
                   <ArrowRight className="size-3.5" />
@@ -535,7 +545,7 @@ export default async function HomePage({
         </div>
 
         <p className="mt-6 text-center text-xs text-zinc-500">
-          Precios en USD. Cancelás cuando quieras.
+          Precios en USD. Cancela cuando quieras.
         </p>
       </section>
 
