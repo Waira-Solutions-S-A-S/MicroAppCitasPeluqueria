@@ -66,7 +66,7 @@ function buildWhatsAppShareUrl({
   dateLabel: string;
   timeLabel: string;
 }) {
-  const text = `Comprobante de turno en *${businessName}*:\n✨ Servicio: ${serviceName}\n👤 Profesional: ${staffName}\n📅 Fecha: ${dateLabel}\n⏰ Horario: ${timeLabel} hs`;
+  const text = `Comprobante de turno en *${businessName}*:\n- Servicio: *${serviceName}*\n- Profesional: *${staffName}*\n- Fecha: *${dateLabel}*\n- Horario: *${timeLabel} hs*`;
   return `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
 }
 

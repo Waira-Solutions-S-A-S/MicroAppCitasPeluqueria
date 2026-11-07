@@ -108,7 +108,11 @@ export default async function AgendaPage({
       ) : (
         <div className="space-y-3">
           {appointments.map((appointment) => (
-            <AppointmentCard key={appointment.id} appointment={appointment} />
+            <AppointmentCard
+              key={appointment.id}
+              appointment={appointment}
+              businessName={settings.businessName}
+            />
           ))}
         </div>
       )}

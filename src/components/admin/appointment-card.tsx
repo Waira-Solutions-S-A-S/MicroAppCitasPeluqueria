@@ -2,7 +2,7 @@ import { Check, CheckCheck, MessageCircle, X } from "lucide-react";
 
 import { updateAppointmentStatusAction } from "@/app/admin/actions";
 import { STATUS_CLASSES, STATUS_LABELS } from "@/lib/format";
-import { labelTime } from "@/lib/time";
+import { labelDateLong, labelTime } from "@/lib/time";
 
 export type AppointmentRow = {
   id: string;
@@ -16,8 +16,65 @@ export type AppointmentRow = {
   staff: { name: string; color: string };
 };
 
-export function AppointmentCard({ appointment }: { appointment: AppointmentRow }) {
-  const cleanPhone = appointment.clientPhone.replace(/\D/g, "");
+function formatWhatsAppPhone(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  // Si tiene 10 dígitos y empieza por 3 (celular habitual en Colombia), antepone código 57
+  if (digits.length === 10 && digits.startsWith("3")) {
+    return `57${digits}`;
+  }
+  return digits;
+}
+
+function buildAdminWhatsAppMessage({
+  clientName,
+  businessName,
+  serviceName,
+  staffName,
+  startAt,
+  status,
+}: {
+  clientName: string;
+  businessName: string;
+  serviceName: string;
+  staffName: string;
+  startAt: Date;
+  status: string;
+}) {
+  const dateStr = labelDateLong(startAt);
+  const timeStr = labelTime(startAt);
+
+  if (status === "PENDING") {
+    return `Hola ${clientName}, te escribo de *${businessName}*.\n\nRecibimos tu solicitud de turno:\n- Servicio: *${serviceName}*\n- Profesional: *${staffName}*\n- Fecha: *${dateStr}*\n- Horario: *${timeStr} hs*\n\n¿Nos confirmas tu asistencia para agendarlo formalmente? ¡Muchas gracias!`;
+  }
+
+  if (status === "CONFIRMED") {
+    return `Hola ${clientName}, te escribo de *${businessName}* para recordarte tu turno:\n- Servicio: *${serviceName}*\n- Profesional: *${staffName}*\n- Fecha: *${dateStr}*\n- Horario: *${timeStr} hs*\n\n¡Te esperamos en el estudio!`;
+  }
+
+  if (status === "COMPLETED") {
+    return `Hola ${clientName}, muchas gracias por tu visita a *${businessName}*. Esperamos que hayas tenido una excelente experiencia con *${staffName}*. ¡Hasta la próxima!`;
+  }
+
+  return `Hola ${clientName}, te escribo de *${businessName}* con relación a tu turno de *${serviceName}* para el día *${dateStr}* a las *${timeStr} hs*.`;
+}
+
+export function AppointmentCard({
+  appointment,
+  businessName = "Sattis Studio",
+}: {
+  appointment: AppointmentRow;
+  businessName?: string;
+}) {
+  const cleanPhone = formatWhatsAppPhone(appointment.clientPhone);
+  const waMessage = buildAdminWhatsAppMessage({
+    clientName: appointment.clientName,
+    businessName,
+    serviceName: appointment.service.name,
+    staffName: appointment.staff.name,
+    startAt: appointment.startAt,
+    status: appointment.status,
+  });
+  const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(waMessage)}`;
 
   return (
     <article className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-xs transition hover:border-zinc-300">
@@ -61,13 +118,14 @@ export function AppointmentCard({ appointment }: { appointment: AppointmentRow }
       <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-zinc-100 pt-3">
         {cleanPhone.length >= 7 && (
           <a
-            href={`https://wa.me/${cleanPhone}`}
+            href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3.5 py-1.5 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50 hover:text-zinc-950"
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50/70 px-4 py-1.5 text-xs font-semibold text-emerald-950 shadow-xs transition hover:bg-emerald-100 hover:border-emerald-300 active:scale-98"
+            title="Abrir chat en WhatsApp con mensaje listo para enviar"
           >
             <MessageCircle className="size-3.5 text-emerald-600" />
-            <span>Contactar WhatsApp</span>
+            <span>WhatsApp (mensaje listo)</span>
           </a>
         )}
 

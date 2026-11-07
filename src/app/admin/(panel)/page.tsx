@@ -109,7 +109,11 @@ export default async function AdminHomePage() {
         ) : (
           <div className="space-y-3">
             {todayAppointments.map((appointment) => (
-              <AppointmentCard key={appointment.id} appointment={appointment} />
+              <AppointmentCard
+                key={appointment.id}
+                appointment={appointment}
+                businessName={settings.businessName}
+              />
             ))}
           </div>
         )}
@@ -129,7 +133,11 @@ export default async function AdminHomePage() {
         ) : (
           <div className="space-y-3">
             {pending.map((appointment) => (
-              <AppointmentCard key={appointment.id} appointment={appointment} />
+              <AppointmentCard
+                key={appointment.id}
+                appointment={appointment}
+                businessName={settings.businessName}
+              />
             ))}
           </div>
         )}
