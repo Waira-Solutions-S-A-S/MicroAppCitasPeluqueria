@@ -72,11 +72,20 @@ export default async function AdminReservarPage() {
 
   return (
     <div className="space-y-6">
-      <header className="border-b border-zinc-200 pb-5">
-        <p className="text-xs font-semibold uppercase tracking-wider text-zinc-600">Recepción / Agenda</p>
-        <h1 className="mt-1 text-2xl font-medium tracking-tight text-zinc-900">Nueva reserva</h1>
-        <p className="mt-1 text-sm text-zinc-600">Carga un turno presencial o telefónico para un cliente.</p>
-      </header>
+      {/* Metis Breadcrumb Header */}
+      <div className="flex flex-col gap-3 border-b border-zinc-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <nav className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+            <span>Panel</span> <span className="mx-1">/</span> <span className="text-zinc-900">Nueva Cita</span>
+          </nav>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-zinc-950">
+            Cargar Cita Manual
+          </h1>
+          <p className="text-xs text-zinc-500 font-medium">
+            Registra una cita solicitada por teléfono, WhatsApp o presencialmente en el estudio.
+          </p>
+        </div>
+      </div>
 
       <BookingWizard
         embedded

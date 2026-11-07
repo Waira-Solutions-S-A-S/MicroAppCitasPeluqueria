@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Save, ShieldCheck } from "lucide-react";
+import { Lock, Save, Settings, ShieldCheck } from "lucide-react";
 
 import { changePasswordAction, updateSettingsAction } from "@/app/admin/actions";
 import { Flash } from "@/components/admin/flash";
@@ -8,7 +8,7 @@ import { getSettings } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = { title: "Ajustes del local · Panel" };
+export const metadata: Metadata = { title: "Configuración · Panel" };
 
 export default async function AjustesPage({
   searchParams,
@@ -19,34 +19,41 @@ export default async function AjustesPage({
   const [settings, user] = await Promise.all([getSettings(), getCurrentUser()]);
 
   return (
-    <div className="space-y-8 antialiased text-zinc-900">
-      <header className="border-b border-zinc-200 pb-5">
-        <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-          Configuración
-        </p>
-        <h1 className="mt-1 text-2xl font-medium tracking-tight text-zinc-900 sm:text-3xl">
-          Ajustes del Estudio
-        </h1>
-      </header>
+    <div className="space-y-6 antialiased text-zinc-900">
+      {/* Page Header */}
+      <div className="flex flex-col gap-3 border-b border-zinc-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <nav className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+            <span>Panel</span> <span className="mx-1">/</span> <span className="text-zinc-900">Configuración</span>
+          </nav>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-zinc-950">
+            Ajustes del Estudio
+          </h1>
+          <p className="text-xs text-zinc-500 font-medium">
+            Personaliza el nombre comercial, moneda local y reglas de tiempo para las reservas.
+          </p>
+        </div>
+      </div>
 
       <Flash ok={params.ok} error={params.error} />
 
-      <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-xs sm:p-8">
-        <div>
-          <h2 className="text-base font-medium text-zinc-950">Datos y reglas de reserva</h2>
-          <p className="text-xs text-zinc-600 mt-0.5">
-            Configura el nombre, la moneda y los tiempos límite para agendar turnos.
-          </p>
+      {/* Metis Card: Datos y reglas de reserva */}
+      <div className="rounded-lg border border-zinc-200 bg-white shadow-xs overflow-hidden">
+        <div className="border-b border-zinc-200 bg-zinc-50/75 px-5 py-3.5 flex items-center gap-2">
+          <Settings className="size-4 text-zinc-700" />
+          <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-800">
+            Datos Principales y Reglas de Agenda
+          </h2>
         </div>
 
-        <form action={updateSettingsAction} className="mt-6 grid gap-4 sm:grid-cols-2">
+        <form action={updateSettingsAction} className="p-5 grid gap-4 sm:grid-cols-2">
           <label className="block">
             <span className="mb-1 block text-xs font-semibold text-zinc-700">Nombre del negocio</span>
             <input
               name="businessName"
               defaultValue={settings.businessName}
               required
-              className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+              className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
             />
           </label>
 
@@ -55,7 +62,7 @@ export default async function AjustesPage({
             <input
               name="tagline"
               defaultValue={settings.tagline}
-              className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+              className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
             />
           </label>
 
@@ -65,7 +72,7 @@ export default async function AjustesPage({
               name="currency"
               defaultValue={settings.currency}
               maxLength={3}
-              className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm uppercase text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+              className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs uppercase text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
             />
           </label>
 
@@ -76,7 +83,7 @@ export default async function AjustesPage({
             <input
               name="timezone"
               defaultValue={settings.timezone}
-              className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+              className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
             />
           </label>
 
@@ -91,7 +98,7 @@ export default async function AjustesPage({
               max={120}
               step={5}
               defaultValue={settings.slotStepMin}
-              className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+              className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
             />
           </label>
 
@@ -106,7 +113,7 @@ export default async function AjustesPage({
               max={240}
               step={5}
               defaultValue={settings.bufferMin}
-              className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+              className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
             />
           </label>
 
@@ -120,7 +127,7 @@ export default async function AjustesPage({
               min={0}
               max={720}
               defaultValue={settings.minLeadHours}
-              className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+              className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
             />
           </label>
 
@@ -134,32 +141,37 @@ export default async function AjustesPage({
               min={1}
               max={365}
               defaultValue={settings.maxAdvanceDays}
-              className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+              className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
             />
           </label>
 
           <div className="sm:col-span-2 pt-2">
             <button
               type="submit"
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-zinc-950 px-6 py-2.5 text-xs font-medium text-white shadow-xs transition hover:bg-zinc-800 cursor-pointer"
+              className="inline-flex min-h-[36px] items-center gap-2 rounded-md bg-zinc-900 px-5 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-zinc-800 cursor-pointer"
             >
               <Save className="size-3.5" />
-              <span>Guardar ajustes</span>
+              <span>Guardar cambios</span>
             </button>
           </div>
         </form>
-      </section>
+      </div>
 
-      <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-xs sm:p-8">
-        <h2 className="flex items-center gap-2 text-base font-medium text-zinc-950">
-          <ShieldCheck className="size-4 text-zinc-950" />
-          Seguridad y acceso
-        </h2>
-        <p className="mt-1 text-xs text-zinc-600">
-          Sesión activa de <span className="font-medium text-zinc-900">{user?.email}</span>
-        </p>
+      {/* Metis Card: Seguridad de la cuenta */}
+      <div className="rounded-lg border border-zinc-200 bg-white shadow-xs overflow-hidden">
+        <div className="border-b border-zinc-200 bg-zinc-50/75 px-5 py-3.5 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="size-4 text-zinc-700" />
+            <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-800">
+              Seguridad y Clave de Acceso
+            </h2>
+          </div>
+          <span className="text-[11px] text-zinc-500 font-medium">
+            Sesión activa: {user?.email}
+          </span>
+        </div>
 
-        <form action={changePasswordAction} className="mt-6 grid gap-4 sm:grid-cols-2">
+        <form action={changePasswordAction} className="p-5 grid gap-4 sm:grid-cols-2">
           <label className="block">
             <span className="mb-1 block text-xs font-semibold text-zinc-700">Contraseña actual</span>
             <input
@@ -167,7 +179,7 @@ export default async function AjustesPage({
               type="password"
               required
               autoComplete="current-password"
-              className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+              className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
             />
           </label>
 
@@ -181,20 +193,21 @@ export default async function AjustesPage({
               required
               minLength={8}
               autoComplete="new-password"
-              className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+              className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
             />
           </label>
 
           <div className="sm:col-span-2 pt-2">
             <button
               type="submit"
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-zinc-200 bg-white px-6 py-2.5 text-xs font-medium text-zinc-800 shadow-xs transition hover:border-zinc-400 hover:text-zinc-950 cursor-pointer"
+              className="inline-flex min-h-[36px] items-center gap-2 rounded-md bg-zinc-900 px-5 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-zinc-800 cursor-pointer"
             >
-              Cambiar contraseña
+              <Lock className="size-3.5" />
+              <span>Actualizar clave de acceso</span>
             </button>
           </div>
         </form>
-      </section>
+      </div>
     </div>
   );
 }

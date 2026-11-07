@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   CalendarDays,
-  CalendarClock,
-  ChevronRight,
-  CircleDollarSign,
-  Clock3,
+  CalendarPlus,
+  Clock,
+  TrendingUp,
+  Users,
 } from "lucide-react";
 
-import { AppointmentCard } from "@/components/admin/appointment-card";
+import { BookingsTable, type AppointmentItem } from "@/components/admin/bookings-table";
+import { CopyBookingLink } from "@/components/admin/copy-booking-link";
 import { formatPrice } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
@@ -16,7 +17,7 @@ import { addDays, labelDateLong, nowWallClock, startOfDay } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = { title: "Resumen del día · Panel" };
+export const metadata: Metadata = { title: "Dashboard · Panel Administrativo" };
 
 export default async function AdminHomePage() {
   const settings = await getSettings();
@@ -24,7 +25,7 @@ export default async function AdminHomePage() {
   const tomorrow = addDays(today, 1);
   const nextWeek = addDays(today, 7);
 
-  const [todayAppointments, pending, weekAppointments] = await Promise.all([
+  const [todayAppointments, pendingCount, weekCount] = await Promise.all([
     prisma.appointment.findMany({
       where: {
         startAt: { gte: today, lt: tomorrow },
@@ -33,11 +34,8 @@ export default async function AdminHomePage() {
       orderBy: { startAt: "asc" },
       include: { service: true, staff: true },
     }),
-    prisma.appointment.findMany({
+    prisma.appointment.count({
       where: { status: "PENDING", startAt: { gte: today } },
-      orderBy: { startAt: "asc" },
-      take: 5,
-      include: { service: true, staff: true },
     }),
     prisma.appointment.count({
       where: {
@@ -52,123 +50,131 @@ export default async function AdminHomePage() {
     0,
   );
 
+  const serialized: AppointmentItem[] = todayAppointments.map((a) => ({
+    id: a.id,
+    startAt: a.startAt.toISOString(),
+    endAt: a.endAt.toISOString(),
+    clientName: a.clientName,
+    clientPhone: a.clientPhone,
+    clientEmail: a.clientEmail,
+    status: a.status,
+    notes: a.notes,
+    service: {
+      id: a.service.id,
+      name: a.service.name,
+      durationMin: a.service.durationMin,
+      priceCents: a.service.priceCents,
+      color: a.service.color,
+    },
+    staff: {
+      id: a.staff.id,
+      name: a.staff.name,
+      color: a.staff.color,
+    },
+  }));
+
   return (
-    <div className="space-y-8 antialiased text-zinc-900">
-      <header className="border-b border-zinc-200 pb-5">
-        <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-          {labelDateLong(today)}
-        </p>
-        <h1 className="mt-1 text-2xl font-medium tracking-tight text-zinc-900 sm:text-3xl">
-          Resumen de Actividad
-        </h1>
-      </header>
+    <div className="space-y-6">
+      {/* Metis Page Header & Breadcrumbs Ribbon */}
+      <div className="flex flex-col gap-3 border-b border-zinc-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <nav className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+            <span>Panel</span> <span className="mx-1">/</span> <span className="text-zinc-900">Dashboard</span>
+          </nav>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-zinc-950">
+            Resumen General
+          </h1>
+          <p className="text-xs text-zinc-500 font-medium capitalize">
+            {labelDateLong(today)}
+          </p>
+        </div>
 
-      {/* Metrics Row */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Stat
-          icon={<CalendarDays className="size-4 text-zinc-600" />}
-          label="Citas para hoy"
-          value={String(todayAppointments.length)}
-          subtitle="Agendadas"
-        />
-        <Stat
-          icon={<CalendarClock className="size-4 text-zinc-600" />}
-          label="Próximos 7 días"
-          value={String(weekAppointments)}
-          subtitle="En agenda"
-        />
-        <Stat
-          icon={<CircleDollarSign className="size-4 text-zinc-600" />}
-          label="Ingreso estimado hoy"
-          value={formatPrice(revenue, settings.currency)}
-          subtitle="Total turnos del día"
-        />
-      </div>
-
-      {/* Today's Appointments */}
-      <section>
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <div>
-            <h2 className="text-base font-medium text-zinc-950">Turnos de hoy</h2>
-            <p className="text-xs text-zinc-600">Ordenados cronológicamente</p>
-          </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <CopyBookingLink />
           <Link
-            href="/admin/agenda"
-            className="inline-flex items-center gap-1 text-xs font-medium text-zinc-900 hover:underline"
+            href="/admin/reservar"
+            className="inline-flex min-h-[36px] items-center gap-1.5 rounded-md bg-zinc-900 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs transition hover:bg-zinc-800"
           >
-            <span>Ver agenda completa</span>
-            <ChevronRight className="size-3.5" />
+            <CalendarPlus className="size-3.5" />
+            <span>Cargar cita</span>
           </Link>
         </div>
+      </div>
 
-        {todayAppointments.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-zinc-200 bg-white p-8 text-center text-xs text-zinc-600">
-            No hay turnos registrados para hoy. Puedes compartir el enlace de reservas o cargar una
-            cita manual.
+      {/* Metis 4-Column Metric Cards (Accent Left Borders) */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {/* Card 1: Citas Hoy */}
+        <div className="flex items-center justify-between rounded-lg border border-zinc-200 border-l-4 border-l-zinc-900 bg-white p-4 shadow-xs">
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+              Citas Hoy
+            </span>
+            <p className="mt-1 text-2xl font-bold tracking-tight text-zinc-950">
+              {todayAppointments.length}
+            </p>
+            <p className="text-[11px] text-zinc-500">Turnos agendados</p>
           </div>
-        ) : (
-          <div className="space-y-3">
-            {todayAppointments.map((appointment) => (
-              <AppointmentCard
-                key={appointment.id}
-                appointment={appointment}
-                businessName={settings.businessName}
-              />
-            ))}
+          <div className="grid size-11 place-items-center rounded-lg bg-zinc-100 text-zinc-800">
+            <CalendarDays className="size-5" />
           </div>
-        )}
-      </section>
-
-      {/* Pending Confirmation */}
-      <section>
-        <div className="mb-4 flex items-center gap-2">
-          <Clock3 className="size-4 text-amber-600" />
-          <h2 className="text-base font-medium text-zinc-950">Pendientes de confirmación</h2>
         </div>
 
-        {pending.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-zinc-200 bg-white p-8 text-center text-xs text-zinc-600">
-            Todo al día. No tienes reservas pendientes de confirmación.
+        {/* Card 2: Por Confirmar */}
+        <div className="flex items-center justify-between rounded-lg border border-zinc-200 border-l-4 border-l-amber-500 bg-white p-4 shadow-xs">
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600">
+              Por Confirmar
+            </span>
+            <p className="mt-1 text-2xl font-bold tracking-tight text-zinc-950">
+              {pendingCount}
+            </p>
+            <p className="text-[11px] text-zinc-500">Pendientes de respuesta</p>
           </div>
-        ) : (
-          <div className="space-y-3">
-            {pending.map((appointment) => (
-              <AppointmentCard
-                key={appointment.id}
-                appointment={appointment}
-                businessName={settings.businessName}
-              />
-            ))}
+          <div className="grid size-11 place-items-center rounded-lg bg-amber-50 text-amber-700">
+            <Clock className="size-5" />
           </div>
-        )}
-      </section>
-    </div>
-  );
-}
+        </div>
 
-function Stat({
-  icon,
-  label,
-  value,
-  subtitle,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  subtitle: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-xs">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-          {label}
-        </span>
-        <div className="flex size-8 items-center justify-center rounded-lg bg-zinc-50 text-zinc-700">
-          {icon}
+        {/* Card 3: Próximos 7 días */}
+        <div className="flex items-center justify-between rounded-lg border border-zinc-200 border-l-4 border-l-sky-600 bg-white p-4 shadow-xs">
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-sky-600">
+              Próximos 7 Días
+            </span>
+            <p className="mt-1 text-2xl font-bold tracking-tight text-zinc-950">
+              {weekCount}
+            </p>
+            <p className="text-[11px] text-zinc-500">Citas en calendario</p>
+          </div>
+          <div className="grid size-11 place-items-center rounded-lg bg-sky-50 text-sky-700">
+            <Users className="size-5" />
+          </div>
+        </div>
+
+        {/* Card 4: Facturación estimada */}
+        <div className="flex items-center justify-between rounded-lg border border-zinc-200 border-l-4 border-l-emerald-600 bg-white p-4 shadow-xs">
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">
+              Facturación Estimada
+            </span>
+            <p className="mt-1 text-xl font-bold tracking-tight text-zinc-950 sm:text-2xl">
+              {formatPrice(revenue, settings.currency)}
+            </p>
+            <p className="text-[11px] text-zinc-500">Total jornada de hoy</p>
+          </div>
+          <div className="grid size-11 place-items-center rounded-lg bg-emerald-50 text-emerald-700">
+            <TrendingUp className="size-5" />
+          </div>
         </div>
       </div>
-      <p className="mt-3 text-2xl font-medium text-zinc-950 tracking-tight">{value}</p>
-      <p className="mt-1 text-xs text-zinc-500">{subtitle}</p>
+
+      {/* Main Flush Table Card */}
+      <BookingsTable
+        appointments={serialized}
+        businessName={settings.businessName}
+        currency={settings.currency}
+        title="Planilla de Turnos de Hoy"
+      />
     </div>
   );
 }

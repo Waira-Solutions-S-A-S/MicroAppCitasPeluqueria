@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Plus, Save } from "lucide-react";
+import { Plus, Save, UserCheck, Users } from "lucide-react";
 
 import {
   createStaffAction,
@@ -38,36 +38,42 @@ export default async function HorariosPage({
   ]);
 
   return (
-    <div className="space-y-8 antialiased text-zinc-900">
-      <header className="border-b border-zinc-200 pb-5">
-        <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Staff</p>
-        <h1 className="mt-1 text-2xl font-medium tracking-tight text-zinc-900 sm:text-3xl">
-          Equipo y Horarios
-        </h1>
-        <p className="mt-1 text-xs text-zinc-600">
-          La disponibilidad se calcula con estos horarios de atención, la duración de cada servicio y
-          las citas reservadas.
-        </p>
-      </header>
+    <div className="space-y-6 antialiased text-zinc-900">
+      {/* Page Header */}
+      <div className="flex flex-col gap-3 border-b border-zinc-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <nav className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+            <span>Panel</span> <span className="mx-1">/</span> <span className="text-zinc-900">Equipo</span>
+          </nav>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-zinc-950">
+            Equipo y Horarios de Atención
+          </h1>
+          <p className="text-xs text-zinc-500 font-medium">
+            Define la disponibilidad, turnos semanales y servicios que atiende cada miembro del equipo.
+          </p>
+        </div>
+      </div>
 
       <Flash ok={params.ok} error={params.error} />
 
-      {/* Agregar nuevo profesional */}
-      <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-xs sm:p-8">
-        <h2 className="flex items-center gap-2 text-base font-medium text-zinc-950">
-          <Plus className="size-4 text-zinc-950" />
-          Registrar nuevo profesional
-        </h2>
+      {/* Metis Card: Registrar nuevo profesional */}
+      <div className="rounded-lg border border-zinc-200 bg-white shadow-xs overflow-hidden">
+        <div className="border-b border-zinc-200 bg-zinc-50/75 px-5 py-3.5">
+          <h2 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-zinc-800">
+            <Plus className="size-4 text-zinc-700" />
+            <span>Registrar Nuevo Profesional</span>
+          </h2>
+        </div>
 
-        <form action={createStaffAction} className="mt-6 flex flex-wrap items-end gap-3">
+        <form action={createStaffAction} className="p-5 flex flex-wrap items-end gap-3">
           <label className="block">
-            <span className="mb-1 block text-xs font-semibold text-zinc-700">Nombre</span>
+            <span className="mb-1 block text-xs font-semibold text-zinc-700">Nombre completo</span>
             <input
               name="name"
               required
               minLength={2}
               placeholder="Ej. Lucas García"
-              className="rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+              className="rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
             />
           </label>
 
@@ -77,50 +83,51 @@ export default async function HorariosPage({
               name="color"
               type="color"
               defaultValue="#18181b"
-              className="h-10 w-20 cursor-pointer rounded-xl border border-zinc-200 bg-white px-2 py-1"
+              className="h-8 w-20 cursor-pointer rounded-md border border-zinc-200 bg-white px-2 py-1"
             />
           </label>
 
           <button
             type="submit"
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-zinc-950 px-6 py-2.5 text-xs font-medium text-white shadow-xs transition hover:bg-zinc-800 cursor-pointer"
+            className="inline-flex min-h-[34px] items-center gap-1.5 rounded-md bg-zinc-900 px-4 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-zinc-800 cursor-pointer"
           >
             <Plus className="size-3.5" />
             <span>Agregar miembro</span>
           </button>
         </form>
-      </section>
+      </div>
 
-      {/* Lista de profesionales */}
-      <section className="space-y-6">
+      {/* Lista de profesionales (Cards Metis) */}
+      <div className="space-y-4">
         {staff.map((member) => {
           const byDay = new Map(member.workingHours.map((hours) => [hours.weekday, hours]));
 
           return (
             <div
               key={member.id}
-              className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-xs sm:p-8"
+              className="rounded-lg border border-zinc-200 bg-white shadow-xs overflow-hidden"
             >
-              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-100 pb-5">
-                <div className="flex items-center gap-3.5">
+              {/* Member Card Header */}
+              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-200 bg-zinc-50/75 px-5 py-3.5">
+                <div className="flex items-center gap-3">
                   <span
-                    className="grid size-11 place-items-center rounded-2xl text-sm font-bold text-white shadow-xs"
+                    className="grid size-9 place-items-center rounded-md text-xs font-bold text-white shadow-xs"
                     style={{ backgroundColor: member.color }}
                   >
                     {member.name.slice(0, 1).toUpperCase()}
                   </span>
                   <div>
-                    <p className="text-base font-bold text-zinc-950">
-                      {member.name}
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-zinc-950">{member.name}</span>
                       {!member.isActive && (
-                        <span className="ml-2 rounded-full bg-zinc-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                        <span className="rounded bg-zinc-200 px-1.5 py-0.5 text-[10px] font-semibold text-zinc-600">
                           pausado
                         </span>
                       )}
-                    </p>
-                    <p className="text-xs text-zinc-500 mt-0.5">
+                    </div>
+                    <p className="text-[11px] text-zinc-500 font-medium">
                       {member.services.length > 0
-                        ? member.services.map((service) => service.name).join(" · ")
+                        ? member.services.map((s) => s.name).join(" · ")
                         : "Sin servicios vinculados"}
                     </p>
                   </div>
@@ -130,136 +137,133 @@ export default async function HorariosPage({
                   <input type="hidden" name="id" value={member.id} />
                   <button
                     type="submit"
-                    className="text-xs font-semibold text-zinc-500 hover:text-zinc-950 underline transition"
+                    className="inline-flex h-7 items-center rounded border border-zinc-200 bg-white px-2.5 text-[11px] font-medium text-zinc-700 transition hover:bg-zinc-100 cursor-pointer"
                   >
-                    {member.isActive ? "Pausar profesional" : "Reactivar profesional"}
+                    {member.isActive ? "Pausar miembro" : "Reactivar"}
                   </button>
                 </form>
               </div>
 
-              {/* Editar nombre y asignaciones */}
-              <details className="mt-4">
-                <summary className="cursor-pointer text-xs font-bold text-zinc-900 hover:underline">
-                  Editar datos y servicios de {member.name}
-                </summary>
-                <form action={updateStaffAction} className="mt-4 grid gap-4 border-t border-zinc-100 pt-4 sm:grid-cols-2">
-                  <input type="hidden" name="id" value={member.id} />
-                  <label className="block">
-                    <span className="mb-1 block text-xs font-semibold text-zinc-700">Nombre</span>
-                    <input
-                      name="name"
-                      defaultValue={member.name}
-                      required
-                      minLength={2}
-                      className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
-                    />
-                  </label>
+              {/* Horarios semanales del miembro */}
+              <div className="p-5">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 mb-3">
+                  Horario semanal de atención
+                </p>
 
-                  <label className="block">
-                    <span className="mb-1 block text-xs font-semibold text-zinc-700">Color</span>
-                    <input
-                      name="color"
-                      type="color"
-                      defaultValue={member.color}
-                      className="h-10 w-full cursor-pointer rounded-xl border border-zinc-200 bg-white px-2 py-1"
-                    />
-                  </label>
+                <form action={saveHoursAction} className="space-y-2">
+                  <input type="hidden" name="staffId" value={member.id} />
 
-                  <fieldset className="sm:col-span-2">
-                    <legend className="mb-2 block text-xs font-semibold text-zinc-700">
-                      Servicios que realiza
-                    </legend>
-                    <div className="flex flex-wrap gap-2">
-                      {services.map((service) => (
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse text-left text-xs">
+                      <thead>
+                        <tr className="border-b border-zinc-200 text-[11px] font-semibold text-zinc-500 uppercase">
+                          <th className="py-2 pr-4">Día</th>
+                          <th className="py-2 px-4">Hora Inicio</th>
+                          <th className="py-2 px-4">Hora Cierre</th>
+                          <th className="py-2 pl-4 text-right">Atención</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-100">
+                        {WEEKDAYS.map((name, weekday) => {
+                          const existing = byDay.get(weekday);
+                          const startVal = minutesToLabel(existing ? existing.startMin : 9 * 60);
+                          const endVal = minutesToLabel(existing ? existing.endMin : 19 * 60);
+                          const isClosed = existing ? existing.isClosed : weekday === 0;
+
+                          return (
+                            <tr key={name} className="hover:bg-zinc-50/50">
+                              <td className="py-2 pr-4 font-semibold text-zinc-800">{name}</td>
+                              <td className="py-2 px-4">
+                                <input
+                                  type="time"
+                                  name={`start_${weekday}`}
+                                  defaultValue={startVal}
+                                  className="h-7 rounded border border-zinc-200 px-2 text-xs text-zinc-800"
+                                />
+                              </td>
+                              <td className="py-2 px-4">
+                                <input
+                                  type="time"
+                                  name={`end_${weekday}`}
+                                  defaultValue={endVal}
+                                  className="h-7 rounded border border-zinc-200 px-2 text-xs text-zinc-800"
+                                />
+                              </td>
+                              <td className="py-2 pl-4 text-right">
+                                <label className="inline-flex items-center gap-1.5 cursor-pointer text-[11px]">
+                                  <input
+                                    type="checkbox"
+                                    name={`closed_${weekday}`}
+                                    defaultChecked={isClosed}
+                                    className="size-3.5 rounded border-zinc-300"
+                                  />
+                                  <span>Cerrado</span>
+                                </label>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="pt-3 flex justify-end">
+                    <button
+                      type="submit"
+                      className="inline-flex min-h-[32px] items-center gap-1.5 rounded bg-zinc-900 px-4 py-1 text-xs font-semibold text-white shadow-xs transition hover:bg-zinc-800 cursor-pointer"
+                    >
+                      <Save className="size-3.5" />
+                      <span>Guardar horarios</span>
+                    </button>
+                  </div>
+                </form>
+
+                {/* Asignación de servicios */}
+                <div className="mt-5 border-t border-zinc-100 pt-4">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 mb-2">
+                    Servicios asignados a {member.name}
+                  </p>
+                  <form action={updateStaffAction} className="flex flex-wrap items-center gap-2">
+                    <input type="hidden" name="id" value={member.id} />
+                    <input type="hidden" name="name" value={member.name} />
+                    <input type="hidden" name="color" value={member.color} />
+
+                    {services.map((service) => {
+                      const assigned = member.services.some((s) => s.id === service.id);
+                      return (
                         <label
                           key={service.id}
-                          className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50/50 px-3 py-1.5 text-xs text-zinc-800 transition hover:bg-zinc-100"
+                          className={`inline-flex items-center gap-1.5 rounded border px-2.5 py-1 text-xs cursor-pointer transition ${
+                            assigned
+                              ? "border-zinc-900 bg-zinc-900 text-white font-medium"
+                              : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50"
+                          }`}
                         >
                           <input
                             type="checkbox"
                             name="serviceIds"
                             value={service.id}
-                            defaultChecked={member.services.some(
-                              (assigned) => assigned.id === service.id,
-                            )}
-                            className="size-3.5 accent-zinc-950"
+                            defaultChecked={assigned}
+                            className="hidden"
                           />
                           <span>{service.name}</span>
                         </label>
-                      ))}
-                    </div>
-                  </fieldset>
+                      );
+                    })}
 
-                  <div className="sm:col-span-2 pt-2">
                     <button
                       type="submit"
-                      className="inline-flex items-center gap-2 rounded-full bg-zinc-950 px-5 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-zinc-800"
+                      className="ml-auto inline-flex min-h-[28px] items-center rounded border border-zinc-300 bg-white px-3 py-1 text-[11px] font-semibold text-zinc-800 transition hover:bg-zinc-100"
                     >
-                      <Save className="size-3.5" />
-                      <span>Guardar cambios</span>
+                      Actualizar servicios
                     </button>
-                  </div>
-                </form>
-              </details>
-
-              {/* Horarios semanales */}
-              <form action={saveHoursAction} className="mt-6 border-t border-zinc-100 pt-5">
-                <input type="hidden" name="staffId" value={member.id} />
-                <p className="text-xs font-bold text-zinc-950 uppercase tracking-wide mb-3">
-                  Horarios laborales semanales
-                </p>
-
-                <div className="space-y-2.5">
-                  {WEEKDAYS.map((label, day) => {
-                    const hours = byDay.get(day);
-                    const isOpen = hours ? !hours.isClosed : day !== 0;
-                    const start = hours?.startMin ?? 9 * 60;
-                    const end = hours?.endMin ?? (day === 6 ? 14 * 60 : 19 * 60);
-
-                    return (
-                      <div
-                        key={label}
-                        className="grid grid-cols-[6rem_auto_1fr_1fr] items-center gap-3 rounded-xl border border-zinc-100 bg-zinc-50/50 p-2 text-xs"
-                      >
-                        <span className="font-bold text-zinc-900">{label}</span>
-                        <label className="flex cursor-pointer items-center gap-1.5 text-zinc-600">
-                          <input
-                            type="checkbox"
-                            name={`open-${day}`}
-                            defaultChecked={isOpen}
-                            className="size-3.5 accent-zinc-950"
-                          />
-                          <span>Atiende</span>
-                        </label>
-                        <input
-                          type="time"
-                          name={`start-${day}`}
-                          defaultValue={minutesToLabel(start)}
-                          className="rounded-lg border border-zinc-200 bg-white px-2 py-1 text-xs text-zinc-900 outline-none focus:border-zinc-950"
-                        />
-                        <input
-                          type="time"
-                          name={`end-${day}`}
-                          defaultValue={minutesToLabel(end)}
-                          className="rounded-lg border border-zinc-200 bg-white px-2 py-1 text-xs text-zinc-900 outline-none focus:border-zinc-950"
-                        />
-                      </div>
-                    );
-                  })}
+                  </form>
                 </div>
-
-                <button
-                  type="submit"
-                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-zinc-950 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-zinc-800"
-                >
-                  <Save className="size-3.5" />
-                  <span>Guardar horarios de {member.name}</span>
-                </button>
-              </form>
+              </div>
             </div>
           );
         })}
-      </section>
+      </div>
     </div>
   );
 }
