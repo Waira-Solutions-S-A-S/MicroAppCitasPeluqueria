@@ -8,6 +8,7 @@ import {
   updateStaffAction,
 } from "@/app/admin/actions";
 import { Flash } from "@/components/admin/flash";
+import { StaffCardHeader } from "@/components/admin/staff-card-header";
 import { StaffScheduleEditor } from "@/components/admin/staff-schedule-editor";
 import { prisma } from "@/lib/prisma";
 import { minutesToLabel, WEEKDAYS } from "@/lib/time";
@@ -109,41 +110,7 @@ export default async function HorariosPage({
               className="rounded-lg border border-zinc-200 bg-white shadow-xs overflow-hidden"
             >
               {/* Member Card Header */}
-              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-200 bg-zinc-50/75 px-5 py-3.5">
-                <div className="flex items-center gap-3">
-                  <span
-                    className="grid size-9 place-items-center rounded-md text-xs font-bold text-white shadow-xs"
-                    style={{ backgroundColor: member.color }}
-                  >
-                    {member.name.slice(0, 1).toUpperCase()}
-                  </span>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-zinc-950">{member.name}</span>
-                      {!member.isActive && (
-                        <span className="rounded bg-zinc-200 px-1.5 py-0.5 text-[10px] font-semibold text-zinc-600">
-                          pausado
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-[11px] text-zinc-500 font-medium">
-                      {member.services.length > 0
-                        ? member.services.map((s) => s.name).join(" · ")
-                        : "Sin servicios vinculados"}
-                    </p>
-                  </div>
-                </div>
-
-                <form action={toggleStaffAction}>
-                  <input type="hidden" name="id" value={member.id} />
-                  <button
-                    type="submit"
-                    className="inline-flex h-7 items-center rounded border border-zinc-200 bg-white px-2.5 text-[11px] font-medium text-zinc-700 transition hover:bg-zinc-100 cursor-pointer"
-                  >
-                    {member.isActive ? "Pausar miembro" : "Reactivar"}
-                  </button>
-                </form>
-              </div>
+              <StaffCardHeader member={member} />
 
               {/* Horarios semanales del miembro */}
               <div className="p-5">

@@ -3,14 +3,13 @@ import Link from "next/link";
 import {
   CalendarDays,
   CalendarPlus,
-  ChevronLeft,
-  ChevronRight,
   Clock,
   TrendingUp,
   Users,
 } from "lucide-react";
 
-import { BookingsTable, type AppointmentItem } from "@/components/admin/bookings-table";
+import { AgendaViewManager } from "@/components/admin/agenda-view-manager";
+import { type AppointmentItem } from "@/components/admin/bookings-table";
 import { DateNavigator } from "@/components/admin/date-navigator";
 import { formatPrice } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
@@ -45,11 +44,18 @@ export default async function AgendaPage({
   const currentKey = dateKey(day);
   const todayKey = dateKey(today);
 
-  const appointments = await prisma.appointment.findMany({
-    where: { startAt: { gte: day, lt: nextDay } },
-    orderBy: { startAt: "asc" },
-    include: { service: true, staff: true },
-  });
+  const [appointments, staffMembers] = await Promise.all([
+    prisma.appointment.findMany({
+      where: { startAt: { gte: day, lt: nextDay } },
+      orderBy: { startAt: "asc" },
+      include: { service: true, staff: true },
+    }),
+    prisma.staffMember.findMany({
+      where: { isActive: true },
+      orderBy: { name: "asc" },
+      select: { id: true, name: true, color: true },
+    }),
+  ]);
 
   const active = appointments.filter((appointment) => appointment.status !== "CANCELLED");
   const pending = active.filter((appointment) => appointment.status === "PENDING").length;
@@ -117,7 +123,7 @@ export default async function AgendaPage({
           <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
             Total Turnos
           </span>
-          <p className="mt-1 text-2xl font-bold tracking-tight text-zinc-950">
+          <p className="mt-1 text-2xl font-bold tracking-tight text-zinc-950 font-mono">
             {active.length}
           </p>
           <p className="text-[11px] text-zinc-500">Programados para el día</p>
@@ -127,7 +133,7 @@ export default async function AgendaPage({
           <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">
             Confirmados
           </span>
-          <p className="mt-1 text-2xl font-bold tracking-tight text-zinc-950">
+          <p className="mt-1 text-2xl font-bold tracking-tight text-zinc-950 font-mono">
             {confirmed}
           </p>
           <p className="text-[11px] text-zinc-500">Asistencia confirmada</p>
@@ -137,7 +143,7 @@ export default async function AgendaPage({
           <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600">
             Por Confirmar
           </span>
-          <p className="mt-1 text-2xl font-bold tracking-tight text-zinc-950">
+          <p className="mt-1 text-2xl font-bold tracking-tight text-zinc-950 font-mono">
             {pending}
           </p>
           <p className="text-[11px] text-zinc-500">Pendientes de respuesta</p>
@@ -147,19 +153,20 @@ export default async function AgendaPage({
           <span className="text-[10px] font-bold uppercase tracking-wider text-sky-600">
             Facturación del Día
           </span>
-          <p className="mt-1 text-xl font-bold tracking-tight text-zinc-950 sm:text-2xl">
+          <p className="mt-1 text-xl font-bold tracking-tight text-zinc-950 sm:text-2xl font-mono">
             {formatPrice(dayRevenue, settings.currency)}
           </p>
           <p className="text-[11px] text-zinc-500">Proyectada de la jornada</p>
         </div>
       </div>
 
-      {/* Main Table Flush Card */}
-      <BookingsTable
+      {/* Main Agenda View Manager (Table vs Visual Grid) */}
+      <AgendaViewManager
         appointments={serialized}
+        staff={staffMembers}
         businessName={settings.businessName}
         currency={settings.currency}
-        title={`Planilla del ${currentKey}`}
+        currentKey={currentKey}
       />
     </div>
   );
