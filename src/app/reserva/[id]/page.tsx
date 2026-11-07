@@ -198,7 +198,7 @@ export default async function ReservaPage({
       </div>
 
       <p className="mt-6 text-center text-xs text-zinc-500">
-        Guardá este enlace para consultar o gestionar tu turno en cualquier momento.
+        Guarda este enlace para consultar o gestionar tu turno en cualquier momento.
       </p>
     </div>
   );

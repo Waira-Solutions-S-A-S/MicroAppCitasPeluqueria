@@ -56,7 +56,7 @@ export default async function ReservarPage({
             Servicios no disponibles en este momento
           </h1>
           <p className="mt-2 text-sm leading-relaxed text-zinc-600">
-            Estamos configurando los turnos y servicios. Por favor volvé a consultar en unos instantes.
+            Estamos configurando los turnos y servicios. Por favor vuelve a consultar en unos instantes.
           </p>
           <div className="mt-6 flex justify-center">
             <Link

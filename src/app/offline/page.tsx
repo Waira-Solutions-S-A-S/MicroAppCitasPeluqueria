@@ -15,7 +15,7 @@ export default function OfflinePage() {
           Sin conexión a internet
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-zinc-600">
-          La aplicación está disponible en tu dispositivo, pero esta acción requiere conexión. Conectate a una red y volvé a intentar.
+          La aplicación está disponible en tu dispositivo, pero esta acción requiere conexión. Conéctate a una red y vuelve a intentar.
         </p>
         <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:justify-center">
           <Link

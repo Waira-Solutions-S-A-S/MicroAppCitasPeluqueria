@@ -96,7 +96,7 @@ export function labelTime(date: Date): string {
 }
 
 export function labelDateLong(date: Date): string {
-  return new Intl.DateTimeFormat("es-AR", {
+  return new Intl.DateTimeFormat("es-CO", {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -105,7 +105,7 @@ export function labelDateLong(date: Date): string {
 }
 
 export function labelDateShort(date: Date): string {
-  return new Intl.DateTimeFormat("es-AR", {
+  return new Intl.DateTimeFormat("es-CO", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -118,7 +118,7 @@ export function labelDateTime(date: Date): string {
 }
 
 export function weekdayShort(date: Date): string {
-  return new Intl.DateTimeFormat("es-AR", { weekday: "short", timeZone: "UTC" }).format(date);
+  return new Intl.DateTimeFormat("es-CO", { weekday: "short", timeZone: "UTC" }).format(date);
 }
 
 /** Build a wall-clock Date from a date key and an hour/minute. */

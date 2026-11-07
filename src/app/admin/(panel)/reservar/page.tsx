@@ -50,7 +50,7 @@ export default async function AdminReservarPage() {
           Todavía no hay servicios ni profesionales
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-zinc-600">
-          Creá al menos un servicio y un profesional para empezar a registrar reservas manuales.
+          Crea al menos un servicio y un profesional para empezar a registrar reservas manuales.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2.5">
           <Link
@@ -75,7 +75,7 @@ export default async function AdminReservarPage() {
       <header className="border-b border-zinc-200 pb-5">
         <p className="text-xs font-semibold uppercase tracking-wider text-zinc-600">Recepción / Agenda</p>
         <h1 className="mt-1 text-2xl font-medium tracking-tight text-zinc-900">Nueva reserva</h1>
-        <p className="mt-1 text-sm text-zinc-600">Cargá un turno presencial o telefónico para un cliente.</p>
+        <p className="mt-1 text-sm text-zinc-600">Carga un turno presencial o telefónico para un cliente.</p>
       </header>
 
       <BookingWizard

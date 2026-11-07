@@ -5,14 +5,14 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Estudio Nube — Reservas",
     short_name: "Estudio Nube",
     description:
-      "Reservá corte, color y uñas en segundos. Turnos online, también recurrentes.",
+      "Reserva corte, color y uñas en segundos. Turnos online, también recurrentes.",
     start_url: "/",
     scope: "/",
     display: "standalone",
     orientation: "portrait",
     background_color: "#f8f3ec",
     theme_color: "#7c3aed",
-    lang: "es-AR",
+    lang: "es-CO",
     categories: ["lifestyle", "beauty"],
     icons: [
       {

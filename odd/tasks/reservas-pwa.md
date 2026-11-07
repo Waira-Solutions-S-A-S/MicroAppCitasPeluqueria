@@ -23,7 +23,7 @@
 
 ### Restricciones e invariantes
 
-- Zona horaria única del negocio: las horas se guardan como "wall clock" codificado en UTC (compatible con Argentina, sin DST).
+- Zona horaria única del negocio: las horas se guardan como "wall clock" codificado en UTC.
 - Nunca dos turnos activos solapados para el mismo profesional.
 - Toda entrada se valida con zod; el panel exige sesión válida.
 - Los turnos cancelados liberan el horario.

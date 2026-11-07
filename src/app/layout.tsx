@@ -6,11 +6,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Estudio Nube — Reservá tu turno",
+    default: "Estudio Nube - Reserva tu turno",
     template: "%s · Estudio Nube",
   },
   description:
-    "Reservá corte, color y uñas en segundos desde el celular. Turnos online, también recurrentes.",
+    "Reserva corte, color y uñas en segundos desde el celular. Turnos online, también recurrentes.",
   applicationName: "Estudio Nube",
   appleWebApp: {
     capable: true,
@@ -28,7 +28,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es">
+    <html lang="es-CO">
       <body className="min-h-dvh bg-white text-zinc-900">
         {children}
         <PwaRegister />

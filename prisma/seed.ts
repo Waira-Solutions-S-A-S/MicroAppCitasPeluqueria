@@ -134,7 +134,7 @@ async function main() {
   const existingAppointments = await prisma.appointment.count();
   if (existingAppointments === 0) {
     const settings = await prisma.settings.findUnique({ where: { id: "singleton" } });
-    const today = startOfDay(nowWallClock(settings?.timezone ?? "America/Argentina/Buenos_Aires"));
+    const today = startOfDay(nowWallClock(settings?.timezone ?? "America/Bogota"));
     const tomorrow = addDays(today, 1);
 
     const demo = [

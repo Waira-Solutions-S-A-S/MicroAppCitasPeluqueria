@@ -55,7 +55,7 @@ export default async function LoginPage({
           Iniciar sesión
         </h1>
         <p className="mt-1 text-xs text-zinc-600">
-          Ingresá con tu cuenta para gestionar turnos, agenda y servicios.
+          Ingresa con tu cuenta para gestionar turnos, agenda y servicios.
         </p>
 
         <LoginForm next={next} />

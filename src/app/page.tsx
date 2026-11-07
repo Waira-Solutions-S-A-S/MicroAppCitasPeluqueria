@@ -86,7 +86,7 @@ export default async function HomePage({
 
   // Lookbook images from authentic studio gallery
   const studioLookbook = [
-    { src: "/swiper-imgs/img-studio-001.jpg", title: "Reservá en segundos" },
+    { src: "/swiper-imgs/img-studio-001.jpg", title: "Reserva en segundos" },
     { src: "/swiper-imgs/img-studio-002.jpg", title: "Confirmación al instante" },
     { src: "/swiper-imgs/img-studio-003.jpg", title: "Recordatorio de retorno" },
     { src: "/swiper-imgs/img-studio-004.jpg", title: "Reprogramación fácil" },
@@ -207,8 +207,8 @@ export default async function HomePage({
               <span className="font-medium">Tus clientes, siempre volviendo.</span>
             </h1>
             <p className="mt-4 max-w-xl text-sm leading-relaxed text-zinc-200 sm:text-base">
-              Tus clientes reservan en segundos, reciben recordatorios para volver y vos
-              recuperás horas de trabajo. Sin WhatsApp, sin planillas y sin turnos perdidos.
+              Tus clientes reservan en segundos, reciben recordatorios para volver y tú
+              recuperas horas de trabajo. Sin WhatsApp, sin planillas y sin turnos perdidos.
             </p>
           </div>
 
@@ -242,7 +242,7 @@ export default async function HomePage({
             <p className="text-base font-normal leading-relaxed text-zinc-600 sm:text-lg">
               Menos fricción, más citas. Tus clientes eligen servicio, profesional y horario
               en menos de un minuto. Reciben confirmación y recordatorio automático, y pueden
-              reprogramar sin llamarte. Vos ganás una agenda ordenada y tiempo para tu trabajo.
+              reprogramar sin llamarte. Tú ganas una agenda ordenada y tiempo para tu trabajo.
             </p>
           </div>
         </div>
@@ -411,7 +411,7 @@ export default async function HomePage({
               Hecho para negocios <span className="font-medium">que viven de su agenda.</span>
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-zinc-600">
-              Si tus ingresos dependen de turnos, esto es para vos.
+              Si tus ingresos dependen de turnos, esto es para ti.
             </p>
           </div>
 
@@ -458,8 +458,8 @@ export default async function HomePage({
             Precios
           </p>
           <h2 className="mt-2 text-3xl font-light tracking-tight text-zinc-900 sm:text-4xl md:text-5xl">
-            Empezá gratis.{" "}
-            <span className="font-medium">Pasá a Pro cuando quieras.</span>
+            Empieza gratis.{" "}
+            <span className="font-medium">Pasa a Pro cuando quieras.</span>
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-zinc-600 sm:text-base">
             Sin contratos ni letra chica. El plan Gratis es totalmente funcional; el Pro te
@@ -619,10 +619,10 @@ export default async function HomePage({
               </ul>
             </div>
 
-            {/* Empezá hoy */}
+            {/* Empieza hoy */}
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-zinc-900">
-                Empezá hoy
+                Empieza hoy
               </p>
               <p className="mt-3 text-xs leading-relaxed text-zinc-600">
                 Plan Gratis funcional con publicidad. Plan Pro por $5 USD, sin publicidad y
@@ -642,7 +642,7 @@ export default async function HomePage({
               © {new Date().getFullYear()} {settings.businessName}. Todos los derechos
               reservados.
             </p>
-            <p className="mt-2 sm:mt-0">Hecho para que tu agenda trabaje por vos.</p>
+            <p className="mt-2 sm:mt-0">Hecho para que tu agenda trabaje por ti.</p>
           </div>
         </div>
       </footer>

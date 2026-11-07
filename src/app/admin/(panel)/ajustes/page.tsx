@@ -35,7 +35,7 @@ export default async function AjustesPage({
         <div>
           <h2 className="text-base font-medium text-zinc-950">Datos y reglas de reserva</h2>
           <p className="text-xs text-zinc-600 mt-0.5">
-            Configurá el nombre, la moneda y los tiempos límite para agendar turnos.
+            Configura el nombre, la moneda y los tiempos límite para agendar turnos.
           </p>
         </div>
 

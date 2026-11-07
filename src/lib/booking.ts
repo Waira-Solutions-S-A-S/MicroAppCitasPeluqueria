@@ -139,7 +139,7 @@ export async function createBooking(input: BookingInput): Promise<BookingResult>
         if (conflict) {
           throw new BookingError(
             "SLOT_TAKEN",
-            "Ese horario acaba de ocuparse. Elegí otro, por favor.",
+            "Ese horario acaba de ocuparse. Elige otro, por favor.",
           );
         }
       }

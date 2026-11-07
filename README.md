@@ -65,7 +65,7 @@ Cambiá la contraseña desde **Ajustes → Seguridad**.
 
 - **Zona horaria:** las horas se guardan como hora local del negocio codificada en UTC.
   Así el cálculo de disponibilidad no depende de conversiones de zona y funciona bien en
-  Argentina (sin horario de verano). La zona se configura en Ajustes.
+  Colombia. La zona se configura en Ajustes.
 - **Anti doble reserva:** la creación de un turno vuelve a verificar conflictos dentro de
   una transacción, además de validar horario laboral, anticipación y buffer.
 - **Variables de entorno:** el proyecto no necesita `.env`. La URL de SQLite está en

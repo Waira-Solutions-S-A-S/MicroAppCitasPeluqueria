@@ -43,7 +43,7 @@ export async function loginAction(
   });
 
   if (!parsed.success) {
-    return { error: "Completá email y contraseña." };
+    return { error: "Completa el correo electrónico y la contraseña." };
   }
 
   const user = await prisma.user.findUnique({
@@ -76,7 +76,7 @@ export async function createServiceAction(formData: FormData): Promise<void> {
   });
 
   if (!parsed.success) {
-    back("/admin/servicios", "error", "Revisá los datos del servicio.");
+    back("/admin/servicios", "error", "Revisa los datos del servicio.");
   }
 
   await prisma.service.create({
@@ -108,7 +108,7 @@ export async function updateServiceAction(formData: FormData): Promise<void> {
   });
 
   if (!id || !parsed.success) {
-    back("/admin/servicios", "error", "Revisá los datos del servicio.");
+    back("/admin/servicios", "error", "Revisa los datos del servicio.");
   }
 
   await prisma.service.update({
@@ -154,7 +154,7 @@ export async function createStaffAction(formData: FormData): Promise<void> {
   });
 
   if (!parsed.success) {
-    back("/admin/horarios", "error", "Revisá el nombre del profesional.");
+    back("/admin/horarios", "error", "Revisa el nombre del profesional.");
   }
 
   const allServices = await prisma.service.findMany({
@@ -198,7 +198,7 @@ export async function updateStaffAction(formData: FormData): Promise<void> {
   });
 
   if (!id || !parsed.success) {
-    back("/admin/horarios", "error", "Revisá los datos del profesional.");
+    back("/admin/horarios", "error", "Revisa los datos del profesional.");
   }
 
   const assignedServices = await prisma.service.findMany({
@@ -279,7 +279,7 @@ export async function updateSettingsAction(formData: FormData): Promise<void> {
   });
 
   if (!parsed.success) {
-    back("/admin/ajustes", "error", "Revisá los ajustes del negocio.");
+    back("/admin/ajustes", "error", "Revisa los ajustes del negocio.");
   }
 
   await prisma.settings.upsert({

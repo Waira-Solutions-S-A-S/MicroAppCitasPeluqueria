@@ -103,7 +103,7 @@ export default async function AdminHomePage() {
 
         {todayAppointments.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-zinc-200 bg-white p-8 text-center text-xs text-zinc-600">
-            No hay turnos registrados para hoy. Podés compartir el enlace de reservas o cargar una
+            No hay turnos registrados para hoy. Puedes compartir el enlace de reservas o cargar una
             cita manual.
           </div>
         ) : (
@@ -124,7 +124,7 @@ export default async function AdminHomePage() {
 
         {pending.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-zinc-200 bg-white p-8 text-center text-xs text-zinc-600">
-            Todo al día. No tenés reservas pendientes de confirmación.
+            Todo al día. No tienes reservas pendientes de confirmación.
           </div>
         ) : (
           <div className="space-y-3">

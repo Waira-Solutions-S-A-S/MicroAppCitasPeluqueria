@@ -1,6 +1,6 @@
 // Reservas PWA — esquema de datos
 // SQLite local. Las fechas se guardan como "wall clock" codificado en UTC
-// para evitar conversiones de zona horaria (Argentina no tiene DST).
+// para evitar conversiones de zona horaria.
 
 generator client {
   provider = "prisma-client-js"
@@ -100,8 +100,8 @@ model Settings {
   id            String   @id @default("singleton")
   businessName  String   @default("Estudio Nube")
   tagline       String   @default("Turnos de belleza sin vueltas")
-  timezone      String   @default("America/Argentina/Buenos_Aires")
-  currency      String   @default("ARS")
+  timezone      String   @default("America/Bogota")
+  currency      String   @default("COP")
   slotStepMin   Int      @default(15)
   bufferMin     Int      @default(10)
   minLeadHours  Int      @default(2)

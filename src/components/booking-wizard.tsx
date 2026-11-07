@@ -53,11 +53,11 @@ const STEPS = ["Servicio", "Profesional", "Fecha y hora", "Tus datos"];
 function dayLabel(iso: string): { weekday: string; day: string; month: string } {
   const date = new Date(`${iso}T00:00:00Z`);
   return {
-    weekday: new Intl.DateTimeFormat("es-AR", { weekday: "short", timeZone: "UTC" })
+    weekday: new Intl.DateTimeFormat("es-CO", { weekday: "short", timeZone: "UTC" })
       .format(date)
       .replace(".", ""),
-    day: new Intl.DateTimeFormat("es-AR", { day: "2-digit", timeZone: "UTC" }).format(date),
-    month: new Intl.DateTimeFormat("es-AR", { month: "short", timeZone: "UTC" })
+    day: new Intl.DateTimeFormat("es-CO", { day: "2-digit", timeZone: "UTC" }).format(date),
+    month: new Intl.DateTimeFormat("es-CO", { month: "short", timeZone: "UTC" })
       .format(date)
       .replace(".", ""),
   };
@@ -65,7 +65,7 @@ function dayLabel(iso: string): { weekday: string; day: string; month: string } 
 
 function longDate(iso: string): string {
   const date = new Date(`${iso}T00:00:00Z`);
-  return new Intl.DateTimeFormat("es-AR", {
+  return new Intl.DateTimeFormat("es-CO", {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -217,7 +217,7 @@ export function BookingWizard({
 
       const data = (await response.json()) as { id?: string; error?: string };
       if (!response.ok || !data.id) {
-        setError(data.error ?? "No se pudo confirmar la reserva. Probá nuevamente.");
+        setError(data.error ?? "No se pudo confirmar la reserva. Intenta nuevamente.");
         return;
       }
 
@@ -227,7 +227,7 @@ export function BookingWizard({
         router.push(`/reserva/${data.id}?nueva=1`);
       }
     } catch {
-      setError("No pudimos conectar con el servidor. Revisá tu conexión.");
+      setError("No pudimos conectar con el servidor. Revisa tu conexión.");
     } finally {
       setSubmitting(false);
     }
@@ -298,10 +298,10 @@ export function BookingWizard({
                 Paso 1 de 4
               </span>
               <h1 className="mt-1 text-2xl font-medium tracking-tight text-zinc-900 sm:text-3xl">
-                Elegí tu servicio
+                Elige tu servicio
               </h1>
               <p className="mt-1.5 text-xs text-zinc-600">
-                Seleccioná qué querés hacerte. Podés cambiarlo o sumar notas en el último paso.
+                Selecciona qué quieres hacerte. Puedes cambiarlo o sumar notas en el último paso.
               </p>
 
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -366,7 +366,7 @@ export function BookingWizard({
                 ¿Con quién te atendés?
               </h1>
               <p className="mt-1.5 text-xs text-zinc-600">
-                Elegí un profesional específico o seleccioná «Cualquiera disponible» para ver más
+                Elige un profesional específico o selecciona «Cualquiera disponible» para ver más
                 horarios.
               </p>
 
@@ -438,7 +438,7 @@ export function BookingWizard({
                 Paso 3 de 4
               </span>
               <h1 className="mt-1 text-2xl font-medium tracking-tight text-zinc-900 sm:text-3xl">
-                Seleccioná fecha y hora
+                Selecciona fecha y hora
               </h1>
               <p className="mt-1.5 text-xs text-zinc-600">
                 {longDate(date)} · Duración aproximada: {service?.durationMin} min
@@ -483,7 +483,7 @@ export function BookingWizard({
                   </div>
                 ) : groups.length === 0 ? (
                   <div className="rounded-2xl border border-dashed border-zinc-200 bg-zinc-50 p-6 text-center text-xs text-zinc-500">
-                    No hay turnos disponibles para esta fecha. Probá seleccionando otro día o
+                    No hay turnos disponibles para esta fecha. Intenta seleccionar otro día o
                     eligiendo «Cualquiera disponible».
                   </div>
                 ) : (
@@ -541,7 +541,7 @@ export function BookingWizard({
                 Tus datos de reserva
               </h1>
               <p className="mt-1.5 text-xs text-zinc-600">
-                Ingresá tus datos para enviarte la confirmación de tu turno.
+                Ingresa tus datos para enviarte la confirmación de tu turno.
               </p>
 
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -720,7 +720,7 @@ export function BookingWizard({
 
           <div className="mt-4 border-b border-zinc-200/80 pb-4">
             <p className="text-lg font-medium text-zinc-950">
-              {service?.name ?? "Seleccioná un servicio"}
+              {service?.name ?? "Selecciona un servicio"}
             </p>
             <p className="mt-0.5 text-xs text-zinc-600">
               {service ? `${service.durationMin} minutos de atención` : "Paso 1"}

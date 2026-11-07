@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   if (!parsed.success) {
     return Response.json(
       {
-        error: "Revisá los datos del formulario.",
+        error: "Revisa los datos del formulario.",
         issues: parsed.error.issues.map((issue) => ({
           path: issue.path.join("."),
           message: issue.message,
