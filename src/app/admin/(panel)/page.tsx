@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 
 import { BookingsTable, type AppointmentItem } from "@/components/admin/bookings-table";
-import { CopyBookingLink } from "@/components/admin/copy-booking-link";
 import { formatPrice } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
@@ -90,7 +89,6 @@ export default async function AdminHomePage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <CopyBookingLink />
           <Link
             href="/admin/reservar"
             className="inline-flex min-h-[36px] items-center gap-1.5 rounded-md bg-zinc-900 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs transition hover:bg-zinc-800"

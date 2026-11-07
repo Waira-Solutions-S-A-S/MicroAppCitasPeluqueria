@@ -5,8 +5,11 @@ import {
   CalendarDays,
   Check,
   CheckCheck,
+  ChevronLeft,
+  ChevronRight,
   MessageCircle,
   Search,
+  Table as TableIcon,
   X,
 } from "lucide-react";
 
@@ -82,7 +85,7 @@ export function BookingsTable({
   appointments,
   businessName,
   currency,
-  title = "Planilla de Citas",
+  title = "Planilla de Turnos",
 }: {
   appointments: AppointmentItem[];
   businessName: string;
@@ -91,6 +94,8 @@ export function BookingsTable({
 }) {
   const [filter, setFilter] = useState<"ALL" | "PENDING" | "CONFIRMED" | "COMPLETED">("ALL");
   const [search, setSearch] = useState("");
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   const counts = useMemo(() => {
     return {
@@ -118,102 +123,147 @@ export function BookingsTable({
     });
   }, [appointments, filter, search]);
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const safePage = Math.min(currentPage, totalPages);
+
+  const paginatedItems = useMemo(() => {
+    const startIndex = (safePage - 1) * pageSize;
+    return filtered.slice(startIndex, startIndex + pageSize);
+  }, [filtered, safePage, pageSize]);
+
+  const fromRecord = filtered.length === 0 ? 0 : (safePage - 1) * pageSize + 1;
+  const toRecord = Math.min(safePage * pageSize, filtered.length);
+
   return (
     <div className="rounded-lg border border-zinc-200 bg-white shadow-xs overflow-hidden">
-      {/* Card Header (Bootstrap/Metis style) */}
-      <div className="flex flex-col gap-3 border-b border-zinc-200 bg-white px-5 py-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h2 className="text-sm font-semibold tracking-tight text-zinc-950">
+      {/* 1. Metis .box Header */}
+      <div className="flex flex-col gap-3 border-b border-zinc-200 bg-zinc-50/75 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2">
+          <TableIcon className="size-4 text-zinc-700" />
+          <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-800">
             {title}
           </h2>
-          <p className="text-[11px] text-zinc-500 font-medium">
-            {filtered.length} {filtered.length === 1 ? "registro listado" : "registros listados"}
-          </p>
+          <span className="rounded bg-zinc-200 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-zinc-700">
+            {filtered.length}
+          </span>
         </div>
 
-        {/* Toolbar: Filter Tabs + Search */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Pill tabs */}
-          <div className="inline-flex rounded-md border border-zinc-200 bg-zinc-50 p-0.5 text-xs font-medium">
-            <button
-              type="button"
-              onClick={() => setFilter("ALL")}
-              className={`rounded px-2.5 py-1 transition cursor-pointer ${
-                filter === "ALL"
-                  ? "bg-white text-zinc-950 font-semibold shadow-xs"
-                  : "text-zinc-600 hover:text-zinc-950"
-              }`}
-            >
-              Todos ({counts.all})
-            </button>
-            <button
-              type="button"
-              onClick={() => setFilter("PENDING")}
-              className={`inline-flex items-center gap-1 rounded px-2.5 py-1 transition cursor-pointer ${
-                filter === "PENDING"
-                  ? "bg-white text-zinc-950 font-semibold shadow-xs"
-                  : "text-zinc-600 hover:text-zinc-950"
-              }`}
-            >
-              {counts.pending > 0 && <span className="size-1.5 rounded-full bg-amber-500" />}
-              <span>Pendientes ({counts.pending})</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setFilter("CONFIRMED")}
-              className={`rounded px-2.5 py-1 transition cursor-pointer ${
-                filter === "CONFIRMED"
-                  ? "bg-white text-zinc-950 font-semibold shadow-xs"
-                  : "text-zinc-600 hover:text-zinc-950"
-              }`}
-            >
-              Confirmados ({counts.confirmed})
-            </button>
-            <button
-              type="button"
-              onClick={() => setFilter("COMPLETED")}
-              className={`rounded px-2.5 py-1 transition cursor-pointer ${
-                filter === "COMPLETED"
-                  ? "bg-white text-zinc-950 font-semibold shadow-xs"
-                  : "text-zinc-600 hover:text-zinc-950"
-              }`}
-            >
-              Completados ({counts.completed})
-            </button>
-          </div>
-
-          {/* Search bar */}
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-zinc-400" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Filtrar citas…"
-              className="h-8 w-44 rounded-md border border-zinc-200 bg-white pl-7 pr-2.5 text-xs text-zinc-900 placeholder:text-zinc-400 outline-none transition focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 sm:w-56"
-            />
-          </div>
+        {/* Filter Pills */}
+        <div className="inline-flex rounded-md border border-zinc-200 bg-white p-0.5 text-xs font-medium">
+          <button
+            type="button"
+            onClick={() => {
+              setFilter("ALL");
+              setCurrentPage(1);
+            }}
+            className={`rounded px-2.5 py-1 transition cursor-pointer ${
+              filter === "ALL"
+                ? "bg-zinc-900 text-white font-semibold shadow-xs"
+                : "text-zinc-600 hover:text-zinc-950"
+            }`}
+          >
+            Todos ({counts.all})
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setFilter("PENDING");
+              setCurrentPage(1);
+            }}
+            className={`inline-flex items-center gap-1 rounded px-2.5 py-1 transition cursor-pointer ${
+              filter === "PENDING"
+                ? "bg-amber-500 text-zinc-950 font-semibold shadow-xs"
+                : "text-zinc-600 hover:text-zinc-950"
+            }`}
+          >
+            {counts.pending > 0 && <span className="size-1.5 rounded-full bg-amber-600" />}
+            <span>Pendientes ({counts.pending})</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setFilter("CONFIRMED");
+              setCurrentPage(1);
+            }}
+            className={`rounded px-2.5 py-1 transition cursor-pointer ${
+              filter === "CONFIRMED"
+                ? "bg-emerald-600 text-white font-semibold shadow-xs"
+                : "text-zinc-600 hover:text-zinc-950"
+            }`}
+          >
+            Confirmados ({counts.confirmed})
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setFilter("COMPLETED");
+              setCurrentPage(1);
+            }}
+            className={`rounded px-2.5 py-1 transition cursor-pointer ${
+              filter === "COMPLETED"
+                ? "bg-zinc-700 text-white font-semibold shadow-xs"
+                : "text-zinc-600 hover:text-zinc-950"
+            }`}
+          >
+            Completados ({counts.completed})
+          </button>
         </div>
       </div>
 
-      {/* Flush Data Table (Clean, flat, border-driven) */}
-      {filtered.length === 0 ? (
-        <div className="p-10 text-center">
-          <CalendarDays className="mx-auto size-7 text-zinc-300" />
+      {/* 2. Metis DataTable Toolbar Controls */}
+      <div className="flex flex-col gap-2 border-b border-zinc-200 bg-white px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between">
+        {/* Page size selector */}
+        <div className="flex items-center gap-2 text-xs text-zinc-600">
+          <span>Mostrar</span>
+          <select
+            value={pageSize}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+            className="rounded border border-zinc-200 bg-white px-2 py-1 text-xs text-zinc-800 outline-none focus:border-zinc-900"
+          >
+            <option value={10}>10</option>
+            <option value={25}>25</option>
+            <option value={50}>50</option>
+          </select>
+          <span>registros por página</span>
+        </div>
+
+        {/* Search input */}
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-zinc-400" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
+            placeholder="Buscar por cliente, tel o servicio…"
+            className="h-8 w-full rounded border border-zinc-200 bg-white pl-8 pr-3 text-xs text-zinc-900 placeholder:text-zinc-400 outline-none transition focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 sm:w-64"
+          />
+        </div>
+      </div>
+
+      {/* 3. Flush Table Body */}
+      {paginatedItems.length === 0 ? (
+        <div className="p-12 text-center">
+          <CalendarDays className="mx-auto size-8 text-zinc-300" />
           <p className="mt-2 text-xs font-semibold text-zinc-800">
-            No hay citas para mostrar
+            No se encontraron registros
           </p>
           <p className="mt-0.5 text-xs text-zinc-500">
             {search
-              ? "No se encontraron coincidencias para la búsqueda."
-              : "No se registran turnos en este estado."}
+              ? "Prueba modificando el texto de búsqueda o cambiando el filtro."
+              : "No hay citas registradas para este criterio."}
           </p>
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-left text-xs">
             <thead>
-              <tr className="border-b border-zinc-200 bg-zinc-50 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+              <tr className="border-b border-zinc-200 bg-[#f8f9fa] text-[11px] font-bold uppercase tracking-wider text-zinc-600">
                 <th className="px-4 py-2.5">Horario</th>
                 <th className="px-4 py-2.5">Cliente</th>
                 <th className="px-4 py-2.5">Servicio</th>
@@ -223,7 +273,7 @@ export function BookingsTable({
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-200">
-              {filtered.map((item) => {
+              {paginatedItems.map((item, idx) => {
                 const startTime = formatHour(item.startAt);
                 const endTime = formatHour(item.endAt);
                 const timeStr = `${startTime} a ${endTime} hs`;
@@ -241,7 +291,9 @@ export function BookingsTable({
                 return (
                   <tr
                     key={item.id}
-                    className="transition-colors hover:bg-zinc-50/75"
+                    className={`transition-colors hover:bg-zinc-100/70 ${
+                      idx % 2 === 1 ? "bg-zinc-50/40" : "bg-white"
+                    }`}
                   >
                     {/* Horario */}
                     <td className="whitespace-nowrap px-4 py-3 font-mono font-medium text-zinc-900">
@@ -318,10 +370,10 @@ export function BookingsTable({
                             href={waUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex h-8 items-center gap-1 rounded border border-emerald-200 bg-emerald-50 px-2.5 text-xs font-semibold text-emerald-950 transition hover:bg-emerald-100 hover:border-emerald-300"
-                            title="Abrir chat en WhatsApp con mensaje listo"
+                            className="inline-flex h-7 items-center gap-1 rounded border border-emerald-300 bg-emerald-50 px-2 text-xs font-semibold text-emerald-950 transition hover:bg-emerald-100 cursor-pointer"
+                            title="Abrir chat de WhatsApp con plantilla oficial"
                           >
-                            <MessageCircle className="size-3.5 text-emerald-600" />
+                            <MessageCircle className="size-3 text-emerald-600" />
                             <span>WhatsApp</span>
                           </a>
                         )}
@@ -332,9 +384,9 @@ export function BookingsTable({
                             <input type="hidden" name="status" value="CONFIRMED" />
                             <button
                               type="submit"
-                              className="inline-flex h-8 items-center gap-1 rounded bg-zinc-900 px-2.5 text-xs font-medium text-white transition hover:bg-zinc-800 cursor-pointer"
+                              className="inline-flex h-7 items-center gap-1 rounded bg-zinc-900 px-2.5 text-xs font-medium text-white transition hover:bg-zinc-800 cursor-pointer"
                             >
-                              <Check className="size-3.5" />
+                              <Check className="size-3" />
                               <span>Confirmar</span>
                             </button>
                           </form>
@@ -346,9 +398,9 @@ export function BookingsTable({
                             <input type="hidden" name="status" value="COMPLETED" />
                             <button
                               type="submit"
-                              className="inline-flex h-8 items-center gap-1 rounded border border-zinc-200 bg-white px-2.5 text-xs font-medium text-zinc-700 transition hover:bg-zinc-100 cursor-pointer"
+                              className="inline-flex h-7 items-center gap-1 rounded border border-zinc-300 bg-white px-2.5 text-xs font-medium text-zinc-700 transition hover:bg-zinc-100 cursor-pointer"
                             >
-                              <CheckCheck className="size-3.5" />
+                              <CheckCheck className="size-3" />
                               <span>Completar</span>
                             </button>
                           </form>
@@ -360,10 +412,10 @@ export function BookingsTable({
                             <input type="hidden" name="status" value="CANCELLED" />
                             <button
                               type="submit"
-                              className="inline-flex h-8 items-center justify-center rounded border border-transparent px-2 text-xs font-medium text-zinc-500 transition hover:border-red-200 hover:bg-red-50 hover:text-red-700 cursor-pointer"
+                              className="inline-flex size-7 items-center justify-center rounded border border-transparent text-xs font-medium text-zinc-400 transition hover:border-red-200 hover:bg-red-50 hover:text-red-700 cursor-pointer"
                               title="Cancelar cita"
                             >
-                              <X className="size-3.5" />
+                              <X className="size-3" />
                             </button>
                           </form>
                         )}
@@ -376,6 +428,55 @@ export function BookingsTable({
           </table>
         </div>
       )}
+
+      {/* 4. Metis DataTable Footer Pagination */}
+      <div className="flex flex-col gap-2 border-t border-zinc-200 bg-zinc-50/50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between text-xs text-zinc-600">
+        <div>
+          <span>
+            Mostrando <strong>{fromRecord}</strong> a <strong>{toRecord}</strong> de{" "}
+            <strong>{filtered.length}</strong> registros
+          </span>
+        </div>
+
+        {totalPages > 1 && (
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              disabled={safePage <= 1}
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              className="inline-flex size-7 items-center justify-center rounded border border-zinc-200 bg-white text-zinc-700 transition hover:bg-zinc-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              title="Página anterior"
+            >
+              <ChevronLeft className="size-3.5" />
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => setCurrentPage(p)}
+                className={`inline-flex size-7 items-center justify-center rounded text-xs font-semibold transition cursor-pointer ${
+                  p === safePage
+                    ? "bg-zinc-900 text-white"
+                    : "border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-100"
+                }`}
+              >
+                {p}
+              </button>
+            ))}
+
+            <button
+              type="button"
+              disabled={safePage >= totalPages}
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              className="inline-flex size-7 items-center justify-center rounded border border-zinc-200 bg-white text-zinc-700 transition hover:bg-zinc-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              title="Página siguiente"
+            >
+              <ChevronRight className="size-3.5" />
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 import { BookingsTable, type AppointmentItem } from "@/components/admin/bookings-table";
-import { CopyBookingLink } from "@/components/admin/copy-booking-link";
+import { DateNavigator } from "@/components/admin/date-navigator";
 import { formatPrice } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
@@ -94,36 +94,12 @@ export default async function AgendaPage({
 
         {/* Date Jumps & Actions */}
         <div className="flex flex-wrap items-center gap-2">
-          <CopyBookingLink />
-
-          <div className="flex items-center rounded-md border border-zinc-200 bg-white p-0.5 shadow-xs">
-            <Link
-              href={`/admin/agenda?fecha=${dateKey(addDays(day, -1))}`}
-              className="grid size-8 place-items-center rounded text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-950"
-              aria-label="Día anterior"
-            >
-              <ChevronLeft className="size-4" />
-            </Link>
-
-            <Link
-              href={`/admin/agenda?fecha=${todayKey}`}
-              className={`inline-flex h-8 items-center rounded px-3 text-xs font-semibold transition ${
-                currentKey === todayKey
-                  ? "bg-zinc-900 text-white"
-                  : "text-zinc-700 hover:bg-zinc-100"
-              }`}
-            >
-              Hoy
-            </Link>
-
-            <Link
-              href={`/admin/agenda?fecha=${dateKey(addDays(day, 1))}`}
-              className="grid size-8 place-items-center rounded text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-950"
-              aria-label="Día siguiente"
-            >
-              <ChevronRight className="size-4" />
-            </Link>
-          </div>
+          <DateNavigator
+            currentKey={currentKey}
+            todayKey={todayKey}
+            prevKey={dateKey(addDays(day, -1))}
+            nextKey={dateKey(addDays(day, 1))}
+          />
 
           <Link
             href="/admin/reservar"

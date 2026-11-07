@@ -6,6 +6,7 @@ import {
   toggleServiceAction,
   updateServiceAction,
 } from "@/app/admin/actions";
+import { ServicesList } from "@/components/admin/services-list";
 import { formatPrice } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
@@ -137,85 +138,7 @@ export default async function ServiciosPage({
           <span className="text-[11px] text-zinc-500 font-medium">Activos en la carta web</span>
         </div>
 
-        {services.length === 0 ? (
-          <div className="p-10 text-center text-xs text-zinc-500">
-            Todavía no hay servicios creados en el catálogo.
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-left text-xs">
-              <thead>
-                <tr className="border-b border-zinc-200 bg-zinc-50 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
-                  <th className="px-4 py-2.5">Servicio</th>
-                  <th className="px-4 py-2.5">Duración</th>
-                  <th className="px-4 py-2.5">Precio</th>
-                  <th className="px-4 py-2.5">Estado</th>
-                  <th className="px-4 py-2.5 text-right">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-200">
-                {services.map((service) => (
-                  <tr key={service.id} className="transition-colors hover:bg-zinc-50/75">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2.5">
-                        <span
-                          className="size-2.5 shrink-0 rounded-full"
-                          style={{ backgroundColor: service.color }}
-                        />
-                        <div>
-                          <span className="block font-semibold text-zinc-900">
-                            {service.name}
-                          </span>
-                          {service.description && (
-                            <span className="block max-w-sm text-[11px] text-zinc-500 truncate">
-                              {service.description}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-
-                    <td className="whitespace-nowrap px-4 py-3 text-zinc-800 font-medium">
-                      {service.durationMin} min
-                    </td>
-
-                    <td className="whitespace-nowrap px-4 py-3 font-semibold text-zinc-950">
-                      {formatPrice(service.priceCents, settings.currency)}
-                    </td>
-
-                    <td className="whitespace-nowrap px-4 py-3">
-                      {service.isActive ? (
-                        <span className="inline-flex items-center gap-1 rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-800">
-                          <span className="size-1.5 rounded-full bg-emerald-500" />
-                          <span>Activo</span>
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 rounded border border-zinc-200 bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-600">
-                          <span className="size-1.5 rounded-full bg-zinc-400" />
-                          <span>Pausado</span>
-                        </span>
-                      )}
-                    </td>
-
-                    <td className="whitespace-nowrap px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <form action={toggleServiceAction}>
-                          <input type="hidden" name="id" value={service.id} />
-                          <button
-                            type="submit"
-                            className="inline-flex h-7 items-center rounded border border-zinc-200 bg-white px-2.5 text-[11px] font-medium text-zinc-700 transition hover:bg-zinc-100 cursor-pointer"
-                          >
-                            {service.isActive ? "Pausar" : "Reactivar"}
-                          </button>
-                        </form>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <ServicesList services={services} currency={settings.currency} />
       </div>
     </div>
   );

@@ -7,7 +7,6 @@ import {
   Bell,
   CalendarDays,
   CalendarPlus,
-  ChevronDown,
   Clock,
   ExternalLink,
   LayoutDashboard,
@@ -20,7 +19,6 @@ import {
 } from "lucide-react";
 
 import { logoutAction } from "@/app/admin/actions";
-import { CopyBookingLink } from "@/components/admin/copy-booking-link";
 
 type NavItem = {
   href: string;
@@ -110,7 +108,7 @@ export function AdminShell({
 
           {/* Brand Logo & Name */}
           <Link href="/admin" className="flex items-center gap-2.5 group">
-            <span className="flex size-7 items-center justify-center rounded bg-gradient-to-br from-zinc-700 to-zinc-900 font-mono text-xs font-bold text-white ring-1 ring-zinc-700">
+            <span className="flex size-7 items-center justify-center rounded bg-zinc-800 font-mono text-xs font-bold text-white ring-1 ring-zinc-700">
               ST
             </span>
             <div className="flex flex-col">
@@ -123,11 +121,6 @@ export function AdminShell({
 
         {/* Right Tools (Metis top nav right) */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* Copy booking URL */}
-          <div className="hidden sm:block">
-            <CopyBookingLink />
-          </div>
-
           {/* Public site link */}
           <Link
             href="/"
