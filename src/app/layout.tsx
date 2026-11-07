@@ -29,7 +29,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es-CO">
+    <html lang="es-CO" className="scroll-smooth">
       <body className="min-h-dvh bg-white text-zinc-900">
         {children}
         <PwaRegister />

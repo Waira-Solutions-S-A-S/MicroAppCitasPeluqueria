@@ -1,9 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Dynamic auth + database reads everywhere: no route-level prerender cache.
   cacheComponents: false,
   serverExternalPackages: ["@prisma/client"],
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+    ],
+  },
   turbopack: {
     rules: {
       "*.css": {
@@ -15,3 +22,4 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+

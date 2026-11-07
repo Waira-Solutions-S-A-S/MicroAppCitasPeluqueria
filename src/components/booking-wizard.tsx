@@ -216,7 +216,7 @@ export function BookingWizard({
         clientPhone: clientPhone.trim(),
         clientEmail: clientEmail.trim() || undefined,
         notes: notes.trim() || undefined,
-        recurring: repeatEnabled ? { intervalWeeks, occurrences } : undefined,
+        repeat: repeatEnabled ? { intervalWeeks, occurrences } : undefined,
       };
 
       const response = await fetch("/api/bookings", {
@@ -518,7 +518,7 @@ export function BookingWizard({
                       <span className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                         {label.weekday}
                       </span>
-                      <span className="text-xl font-black leading-tight">
+                      <span className="text-xl font-bold leading-tight">
                         {label.day}
                       </span>
                       <span className="text-[10px] font-semibold opacity-70 uppercase">
@@ -546,7 +546,7 @@ export function BookingWizard({
                   <div className="space-y-6">
                     {groups.map((group) => (
                       <div key={group.label}>
-                        <p className="mb-2.5 text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+                        <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
                           {group.label}
                         </p>
                         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
@@ -563,7 +563,7 @@ export function BookingWizard({
                                     : "border-zinc-200 bg-white text-zinc-800 hover:border-zinc-300 hover:bg-zinc-50"
                                 }`}
                               >
-                                <span className="block text-sm font-bold tracking-tight">
+                                <span className="block text-sm font-semibold tracking-tight">
                                   {slot.startAt.slice(11, 16)}
                                 </span>
                                 {staffId === "any" && (
@@ -746,24 +746,31 @@ export function BookingWizard({
                 <ArrowRight className="size-3.5" />
               </button>
             ) : (
-              <button
-                type="button"
-                onClick={submit}
-                disabled={!canContinue || submitting}
-                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-zinc-950 px-6 py-2.5 text-xs font-medium text-white shadow-xs transition hover:bg-zinc-800 active:scale-98 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
-              >
-                {submitting ? (
-                  <>
-                    <Loader2 className="size-3.5 animate-spin" />
-                    <span>Confirmando turno…</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Confirmar mi turno</span>
-                    <Check className="size-3.5" strokeWidth={3} />
-                  </>
+              <div className="flex flex-col items-end gap-1.5">
+                <button
+                  type="button"
+                  onClick={submit}
+                  disabled={!canContinue || submitting}
+                  className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-zinc-950 px-6 py-2.5 text-xs font-medium text-white shadow-xs transition hover:bg-zinc-800 active:scale-98 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 className="size-3.5 animate-spin" />
+                      <span>Confirmando turno…</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Confirmar mi turno</span>
+                      <Check className="size-3.5" strokeWidth={3} />
+                    </>
+                  )}
+                </button>
+                {!canContinue && (
+                  <span className="text-[11px] text-zinc-500">
+                    Ingresa tu nombre y teléfono para confirmar
+                  </span>
                 )}
-              </button>
+              </div>
             )}
           </div>
         </div>

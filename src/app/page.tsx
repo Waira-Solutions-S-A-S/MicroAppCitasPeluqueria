@@ -28,37 +28,49 @@ const audiences = [
     name: "Peluquerías",
     initial: "P",
     color: "#18181b",
-    description: "Cortes, color y tratamientos sin cruces de horarios.",
+    image: "/swiper-imgs/img-studio-001.jpg",
+    tag: "Corte & Color",
+    description: "Cortes, coloración y tratamientos sin cruces de horarios ni esperas en sala.",
   },
   {
     name: "Barberías",
     initial: "B",
     color: "#7c3aed",
-    description: "Turnos rápidos, clientes fieles y agenda siempre llena.",
+    image: "/studio/img-section-01.jpg",
+    tag: "Barba & Estilo",
+    description: "Turnos rápidos, clientes recurrentes y sillones siempre ocupados.",
   },
   {
     name: "Tatuadores",
     initial: "T",
     color: "#db2777",
-    description: "Sesiones largas, señas y disponibilidad clara.",
+    image: "/studio/img-section-tattoo.jpeg",
+    tag: "Tattoo & Arte",
+    description: "Sesiones largas, señas previas y disponibilidad clara por artista.",
   },
   {
     name: "Fotógrafos",
     initial: "F",
     color: "#0891b2",
-    description: "Sesiones y entregas sin idas y vueltas.",
+    image: "/studio/fotografia.jpg",
+    tag: "Estudio & Sesiones",
+    description: "Sesiones en estudio, producciones y entregas sin idas y vueltas por chat.",
   },
   {
     name: "Maquilladoras",
     initial: "M",
     color: "#d97706",
-    description: "Eventos, pruebas y clientas que vuelven.",
+    image: "/studio/maquillaje.jpg",
+    tag: "Social & Eventos",
+    description: "Pruebas de novias, eventos de fin de semana y clientas que recomiendan.",
   },
   {
     name: "Estilistas y cosmetólogas",
     initial: "E",
     color: "#059669",
-    description: "Tratamientos recurrentes y seguimiento personalizado.",
+    image: "/studio/img-section-03.jpg",
+    tag: "Cuidado & Skincare",
+    description: "Tratamientos periódicos, fichas con preferencias y seguimiento personalizado.",
   },
 ];
 
@@ -123,6 +135,12 @@ export default async function HomePage({
               Beneficios
             </a>
             <a
+              href="#fidelizacion"
+              className="text-xs font-medium uppercase tracking-wider text-zinc-600 transition hover:text-zinc-950"
+            >
+              Fidelización
+            </a>
+            <a
               href="#para-quien"
               className="text-xs font-medium uppercase tracking-wider text-zinc-600 transition hover:text-zinc-950"
             >
@@ -133,12 +151,6 @@ export default async function HomePage({
               className="text-xs font-medium uppercase tracking-wider text-zinc-600 transition hover:text-zinc-950"
             >
               Precios
-            </a>
-            <a
-              href="#fidelizacion"
-              className="text-xs font-medium uppercase tracking-wider text-zinc-600 transition hover:text-zinc-950"
-            >
-              Fidelización
             </a>
           </nav>
 
@@ -176,6 +188,25 @@ export default async function HomePage({
               <span>Empezar gratis</span>
             </Link>
           </div>
+        </div>
+
+        {/* Mobile Navigation Strip */}
+        <div className="no-scrollbar flex items-center gap-5 overflow-x-auto border-t border-zinc-100 px-6 py-2.5 text-[11px] font-medium tracking-wide uppercase text-zinc-600 md:hidden bg-white/90">
+          <a href="#producto" className="shrink-0 transition hover:text-zinc-950">
+            Producto
+          </a>
+          <a href="#beneficios" className="shrink-0 transition hover:text-zinc-950">
+            Beneficios
+          </a>
+          <a href="#fidelizacion" className="shrink-0 transition hover:text-zinc-950">
+            Fidelización
+          </a>
+          <a href="#para-quien" className="shrink-0 transition hover:text-zinc-950">
+            Para quién
+          </a>
+          <a href="#precios" className="shrink-0 transition hover:text-zinc-950">
+            Precios
+          </a>
         </div>
       </header>
 
@@ -429,32 +460,53 @@ export default async function HomePage({
             {audiences.map((audience) => (
               <div
                 key={audience.name}
-                className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-xs"
+                className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-zinc-200/80 bg-white shadow-xs transition duration-200 hover:-translate-y-1 hover:border-zinc-300 hover:shadow-md"
               >
-                <div className="flex items-center gap-4">
-                  <div
-                    className="flex size-12 items-center justify-center rounded-xl text-sm font-semibold text-white"
-                    style={{ backgroundColor: audience.color }}
-                  >
-                    {audience.initial}
+                <div>
+                  <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-100">
+                    <Image
+                      src={audience.image}
+                      alt={audience.name}
+                      fill
+                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                      className="size-full object-cover transition duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute top-3 left-3">
+                      <span className="inline-flex items-center rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-zinc-900 shadow-xs backdrop-blur-xs">
+                        {audience.tag}
+                      </span>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-base font-medium text-zinc-950">{audience.name}</h3>
-                    <p className="text-xs text-zinc-500">Negocio de agenda</p>
+
+                  <div className="p-6">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="flex size-9 items-center justify-center rounded-lg text-xs font-semibold text-white shadow-xs"
+                        style={{ backgroundColor: audience.color }}
+                      >
+                        {audience.initial}
+                      </div>
+                      <div>
+                        <h3 className="text-base font-medium text-zinc-950">{audience.name}</h3>
+                        <p className="text-xs text-zinc-500">Negocio de agenda</p>
+                      </div>
+                    </div>
+
+                    <p className="mt-4 text-xs leading-relaxed text-zinc-600">
+                      {audience.description}
+                    </p>
                   </div>
                 </div>
 
-                <p className="mt-5 border-t border-zinc-100 pt-4 text-xs leading-relaxed text-zinc-600">
-                  {audience.description}
-                </p>
-
-                <Link
-                  href="#precios"
-                  className="mt-6 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 py-2.5 text-xs font-medium text-zinc-900 transition hover:bg-zinc-100"
-                >
-                  <span>Empezar gratis</span>
-                  <ArrowRight className="size-3.5" />
-                </Link>
+                <div className="p-6 pt-0">
+                  <Link
+                    href="#precios"
+                    className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 py-2.5 text-xs font-medium text-zinc-900 transition hover:bg-zinc-100"
+                  >
+                    <span>Empezar gratis</span>
+                    <ArrowRight className="size-3.5" />
+                  </Link>
+                </div>
               </div>
             ))}
           </div>

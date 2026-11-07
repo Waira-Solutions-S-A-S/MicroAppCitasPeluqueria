@@ -85,7 +85,7 @@ export async function createServiceAction(formData: FormData): Promise<void> {
       description: parsed.data.description ?? null,
       durationMin: parsed.data.durationMin,
       priceCents: parsed.data.priceCents,
-      color: parsed.data.color ?? "#8b5cf6",
+      color: parsed.data.color ?? "#18181b",
       sortOrder: await prisma.service.count(),
     },
   });

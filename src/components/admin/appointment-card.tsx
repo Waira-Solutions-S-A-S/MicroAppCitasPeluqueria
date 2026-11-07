@@ -1,4 +1,4 @@
-import { Check, CheckCheck, X } from "lucide-react";
+import { Check, CheckCheck, MessageCircle, X } from "lucide-react";
 
 import { updateAppointmentStatusAction } from "@/app/admin/actions";
 import { STATUS_CLASSES, STATUS_LABELS } from "@/lib/format";
@@ -17,6 +17,8 @@ export type AppointmentRow = {
 };
 
 export function AppointmentCard({ appointment }: { appointment: AppointmentRow }) {
+  const cleanPhone = appointment.clientPhone.replace(/\D/g, "");
+
   return (
     <article className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-xs transition hover:border-zinc-300">
       <div className="flex items-start justify-between gap-3">
@@ -56,26 +58,40 @@ export function AppointmentCard({ appointment }: { appointment: AppointmentRow }
         </span>
       </div>
 
-      {(appointment.status === "PENDING" || appointment.status === "CONFIRMED") && (
-        <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-zinc-100 pt-3">
-          {appointment.status === "PENDING" && (
-            <StatusButton id={appointment.id} status="CONFIRMED" tone="confirm">
-              <Check className="size-3.5" />
-              Confirmar
+      <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-zinc-100 pt-3">
+        {cleanPhone.length >= 7 && (
+          <a
+            href={`https://wa.me/${cleanPhone}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3.5 py-1.5 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50 hover:text-zinc-950"
+          >
+            <MessageCircle className="size-3.5 text-emerald-600" />
+            <span>Contactar WhatsApp</span>
+          </a>
+        )}
+
+        {(appointment.status === "PENDING" || appointment.status === "CONFIRMED") && (
+          <>
+            {appointment.status === "PENDING" && (
+              <StatusButton id={appointment.id} status="CONFIRMED" tone="confirm">
+                <Check className="size-3.5" />
+                Confirmar
+              </StatusButton>
+            )}
+            {appointment.status === "CONFIRMED" && (
+              <StatusButton id={appointment.id} status="COMPLETED" tone="complete">
+                <CheckCheck className="size-3.5" />
+                Completar
+              </StatusButton>
+            )}
+            <StatusButton id={appointment.id} status="CANCELLED" tone="cancel">
+              <X className="size-3.5" />
+              Cancelar
             </StatusButton>
-          )}
-          {appointment.status === "CONFIRMED" && (
-            <StatusButton id={appointment.id} status="COMPLETED" tone="complete">
-              <CheckCheck className="size-3.5" />
-              Completar
-            </StatusButton>
-          )}
-          <StatusButton id={appointment.id} status="CANCELLED" tone="cancel">
-            <X className="size-3.5" />
-            Cancelar
-          </StatusButton>
-        </div>
-      )}
+          </>
+        )}
+      </div>
     </article>
   );
 }
