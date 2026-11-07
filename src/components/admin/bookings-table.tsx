@@ -2,14 +2,19 @@
 
 import { useMemo, useState } from "react";
 import {
+  AlertTriangle,
   CalendarDays,
   Check,
   CheckCheck,
   ChevronLeft,
   ChevronRight,
+  Filter,
   MessageCircle,
+  Phone,
+  RotateCcw,
   Search,
   Table as TableIcon,
+  User,
   X,
 } from "lucide-react";
 
@@ -93,9 +98,22 @@ export function BookingsTable({
   title?: string;
 }) {
   const [filter, setFilter] = useState<"ALL" | "PENDING" | "CONFIRMED" | "COMPLETED">("ALL");
+  const [staffFilter, setStaffFilter] = useState<string>("ALL");
   const [search, setSearch] = useState("");
   const [pageSize, setPageSize] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [cancellingItem, setCancellingItem] = useState<AppointmentItem | null>(null);
+
+  // Extract distinct staff members
+  const staffList = useMemo(() => {
+    const map = new Map<string, { id: string; name: string; color: string }>();
+    appointments.forEach((a) => {
+      if (!map.has(a.staff.id)) {
+        map.set(a.staff.id, { id: a.staff.id, name: a.staff.name, color: a.staff.color });
+      }
+    });
+    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [appointments]);
 
   const counts = useMemo(() => {
     return {
@@ -112,6 +130,8 @@ export function BookingsTable({
       if (filter === "CONFIRMED" && a.status !== "CONFIRMED") return false;
       if (filter === "COMPLETED" && a.status !== "COMPLETED") return false;
 
+      if (staffFilter !== "ALL" && a.staff.id !== staffFilter) return false;
+
       if (!search.trim()) return true;
       const term = search.toLowerCase();
       return (
@@ -121,7 +141,7 @@ export function BookingsTable({
         a.staff.name.toLowerCase().includes(term)
       );
     });
-  }, [appointments, filter, search]);
+  }, [appointments, filter, staffFilter, search]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const safePage = Math.min(currentPage, totalPages);
@@ -133,6 +153,15 @@ export function BookingsTable({
 
   const fromRecord = filtered.length === 0 ? 0 : (safePage - 1) * pageSize + 1;
   const toRecord = Math.min(safePage * pageSize, filtered.length);
+
+  const hasActiveFilters = filter !== "ALL" || staffFilter !== "ALL" || search.trim() !== "";
+
+  const resetFilters = () => {
+    setFilter("ALL");
+    setStaffFilter("ALL");
+    setSearch("");
+    setCurrentPage(1);
+  };
 
   return (
     <div className="rounded-lg border border-zinc-200 bg-white shadow-xs overflow-hidden">
@@ -211,23 +240,59 @@ export function BookingsTable({
       </div>
 
       {/* 2. Metis DataTable Toolbar Controls */}
-      <div className="flex flex-col gap-2 border-b border-zinc-200 bg-white px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between">
-        {/* Page size selector */}
-        <div className="flex items-center gap-2 text-xs text-zinc-600">
-          <span>Mostrar</span>
-          <select
-            value={pageSize}
-            onChange={(e) => {
-              setPageSize(Number(e.target.value));
-              setCurrentPage(1);
-            }}
-            className="rounded border border-zinc-200 bg-white px-2 py-1 text-xs text-zinc-800 outline-none focus:border-zinc-900"
-          >
-            <option value={10}>10</option>
-            <option value={25}>25</option>
-            <option value={50}>50</option>
-          </select>
-          <span>registros por página</span>
+      <div className="flex flex-col gap-2.5 border-b border-zinc-200 bg-white px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-600">
+          {/* Page size selector */}
+          <div className="flex items-center gap-1.5">
+            <span>Mostrar</span>
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              className="rounded border border-zinc-200 bg-white px-2 py-1 text-xs text-zinc-800 outline-none focus:border-zinc-900"
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+
+          {/* Professional filter dropdown */}
+          {staffList.length > 1 && (
+            <div className="flex items-center gap-1.5 border-l border-zinc-200 pl-3">
+              <User className="size-3 text-zinc-400" />
+              <select
+                value={staffFilter}
+                onChange={(e) => {
+                  setStaffFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="rounded border border-zinc-200 bg-white px-2 py-1 text-xs text-zinc-800 outline-none focus:border-zinc-900"
+              >
+                <option value="ALL">Todos los profesionales</option>
+                {staffList.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Reset filters button if active */}
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="inline-flex items-center gap-1 text-[11px] font-semibold text-zinc-500 hover:text-zinc-900 cursor-pointer"
+              title="Restablecer todos los filtros"
+            >
+              <RotateCcw className="size-3" />
+              <span>Limpiar filtros</span>
+            </button>
+          )}
         </div>
 
         {/* Search input */}
@@ -254,10 +319,20 @@ export function BookingsTable({
             No se encontraron registros
           </p>
           <p className="mt-0.5 text-xs text-zinc-500">
-            {search
+            {hasActiveFilters
               ? "Prueba modificando el texto de búsqueda o cambiando el filtro."
               : "No hay citas registradas para este criterio."}
           </p>
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="mt-3 inline-flex items-center gap-1 rounded border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-50 cursor-pointer"
+            >
+              <RotateCcw className="size-3 text-zinc-500" />
+              <span>Restablecer filtros</span>
+            </button>
+          )}
         </div>
       ) : (
         <div className="overflow-x-auto">
@@ -309,11 +384,18 @@ export function BookingsTable({
                       <span className="block font-semibold text-zinc-900">
                         {item.clientName}
                       </span>
-                      <span className="text-[11px] text-zinc-500">
-                        {item.clientPhone}
-                      </span>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <a
+                          href={`tel:${item.clientPhone}`}
+                          className="inline-flex items-center gap-1 text-[11px] text-zinc-600 hover:text-zinc-950 hover:underline"
+                          title="Llamar al cliente"
+                        >
+                          <Phone className="size-2.5 text-zinc-400" />
+                          <span>{item.clientPhone}</span>
+                        </a>
+                      </div>
                       {item.notes && (
-                        <span className="mt-0.5 block max-w-xs truncate text-[11px] text-zinc-500 italic">
+                        <span className="mt-1 block max-w-xs truncate text-[11px] text-zinc-500 italic bg-zinc-50 px-1.5 py-0.5 rounded border border-zinc-100">
                           “{item.notes}”
                         </span>
                       )}
@@ -324,7 +406,7 @@ export function BookingsTable({
                       <span className="block font-medium text-zinc-900">
                         {item.service.name}
                       </span>
-                      <span className="text-[11px] text-zinc-500">
+                      <span className="text-[11px] text-zinc-500 font-mono">
                         {formatPrice(item.service.priceCents, currency)}
                       </span>
                     </td>
@@ -407,17 +489,14 @@ export function BookingsTable({
                         )}
 
                         {(item.status === "PENDING" || item.status === "CONFIRMED") && (
-                          <form action={updateAppointmentStatusAction}>
-                            <input type="hidden" name="id" value={item.id} />
-                            <input type="hidden" name="status" value="CANCELLED" />
-                            <button
-                              type="submit"
-                              className="inline-flex size-7 items-center justify-center rounded border border-transparent text-xs font-medium text-zinc-400 transition hover:border-red-200 hover:bg-red-50 hover:text-red-700 cursor-pointer"
-                              title="Cancelar cita"
-                            >
-                              <X className="size-3" />
-                            </button>
-                          </form>
+                          <button
+                            type="button"
+                            onClick={() => setCancellingItem(item)}
+                            className="inline-flex size-7 items-center justify-center rounded border border-transparent text-xs font-medium text-zinc-400 transition hover:border-red-200 hover:bg-red-50 hover:text-red-700 cursor-pointer"
+                            title="Cancelar cita"
+                          >
+                            <X className="size-3" />
+                          </button>
                         )}
                       </div>
                     </td>
@@ -477,6 +556,60 @@ export function BookingsTable({
           </div>
         )}
       </div>
+
+      {/* 5. Confirmation Modal Safeguard for Cancellation */}
+      {cancellingItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+          <div className="w-full max-w-md rounded-lg border border-zinc-200 bg-white p-5 shadow-2xl">
+            <div className="flex items-center gap-3 text-red-600 mb-3">
+              <div className="flex size-10 items-center justify-center rounded-full bg-red-50 text-red-600">
+                <AlertTriangle className="size-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-zinc-950">¿Confirmar Cancelación?</h3>
+                <p className="text-xs text-zinc-500">Esta acción liberará el horario de atención.</p>
+              </div>
+            </div>
+
+            <div className="rounded-md border border-zinc-100 bg-zinc-50 p-3 text-xs text-zinc-700 space-y-1 my-4">
+              <p>
+                <strong>Cliente:</strong> {cancellingItem.clientName} ({cancellingItem.clientPhone})
+              </p>
+              <p>
+                <strong>Servicio:</strong> {cancellingItem.service.name}
+              </p>
+              <p>
+                <strong>Profesional:</strong> {cancellingItem.staff.name}
+              </p>
+              <p>
+                <strong>Horario:</strong> {formatHour(cancellingItem.startAt)} a {formatHour(cancellingItem.endAt)} hs
+              </p>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-100">
+              <button
+                type="button"
+                onClick={() => setCancellingItem(null)}
+                className="inline-flex h-8 items-center rounded border border-zinc-300 bg-white px-3 text-xs font-semibold text-zinc-700 hover:bg-zinc-50 cursor-pointer"
+              >
+                No, conservar turno
+              </button>
+
+              <form action={updateAppointmentStatusAction}>
+                <input type="hidden" name="id" value={cancellingItem.id} />
+                <input type="hidden" name="status" value="CANCELLED" />
+                <button
+                  type="submit"
+                  className="inline-flex h-8 items-center gap-1 rounded bg-red-600 px-3.5 text-xs font-semibold text-white hover:bg-red-700 cursor-pointer shadow-xs"
+                >
+                  <X className="size-3.5" />
+                  <span>Sí, cancelar cita</span>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

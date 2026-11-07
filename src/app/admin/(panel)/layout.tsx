@@ -13,12 +13,40 @@ export default async function AdminPanelLayout({
   const settings = await getSettings();
   const today = startOfDay(nowWallClock(settings.timezone));
 
-  const pendingCount = await prisma.appointment.count({
-    where: {
-      status: "PENDING",
-      startAt: { gte: today },
-    },
-  });
+  const [pendingCount, pendingAppointments] = await Promise.all([
+    prisma.appointment.count({
+      where: {
+        status: "PENDING",
+        startAt: { gte: today },
+      },
+    }),
+    prisma.appointment.findMany({
+      where: {
+        status: "PENDING",
+        startAt: { gte: today },
+      },
+      orderBy: { startAt: "asc" },
+      take: 5,
+      select: {
+        id: true,
+        clientName: true,
+        clientPhone: true,
+        startAt: true,
+        service: { select: { name: true } },
+        staff: { select: { name: true, color: true } },
+      },
+    }),
+  ]);
+
+  const serializedPending = pendingAppointments.map((p) => ({
+    id: p.id,
+    clientName: p.clientName,
+    clientPhone: p.clientPhone,
+    startAt: p.startAt.toISOString(),
+    serviceName: p.service.name,
+    staffName: p.staff.name,
+    staffColor: p.staff.color,
+  }));
 
   return (
     <AdminShell
@@ -26,6 +54,7 @@ export default async function AdminPanelLayout({
       userEmail={user.email}
       userName={user.name || "Administrador"}
       pendingCount={pendingCount}
+      pendingItems={serializedPending}
     >
       {children}
     </AdminShell>

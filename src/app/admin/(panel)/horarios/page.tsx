@@ -8,6 +8,7 @@ import {
   updateStaffAction,
 } from "@/app/admin/actions";
 import { Flash } from "@/components/admin/flash";
+import { StaffScheduleEditor } from "@/components/admin/staff-schedule-editor";
 import { prisma } from "@/lib/prisma";
 import { minutesToLabel, WEEKDAYS } from "@/lib/time";
 
@@ -146,77 +147,11 @@ export default async function HorariosPage({
 
               {/* Horarios semanales del miembro */}
               <div className="p-5">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 mb-3">
-                  Horario semanal de atención
-                </p>
-
-                <form action={saveHoursAction} className="space-y-2">
-                  <input type="hidden" name="staffId" value={member.id} />
-
-                  <div className="overflow-x-auto">
-                    <table className="w-full border-collapse text-left text-xs">
-                      <thead>
-                        <tr className="border-b border-zinc-200 text-[11px] font-semibold text-zinc-500 uppercase">
-                          <th className="py-2 pr-4">Día</th>
-                          <th className="py-2 px-4">Hora Inicio</th>
-                          <th className="py-2 px-4">Hora Cierre</th>
-                          <th className="py-2 pl-4 text-right">Atención</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-zinc-100">
-                        {WEEKDAYS.map((name, weekday) => {
-                          const existing = byDay.get(weekday);
-                          const startVal = minutesToLabel(existing ? existing.startMin : 9 * 60);
-                          const endVal = minutesToLabel(existing ? existing.endMin : 19 * 60);
-                          const isClosed = existing ? existing.isClosed : weekday === 0;
-
-                          return (
-                            <tr key={name} className="hover:bg-zinc-50/50">
-                              <td className="py-2 pr-4 font-semibold text-zinc-800">{name}</td>
-                              <td className="py-2 px-4">
-                                <input
-                                  type="time"
-                                  name={`start_${weekday}`}
-                                  defaultValue={startVal}
-                                  className="h-7 rounded border border-zinc-200 px-2 text-xs text-zinc-800"
-                                />
-                              </td>
-                              <td className="py-2 px-4">
-                                <input
-                                  type="time"
-                                  name={`end_${weekday}`}
-                                  defaultValue={endVal}
-                                  className="h-7 rounded border border-zinc-200 px-2 text-xs text-zinc-800"
-                                />
-                              </td>
-                              <td className="py-2 pl-4 text-right">
-                                <label className="inline-flex items-center gap-1.5 cursor-pointer text-[11px]">
-                                  <input
-                                    type="checkbox"
-                                    name={`closed_${weekday}`}
-                                    defaultChecked={isClosed}
-                                    className="size-3.5 rounded border-zinc-300"
-                                  />
-                                  <span>Cerrado</span>
-                                </label>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  <div className="pt-3 flex justify-end">
-                    <button
-                      type="submit"
-                      className="inline-flex min-h-[32px] items-center gap-1.5 rounded bg-zinc-900 px-4 py-1 text-xs font-semibold text-white shadow-xs transition hover:bg-zinc-800 cursor-pointer"
-                    >
-                      <Save className="size-3.5" />
-                      <span>Guardar horarios</span>
-                    </button>
-                  </div>
-                </form>
+                <StaffScheduleEditor
+                  staffId={member.id}
+                  staffName={member.name}
+                  workingHours={member.workingHours}
+                />
 
                 {/* Asignación de servicios */}
                 <div className="mt-5 border-t border-zinc-100 pt-4">

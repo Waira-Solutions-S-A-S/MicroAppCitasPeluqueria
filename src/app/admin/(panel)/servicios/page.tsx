@@ -6,6 +6,7 @@ import {
   toggleServiceAction,
   updateServiceAction,
 } from "@/app/admin/actions";
+import { NewServiceForm } from "@/components/admin/new-service-form";
 import { ServicesList } from "@/components/admin/services-list";
 import { formatPrice } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
@@ -45,88 +46,8 @@ export default async function ServiciosPage({
 
       <Flash ok={params.ok} error={params.error} />
 
-      {/* Metis Card: Formulario nuevo servicio */}
-      <div className="rounded-lg border border-zinc-200 bg-white shadow-xs overflow-hidden">
-        <div className="border-b border-zinc-200 bg-zinc-50/75 px-5 py-3.5">
-          <h2 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-zinc-800">
-            <Plus className="size-4 text-zinc-700" />
-            <span>Agregar Nuevo Servicio al Catálogo</span>
-          </h2>
-        </div>
-
-        <form action={createServiceAction} className="p-5 grid gap-4 sm:grid-cols-2">
-          <label className="sm:col-span-2 block">
-            <span className="mb-1 block text-xs font-semibold text-zinc-700">Nombre del servicio</span>
-            <input
-              name="name"
-              required
-              minLength={2}
-              placeholder="Ej. Corte de autor & styling"
-              className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
-            />
-          </label>
-
-          <label className="sm:col-span-2 block">
-            <span className="mb-1 block text-xs font-semibold text-zinc-700">
-              Descripción detallada (opcional)
-            </span>
-            <input
-              name="description"
-              placeholder="Incluye diagnóstico capilar, lavado profesional y peinado final."
-              className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-1 block text-xs font-semibold text-zinc-700">Duración estimada (min)</span>
-            <input
-              name="durationMin"
-              type="number"
-              min={5}
-              max={480}
-              step={5}
-              defaultValue={45}
-              required
-              className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-1 block text-xs font-semibold text-zinc-700">
-              Precio ({settings.currency})
-            </span>
-            <input
-              name="price"
-              type="number"
-              min={0}
-              step={100}
-              defaultValue={10000}
-              required
-              className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-1 block text-xs font-semibold text-zinc-700">Color distintivo</span>
-            <input
-              name="color"
-              type="color"
-              defaultValue="#18181b"
-              className="h-9 w-full cursor-pointer rounded-md border border-zinc-200 bg-white px-2 py-1"
-            />
-          </label>
-
-          <div className="flex items-end pt-2">
-            <button
-              type="submit"
-              className="inline-flex min-h-[36px] items-center gap-2 rounded-md bg-zinc-900 px-5 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-zinc-800 cursor-pointer"
-            >
-              <Plus className="size-3.5" />
-              <span>Guardar servicio</span>
-            </button>
-          </div>
-        </form>
-      </div>
+      {/* Metis Card: Formulario nuevo servicio con presets */}
+      <NewServiceForm currency={settings.currency} />
 
       {/* Metis Card: Flush Table of Services */}
       <div className="rounded-lg border border-zinc-200 bg-white shadow-xs overflow-hidden">

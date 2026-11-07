@@ -4,7 +4,10 @@ import {
   CalendarDays,
   CalendarPlus,
   Clock,
+  Scissors,
+  Settings,
   TrendingUp,
+  UserCheck,
   Users,
 } from "lucide-react";
 
@@ -24,7 +27,7 @@ export default async function AdminHomePage() {
   const tomorrow = addDays(today, 1);
   const nextWeek = addDays(today, 7);
 
-  const [todayAppointments, pendingCount, weekCount] = await Promise.all([
+  const [todayAppointments, pendingCount, weekCount, activeStaff] = await Promise.all([
     prisma.appointment.findMany({
       where: {
         startAt: { gte: today, lt: tomorrow },
@@ -40,6 +43,20 @@ export default async function AdminHomePage() {
       where: {
         startAt: { gte: today, lt: nextWeek },
         status: { not: "CANCELLED" },
+      },
+    }),
+    prisma.staffMember.findMany({
+      where: { isActive: true },
+      orderBy: { name: "asc" },
+      include: {
+        appointments: {
+          where: {
+            startAt: { gte: today, lt: tomorrow },
+            status: { not: "CANCELLED" },
+          },
+          orderBy: { startAt: "asc" },
+          select: { id: true, startAt: true },
+        },
       },
     }),
   ]);
@@ -90,6 +107,13 @@ export default async function AdminHomePage() {
 
         <div className="flex flex-wrap items-center gap-2">
           <Link
+            href="/admin/agenda"
+            className="inline-flex min-h-[36px] items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-zinc-800 shadow-xs transition hover:bg-zinc-50 hover:text-zinc-950"
+          >
+            <CalendarDays className="size-3.5 text-zinc-500" />
+            <span>Ver agenda de hoy</span>
+          </Link>
+          <Link
             href="/admin/reservar"
             className="inline-flex min-h-[36px] items-center gap-1.5 rounded-md bg-zinc-900 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs transition hover:bg-zinc-800"
           >
@@ -107,7 +131,7 @@ export default async function AdminHomePage() {
             <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
               Citas Hoy
             </span>
-            <p className="mt-1 text-2xl font-bold tracking-tight text-zinc-950">
+            <p className="mt-1 text-2xl font-bold tracking-tight text-zinc-950 font-mono">
               {todayAppointments.length}
             </p>
             <p className="text-[11px] text-zinc-500">Turnos agendados</p>
@@ -123,7 +147,7 @@ export default async function AdminHomePage() {
             <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600">
               Por Confirmar
             </span>
-            <p className="mt-1 text-2xl font-bold tracking-tight text-zinc-950">
+            <p className="mt-1 text-2xl font-bold tracking-tight text-zinc-950 font-mono">
               {pendingCount}
             </p>
             <p className="text-[11px] text-zinc-500">Pendientes de respuesta</p>
@@ -139,7 +163,7 @@ export default async function AdminHomePage() {
             <span className="text-[10px] font-bold uppercase tracking-wider text-sky-600">
               Próximos 7 Días
             </span>
-            <p className="mt-1 text-2xl font-bold tracking-tight text-zinc-950">
+            <p className="mt-1 text-2xl font-bold tracking-tight text-zinc-950 font-mono">
               {weekCount}
             </p>
             <p className="text-[11px] text-zinc-500">Citas en calendario</p>
@@ -155,7 +179,7 @@ export default async function AdminHomePage() {
             <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">
               Facturación Estimada
             </span>
-            <p className="mt-1 text-xl font-bold tracking-tight text-zinc-950 sm:text-2xl">
+            <p className="mt-1 text-xl font-bold tracking-tight text-zinc-950 sm:text-2xl font-mono">
               {formatPrice(revenue, settings.currency)}
             </p>
             <p className="text-[11px] text-zinc-500">Total jornada de hoy</p>
@@ -165,6 +189,53 @@ export default async function AdminHomePage() {
           </div>
         </div>
       </div>
+
+      {/* Quick Team Status Strip (Metis Box) */}
+      {activeStaff.length > 0 && (
+        <div className="rounded-lg border border-zinc-200 bg-white shadow-xs overflow-hidden">
+          <div className="border-b border-zinc-200 bg-zinc-50/75 px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <UserCheck className="size-4 text-zinc-700" />
+              <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-800">
+                Disponibilidad del Equipo Hoy
+              </h2>
+            </div>
+            <Link
+              href="/admin/horarios"
+              className="text-[11px] font-semibold text-zinc-600 hover:text-zinc-950 underline"
+            >
+              Configurar horarios
+            </Link>
+          </div>
+
+          <div className="p-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {activeStaff.map((member) => {
+              const count = member.appointments.length;
+              return (
+                <div
+                  key={member.id}
+                  className="flex items-center gap-3 rounded-md border border-zinc-100 bg-zinc-50/60 p-3"
+                >
+                  <div
+                    className="flex size-9 items-center justify-center rounded font-mono text-xs font-bold text-white shadow-xs"
+                    style={{ backgroundColor: member.color }}
+                  >
+                    {member.name.slice(0, 1).toUpperCase()}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs font-semibold text-zinc-900">
+                      {member.name}
+                    </p>
+                    <p className="text-[11px] text-zinc-500 font-mono">
+                      {count} {count === 1 ? "turno hoy" : "turnos hoy"}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Main Flush Table Card */}
       <BookingsTable
