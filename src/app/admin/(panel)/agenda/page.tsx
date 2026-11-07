@@ -49,10 +49,10 @@ export default async function AgendaPage({
     <div className="space-y-6 antialiased text-zinc-900">
       <header className="flex flex-wrap items-end justify-between gap-4 border-b border-zinc-200 pb-5">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+          <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
             Agenda del Estudio
           </p>
-          <h1 className="mt-1 text-2xl font-black uppercase tracking-tight text-zinc-950 capitalize sm:text-3xl">
+          <h1 className="mt-1 text-2xl font-medium tracking-tight text-zinc-900 capitalize sm:text-3xl">
             {labelDateLong(day)}
           </h1>
         </div>
@@ -60,7 +60,7 @@ export default async function AgendaPage({
         <div className="flex flex-wrap items-center gap-2">
           <Link
             href="/admin/reservar"
-            className="inline-flex items-center gap-1.5 rounded-full bg-zinc-950 px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-zinc-800"
+            className="inline-flex min-h-[38px] items-center gap-1.5 rounded-full bg-zinc-950 px-4 py-2 text-xs font-medium text-white shadow-xs transition hover:bg-zinc-800"
           >
             <Plus className="size-3.5" />
             <span>Cargar reserva</span>
@@ -74,7 +74,7 @@ export default async function AgendaPage({
           </Link>
           <Link
             href={`/admin/agenda?fecha=${dateKey(today)}`}
-            className="rounded-full border border-zinc-200 bg-white px-3 py-2 text-xs font-bold text-zinc-800 shadow-xs transition hover:border-zinc-400 hover:text-zinc-950"
+            className="inline-flex min-h-[36px] items-center rounded-full border border-zinc-200 bg-white px-3.5 py-1.5 text-xs font-medium text-zinc-800 shadow-xs transition hover:border-zinc-400 hover:text-zinc-950"
           >
             Hoy
           </Link>
@@ -89,7 +89,7 @@ export default async function AgendaPage({
       </header>
 
       {/* Status chips */}
-      <div className="flex flex-wrap gap-2 text-xs font-bold">
+      <div className="flex flex-wrap gap-2 text-xs font-medium">
         <span className="rounded-full border border-zinc-200 bg-white px-3.5 py-1 text-zinc-800 shadow-xs">
           {active.length} turnos totales
         </span>
@@ -102,7 +102,7 @@ export default async function AgendaPage({
       </div>
 
       {appointments.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-200 bg-white p-12 text-center text-xs text-zinc-500">
+        <div className="rounded-2xl border border-dashed border-zinc-200 bg-white p-12 text-center text-xs text-zinc-600">
           No hay turnos agendados para este día.
         </div>
       ) : (

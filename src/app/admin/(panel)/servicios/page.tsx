@@ -28,11 +28,11 @@ export default async function ServiciosPage({
   return (
     <div className="space-y-8 antialiased text-zinc-900">
       <header className="border-b border-zinc-200 pb-5">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Catálogo</p>
-        <h1 className="mt-1 text-2xl font-black uppercase tracking-tight text-zinc-950 sm:text-3xl">
+        <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Catálogo</p>
+        <h1 className="mt-1 text-2xl font-medium tracking-tight text-zinc-900 sm:text-3xl">
           Servicios del Estudio
         </h1>
-        <p className="mt-1 text-xs text-zinc-500">
+        <p className="mt-1 text-xs text-zinc-600">
           Los servicios activos se muestran de inmediato en la carta y en el asistente de reservas.
         </p>
       </header>
@@ -40,8 +40,8 @@ export default async function ServiciosPage({
       <Flash ok={params.ok} error={params.error} />
 
       {/* Formulario nuevo servicio */}
-      <section className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-xs sm:p-8">
-        <h2 className="flex items-center gap-2 text-base font-bold text-zinc-950">
+      <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-xs sm:p-8">
+        <h2 className="flex items-center gap-2 text-base font-medium text-zinc-950">
           <Plus className="size-4 text-zinc-950" />
           Crear nuevo servicio
         </h2>
@@ -111,7 +111,7 @@ export default async function ServiciosPage({
           <div className="flex items-end pt-2">
             <button
               type="submit"
-              className="inline-flex items-center gap-2 rounded-full bg-zinc-950 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-zinc-800"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-zinc-950 px-6 py-2.5 text-xs font-medium text-white shadow-xs transition hover:bg-zinc-800 cursor-pointer"
             >
               <Plus className="size-3.5" />
               <span>Añadir al catálogo</span>

@@ -55,10 +55,10 @@ export default async function AdminHomePage() {
   return (
     <div className="space-y-8 antialiased text-zinc-900">
       <header className="border-b border-zinc-200 pb-5">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+        <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
           {labelDateLong(today)}
         </p>
-        <h1 className="mt-1 text-2xl font-black uppercase tracking-tight text-zinc-950 sm:text-3xl">
+        <h1 className="mt-1 text-2xl font-medium tracking-tight text-zinc-900 sm:text-3xl">
           Resumen de Actividad
         </h1>
       </header>
@@ -66,19 +66,19 @@ export default async function AdminHomePage() {
       {/* Metrics Row */}
       <div className="grid gap-4 sm:grid-cols-3">
         <Stat
-          icon={<CalendarDays className="size-4 text-zinc-500" />}
+          icon={<CalendarDays className="size-4 text-zinc-600" />}
           label="Citas para hoy"
           value={String(todayAppointments.length)}
           subtitle="Agendadas"
         />
         <Stat
-          icon={<CalendarClock className="size-4 text-zinc-500" />}
+          icon={<CalendarClock className="size-4 text-zinc-600" />}
           label="Próximos 7 días"
           value={String(weekAppointments)}
           subtitle="En agenda"
         />
         <Stat
-          icon={<CircleDollarSign className="size-4 text-zinc-500" />}
+          icon={<CircleDollarSign className="size-4 text-zinc-600" />}
           label="Ingreso estimado hoy"
           value={formatPrice(revenue, settings.currency)}
           subtitle="Total turnos del día"
@@ -89,12 +89,12 @@ export default async function AdminHomePage() {
       <section>
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-bold text-zinc-950">Turnos de hoy</h2>
-            <p className="text-xs text-zinc-500">Ordenados cronológicamente</p>
+            <h2 className="text-base font-medium text-zinc-950">Turnos de hoy</h2>
+            <p className="text-xs text-zinc-600">Ordenados cronológicamente</p>
           </div>
           <Link
             href="/admin/agenda"
-            className="inline-flex items-center gap-1 text-xs font-bold text-zinc-900 hover:underline"
+            className="inline-flex items-center gap-1 text-xs font-medium text-zinc-900 hover:underline"
           >
             <span>Ver agenda completa</span>
             <ChevronRight className="size-3.5" />
@@ -102,7 +102,7 @@ export default async function AdminHomePage() {
         </div>
 
         {todayAppointments.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-zinc-200 bg-white p-8 text-center text-xs text-zinc-500">
+          <div className="rounded-2xl border border-dashed border-zinc-200 bg-white p-8 text-center text-xs text-zinc-600">
             No hay turnos registrados para hoy. Podés compartir el enlace de reservas o cargar una
             cita manual.
           </div>
@@ -118,12 +118,12 @@ export default async function AdminHomePage() {
       {/* Pending Confirmation */}
       <section>
         <div className="mb-4 flex items-center gap-2">
-          <Clock3 className="size-4 text-amber-500" />
-          <h2 className="text-lg font-bold text-zinc-950">Pendientes de confirmación</h2>
+          <Clock3 className="size-4 text-amber-600" />
+          <h2 className="text-base font-medium text-zinc-950">Pendientes de confirmación</h2>
         </div>
 
         {pending.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-zinc-200 bg-white p-8 text-center text-xs text-zinc-500">
+          <div className="rounded-2xl border border-dashed border-zinc-200 bg-white p-8 text-center text-xs text-zinc-600">
             Todo al día. No tenés reservas pendientes de confirmación.
           </div>
         ) : (
@@ -152,15 +152,15 @@ function Stat({
   return (
     <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-xs">
       <div className="flex items-center justify-between">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+        <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
           {label}
         </span>
         <div className="flex size-8 items-center justify-center rounded-lg bg-zinc-50 text-zinc-700">
           {icon}
         </div>
       </div>
-      <p className="mt-3 text-2xl font-black text-zinc-950 tracking-tight">{value}</p>
-      <p className="mt-1 text-[11px] text-zinc-400">{subtitle}</p>
+      <p className="mt-3 text-2xl font-medium text-zinc-950 tracking-tight">{value}</p>
+      <p className="mt-1 text-xs text-zinc-500">{subtitle}</p>
     </div>
   );
 }

@@ -46,7 +46,7 @@ export function LoginForm({ next }: { next?: string }) {
       <button
         type="submit"
         disabled={pending}
-        className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full bg-zinc-950 px-5 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-zinc-800 disabled:opacity-50"
+        className="mt-2 inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full bg-zinc-950 px-5 py-2.5 text-xs font-medium text-white shadow-xs transition hover:bg-zinc-800 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
       >
         {pending ? (
           <>

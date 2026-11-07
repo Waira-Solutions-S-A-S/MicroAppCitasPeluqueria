@@ -329,13 +329,13 @@ export function BookingWizard({
                             style={{ backgroundColor: item.color }}
                           />
                           {active && (
-                            <span className="rounded-full bg-zinc-950 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
-                              Elegido
+                            <span className="rounded-full bg-zinc-950 px-2 py-0.5 text-[10px] font-medium tracking-wide text-white">
+                              Seleccionado
                             </span>
                           )}
                         </div>
-                        <h3 className="mt-3 text-base font-bold text-zinc-950">{item.name}</h3>
-                        <p className="mt-1 text-xs text-zinc-500 line-clamp-2 leading-relaxed">
+                        <h3 className="mt-3 text-sm font-medium text-zinc-950">{item.name}</h3>
+                        <p className="mt-1 text-xs text-zinc-600 line-clamp-2 leading-relaxed">
                           {item.description}
                         </p>
                       </div>
@@ -345,7 +345,7 @@ export function BookingWizard({
                           <Clock className="size-3 text-zinc-400" />
                           {item.durationMin} min
                         </span>
-                        <span className="text-base font-black text-zinc-950">
+                        <span className="text-sm font-semibold text-zinc-950">
                           {formatPrice(item.priceCents, currency)}
                         </span>
                       </div>
@@ -713,23 +713,23 @@ export function BookingWizard({
         </div>
 
         {/* Resumen lateral */}
-        <aside className="h-fit rounded-3xl border border-zinc-200 bg-zinc-50 p-6 shadow-xs lg:sticky lg:top-6">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+        <aside className="h-fit rounded-2xl border border-zinc-200 bg-zinc-50 p-6 shadow-xs lg:sticky lg:top-6">
+          <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
             Resumen de la cita
           </p>
 
           <div className="mt-4 border-b border-zinc-200/80 pb-4">
-            <p className="text-lg font-black text-zinc-950">
+            <p className="text-lg font-medium text-zinc-950">
               {service?.name ?? "Seleccioná un servicio"}
             </p>
-            <p className="mt-0.5 text-xs text-zinc-500">
+            <p className="mt-0.5 text-xs text-zinc-600">
               {service ? `${service.durationMin} minutos de atención` : "Paso 1"}
             </p>
           </div>
 
           <dl className="mt-4 space-y-3 text-xs text-zinc-600">
             <div className="flex items-center justify-between gap-3">
-              <dt className="text-zinc-400">Profesional</dt>
+              <dt className="text-zinc-500">Profesional</dt>
               <dd className="font-semibold text-zinc-950">
                 {staffId === "any"
                   ? "Cualquiera disponible"
@@ -738,14 +738,14 @@ export function BookingWizard({
             </div>
 
             <div className="flex items-center justify-between gap-3">
-              <dt className="text-zinc-400">Fecha</dt>
+              <dt className="text-zinc-500">Fecha</dt>
               <dd className="font-semibold text-zinc-950">
                 {date ? longDate(date) : "—"}
               </dd>
             </div>
 
             <div className="flex items-center justify-between gap-3">
-              <dt className="text-zinc-400">Horario</dt>
+              <dt className="text-zinc-500">Horario</dt>
               <dd className="font-semibold text-zinc-950">
                 {selectedSlot ? `${selectedSlot.startAt.slice(11, 16)} hs` : "—"}
               </dd>
@@ -753,22 +753,22 @@ export function BookingWizard({
 
             {repeatEnabled && (
               <div className="flex items-center justify-between gap-3">
-                <dt className="text-zinc-400">Serie periódica</dt>
+                <dt className="text-zinc-500">Serie periódica</dt>
                 <dd className="font-semibold text-zinc-950">
                   {occurrences} turnos (c/{intervalWeeks} sem)
                 </dd>
               </div>
             )}
 
-            <div className="flex items-center justify-between gap-3 border-t border-zinc-200 pt-4 text-sm font-bold text-zinc-950">
-              <dt>Total a abonar</dt>
-              <dd className="text-base font-black">
+            <div className="flex items-center justify-between gap-3 border-t border-zinc-200 pt-4 text-sm font-semibold text-zinc-950">
+              <dt>Total estimado</dt>
+              <dd className="text-base font-semibold">
                 {service ? formatPrice(service.priceCents, currency) : "—"}
               </dd>
             </div>
           </dl>
 
-          <div className="mt-5 rounded-xl border border-zinc-200 bg-white p-3 text-[11px] text-zinc-500 leading-relaxed shadow-xs">
+          <div className="mt-5 rounded-xl border border-zinc-200 bg-white p-3 text-xs text-zinc-600 leading-relaxed shadow-xs">
             Se abona en el estudio al finalizar el servicio. Atención puntual garantizada.
           </div>
         </aside>

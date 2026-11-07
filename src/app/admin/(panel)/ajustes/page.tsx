@@ -21,20 +21,20 @@ export default async function AjustesPage({
   return (
     <div className="space-y-8 antialiased text-zinc-900">
       <header className="border-b border-zinc-200 pb-5">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+        <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
           Configuración
         </p>
-        <h1 className="mt-1 text-2xl font-black uppercase tracking-tight text-zinc-950 sm:text-3xl">
+        <h1 className="mt-1 text-2xl font-medium tracking-tight text-zinc-900 sm:text-3xl">
           Ajustes del Estudio
         </h1>
       </header>
 
       <Flash ok={params.ok} error={params.error} />
 
-      <section className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-xs sm:p-8">
+      <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-xs sm:p-8">
         <div>
-          <h2 className="text-base font-bold text-zinc-950">Datos y reglas de reserva</h2>
-          <p className="text-xs text-zinc-500 mt-0.5">
+          <h2 className="text-base font-medium text-zinc-950">Datos y reglas de reserva</h2>
+          <p className="text-xs text-zinc-600 mt-0.5">
             Configurá el nombre, la moneda y los tiempos límite para agendar turnos.
           </p>
         </div>
@@ -141,7 +141,7 @@ export default async function AjustesPage({
           <div className="sm:col-span-2 pt-2">
             <button
               type="submit"
-              className="inline-flex items-center gap-2 rounded-full bg-zinc-950 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-zinc-800"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-zinc-950 px-6 py-2.5 text-xs font-medium text-white shadow-xs transition hover:bg-zinc-800 cursor-pointer"
             >
               <Save className="size-3.5" />
               <span>Guardar ajustes</span>
@@ -150,13 +150,13 @@ export default async function AjustesPage({
         </form>
       </section>
 
-      <section className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-xs sm:p-8">
-        <h2 className="flex items-center gap-2 text-base font-bold text-zinc-950">
+      <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-xs sm:p-8">
+        <h2 className="flex items-center gap-2 text-base font-medium text-zinc-950">
           <ShieldCheck className="size-4 text-zinc-950" />
           Seguridad y acceso
         </h2>
-        <p className="mt-1 text-xs text-zinc-500">
-          Sesión activa de <span className="font-semibold text-zinc-900">{user?.email}</span>
+        <p className="mt-1 text-xs text-zinc-600">
+          Sesión activa de <span className="font-medium text-zinc-900">{user?.email}</span>
         </p>
 
         <form action={changePasswordAction} className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -188,7 +188,7 @@ export default async function AjustesPage({
           <div className="sm:col-span-2 pt-2">
             <button
               type="submit"
-              className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-6 py-2.5 text-xs font-bold text-zinc-800 shadow-xs transition hover:border-zinc-400 hover:text-zinc-950"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-zinc-200 bg-white px-6 py-2.5 text-xs font-medium text-zinc-800 shadow-xs transition hover:border-zinc-400 hover:text-zinc-950 cursor-pointer"
             >
               Cambiar contraseña
             </button>

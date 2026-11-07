@@ -39,31 +39,31 @@ export default async function LoginPage({
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="flex size-9 items-center justify-center rounded-lg bg-zinc-950 text-xs font-black tracking-widest text-white">
+        <div className="flex size-9 items-center justify-center rounded-lg bg-zinc-950 text-xs font-semibold tracking-widest text-white">
           ST
         </div>
         <div>
-          <p className="text-sm font-bold tracking-tight text-zinc-950 uppercase">
+          <p className="text-sm font-medium tracking-tight text-zinc-950">
             {settings.businessName}
           </p>
-          <p className="text-[10px] text-zinc-500 uppercase tracking-wider">Acceso de administración</p>
+          <p className="text-[11px] text-zinc-500 uppercase tracking-wider">Acceso de administración</p>
         </div>
       </div>
 
-      <div className="mt-8 rounded-3xl border border-zinc-200 bg-white p-6 shadow-xs sm:p-8">
-        <h1 className="text-2xl font-black uppercase tracking-tight text-zinc-950">
+      <div className="mt-8 rounded-2xl border border-zinc-200 bg-white p-6 shadow-xs sm:p-8">
+        <h1 className="text-xl font-medium tracking-tight text-zinc-900">
           Iniciar sesión
         </h1>
-        <p className="mt-1 text-xs text-zinc-500">
+        <p className="mt-1 text-xs text-zinc-600">
           Ingresá con tu cuenta para gestionar turnos, agenda y servicios.
         </p>
 
         <LoginForm next={next} />
       </div>
 
-      <p className="mt-6 text-center text-xs text-zinc-400">
-        Demo local: <span className="font-semibold text-zinc-700">admin@estudio.local</span> /{" "}
-        <span className="font-semibold text-zinc-700">admin123</span>
+      <p className="mt-6 text-center text-xs text-zinc-500">
+        Demo local: <span className="font-medium text-zinc-800">admin@estudio.local</span> /{" "}
+        <span className="font-medium text-zinc-800">admin123</span>
       </p>
     </div>
   );
