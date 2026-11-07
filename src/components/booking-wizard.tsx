@@ -8,6 +8,7 @@ import {
   ArrowRight,
   Check,
   ChevronLeft,
+  ChevronRight,
   Clock,
   Loader2,
   Repeat,
@@ -124,6 +125,19 @@ export function BookingWizard({
     return list;
   }, [todayKey, maxAdvanceDays]);
 
+  const visibleDays = useMemo(() => {
+    const selectedIndex = Math.max(days.indexOf(date), 0);
+    const start = Math.min(Math.max(selectedIndex - 2, 0), Math.max(days.length - 5, 0));
+    return days.slice(start, start + 5);
+  }, [days, date]);
+
+  const shiftDate = (offset: number) => {
+    const currentIndex = Math.max(days.indexOf(date), 0);
+    const nextIndex = Math.min(Math.max(currentIndex + offset, 0), days.length - 1);
+    setDate(days[nextIndex] ?? date);
+    setSlotKey("");
+  };
+
   useEffect(() => {
     if (!serviceId || !date) return;
     let cancelled = false;
@@ -144,9 +158,6 @@ export function BookingWizard({
         const data = (await response.json()) as { slots: Slot[] };
         if (!cancelled) {
           setSlots(data.slots);
-          if (slotKey && !data.slots.some((s) => slotKeyFor(s) === slotKey)) {
-            setSlotKey("");
-          }
         }
       } catch {
         if (!cancelled) {
@@ -162,7 +173,7 @@ export function BookingWizard({
     return () => {
       cancelled = true;
     };
-  }, [serviceId, staffId, date, slotKey]);
+  }, [serviceId, staffId, date]);
 
   const selectedSlot = slots.find((s) => slotKeyFor(s) === slotKey);
 
@@ -238,7 +249,7 @@ export function BookingWizard({
         <header className="mb-8 flex items-center justify-between border-b border-zinc-200 pb-5">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-zinc-700 shadow-xs transition hover:bg-zinc-50 hover:text-zinc-950"
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-zinc-700 shadow-xs transition hover:bg-zinc-50 hover:text-zinc-950"
           >
             <ChevronLeft className="size-3.5" />
             <span>Volver a la portada</span>
@@ -362,7 +373,7 @@ export function BookingWizard({
                 Paso 2 de 4
               </span>
               <h1 className="mt-1 text-2xl font-medium tracking-tight text-zinc-900 sm:text-3xl">
-                ¿Con quién te atendés?
+                ¿Con quién te atenderás?
               </h1>
               <p className="mt-1.5 text-xs text-zinc-600">
                 Elige un profesional específico o selecciona «Cualquiera disponible» para ver más
@@ -377,7 +388,10 @@ export function BookingWizard({
                 <div className="mt-6 grid gap-3 sm:grid-cols-2">
                   <button
                     type="button"
-                    onClick={() => setStaffId("any")}
+                    onClick={() => {
+                      setStaffId("any");
+                      setSlotKey("");
+                    }}
                     className={`flex items-center gap-3.5 rounded-2xl border p-4 text-left transition ${
                       staffId === "any"
                         ? "border-zinc-950 bg-zinc-50 shadow-xs ring-1 ring-zinc-950"
@@ -401,7 +415,10 @@ export function BookingWizard({
                       <button
                         key={member.id}
                         type="button"
-                        onClick={() => setStaffId(member.id)}
+                        onClick={() => {
+                          setStaffId(member.id);
+                          setSlotKey("");
+                        }}
                         className={`flex items-center gap-3.5 rounded-2xl border p-4 text-left transition ${
                           active
                             ? "border-zinc-950 bg-zinc-50 shadow-xs ring-1 ring-zinc-950"
@@ -443,17 +460,56 @@ export function BookingWizard({
                 {longDate(date)} · Duración aproximada: {service?.durationMin} min
               </p>
 
-              {/* Day selection strip */}
-              <div className="no-scrollbar mt-6 flex gap-2 overflow-x-auto pb-2">
-                {days.map((iso) => {
+              {/* Compact date navigator */}
+              <div className="mt-6 rounded-2xl border border-zinc-200 bg-zinc-50/60 p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <button
+                    type="button"
+                    onClick={() => shiftDate(-1)}
+                    disabled={date === days[0]}
+                    className="grid size-11 shrink-0 place-items-center rounded-xl border border-zinc-200 bg-white text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-35"
+                    aria-label="Día anterior"
+                  >
+                    <ChevronLeft className="size-4" />
+                  </button>
+                  <input
+                    type="date"
+                    value={date}
+                    min={days[0]}
+                    max={days[days.length - 1]}
+                    onChange={(event) => {
+                      if (days.includes(event.target.value)) {
+                        setDate(event.target.value);
+                        setSlotKey("");
+                      }
+                    }}
+                    className="min-h-[44px] min-w-0 flex-1 rounded-xl border border-zinc-200 bg-white px-3 text-center text-xs font-semibold text-zinc-800 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+                    aria-label="Seleccionar fecha"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => shiftDate(1)}
+                    disabled={date === days[days.length - 1]}
+                    className="grid size-11 shrink-0 place-items-center rounded-xl border border-zinc-200 bg-white text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-35"
+                    aria-label="Día siguiente"
+                  >
+                    <ChevronRight className="size-4" />
+                  </button>
+                </div>
+
+                <div className="mt-3 grid grid-cols-5 gap-2">
+                {visibleDays.map((iso) => {
                   const active = iso === date;
                   const label = dayLabel(iso);
                   return (
                     <button
                       key={iso}
                       type="button"
-                      onClick={() => setDate(iso)}
-                      className={`flex min-w-[4.75rem] shrink-0 flex-col items-center rounded-2xl border py-3 px-2 transition ${
+                      onClick={() => {
+                        setDate(iso);
+                        setSlotKey("");
+                      }}
+                      className={`flex min-h-[68px] min-w-0 flex-col items-center rounded-xl border px-1 py-2 transition ${
                         active
                           ? "border-zinc-950 bg-zinc-950 text-white shadow-xs"
                           : "border-zinc-200 bg-white text-zinc-800 hover:border-zinc-300 hover:bg-zinc-50"
@@ -471,6 +527,7 @@ export function BookingWizard({
                     </button>
                   );
                 })}
+                </div>
               </div>
 
               {/* Time slots */}
@@ -500,7 +557,7 @@ export function BookingWizard({
                                 key={`${slot.startAt}-${slot.staffId}`}
                                 type="button"
                                 onClick={() => setSlotKey(slotKeyFor(slot))}
-                                className={`rounded-xl border py-2.5 px-3 text-center transition ${
+                                className={`min-h-[44px] rounded-xl border py-2.5 px-3 text-center transition ${
                                   active
                                     ? "border-zinc-950 bg-zinc-950 text-white shadow-xs"
                                     : "border-zinc-200 bg-white text-zinc-800 hover:border-zinc-300 hover:bg-zinc-50"
@@ -564,7 +621,7 @@ export function BookingWizard({
                   <input
                     value={clientPhone}
                     onChange={(event) => setClientPhone(event.target.value)}
-                    placeholder="Ej. 11 2345 6789"
+                    placeholder="Ej. 300 123 4567"
                     autoComplete="tel"
                     inputMode="tel"
                     className="w-full min-h-[44px] rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
@@ -628,7 +685,7 @@ export function BookingWizard({
                       <select
                         value={intervalWeeks}
                         onChange={(event) => setIntervalWeeks(Number(event.target.value))}
-                        className="w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-900 outline-none focus:border-zinc-950"
+                        className="min-h-[44px] w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-900 outline-none focus:border-zinc-950"
                       >
                         {[1, 2, 3, 4, 5, 6, 8].map((w) => (
                           <option key={w} value={w}>
@@ -645,7 +702,7 @@ export function BookingWizard({
                       <select
                         value={occurrences}
                         onChange={(event) => setOccurrences(Number(event.target.value))}
-                        className="w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-900 outline-none focus:border-zinc-950"
+                        className="min-h-[44px] w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-900 outline-none focus:border-zinc-950"
                       >
                         {[2, 3, 4, 6, 8].map((t) => (
                           <option key={t} value={t}>

@@ -45,7 +45,7 @@ export default async function AdminPanelLayout({
           </div>
           <Link
             href="/"
-            className="inline-flex min-h-[38px] items-center gap-1.5 rounded-full border border-zinc-200 bg-zinc-50 px-3.5 py-1.5 text-xs font-medium text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-950 lg:mt-3"
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-zinc-200 bg-zinc-50 px-3.5 py-1.5 text-xs font-medium text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-950 lg:mt-3"
           >
             <ExternalLink className="size-3.5" />
             <span>Ver sitio público</span>
@@ -59,7 +59,7 @@ export default async function AdminPanelLayout({
               <Link
                 key={item.href}
                 href={item.href}
-                className="inline-flex shrink-0 items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-xs font-medium text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-950"
+                className="inline-flex min-h-[44px] shrink-0 items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-xs font-medium text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-950"
               >
                 <Icon className="size-4 text-zinc-500" />
                 <span>{item.label}</span>
@@ -87,7 +87,7 @@ export default async function AdminPanelLayout({
           <form action={logoutAction}>
             <button
               type="submit"
-              className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700"
             >
               <LogOut className="size-3.5" />
               <span>Salir</span>

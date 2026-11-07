@@ -60,27 +60,27 @@ export default async function AgendaPage({
         <div className="flex flex-wrap items-center gap-2">
           <Link
             href="/admin/reservar"
-            className="inline-flex min-h-[38px] items-center gap-1.5 rounded-full bg-zinc-950 px-4 py-2 text-xs font-medium text-white shadow-xs transition hover:bg-zinc-800"
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full bg-zinc-950 px-4 py-2 text-xs font-medium text-white shadow-xs transition hover:bg-zinc-800"
           >
             <Plus className="size-3.5" />
             <span>Cargar reserva</span>
           </Link>
           <Link
             href={`/admin/agenda?fecha=${dateKey(addDays(day, -1))}`}
-            className="grid size-9 place-items-center rounded-full border border-zinc-200 bg-white text-zinc-700 shadow-xs transition hover:border-zinc-400 hover:text-zinc-950"
+            className="grid size-11 place-items-center rounded-full border border-zinc-200 bg-white text-zinc-700 shadow-xs transition hover:border-zinc-400 hover:text-zinc-950"
             aria-label="Día anterior"
           >
             <ChevronLeft className="size-4" />
           </Link>
           <Link
             href={`/admin/agenda?fecha=${dateKey(today)}`}
-            className="inline-flex min-h-[36px] items-center rounded-full border border-zinc-200 bg-white px-3.5 py-1.5 text-xs font-medium text-zinc-800 shadow-xs transition hover:border-zinc-400 hover:text-zinc-950"
+            className="inline-flex min-h-[44px] items-center rounded-full border border-zinc-200 bg-white px-3.5 py-1.5 text-xs font-medium text-zinc-800 shadow-xs transition hover:border-zinc-400 hover:text-zinc-950"
           >
             Hoy
           </Link>
           <Link
             href={`/admin/agenda?fecha=${dateKey(addDays(day, 1))}`}
-            className="grid size-9 place-items-center rounded-full border border-zinc-200 bg-white text-zinc-700 shadow-xs transition hover:border-zinc-400 hover:text-zinc-950"
+            className="grid size-11 place-items-center rounded-full border border-zinc-200 bg-white text-zinc-700 shadow-xs transition hover:border-zinc-400 hover:text-zinc-950"
             aria-label="Día siguiente"
           >
             <ChevronRight className="size-4" />

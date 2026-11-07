@@ -104,7 +104,7 @@ function StatusButton({
       <input type="hidden" name="status" value={status} />
       <button
         type="submit"
-        className={`inline-flex min-h-[34px] items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-medium transition cursor-pointer ${classes}`}
+        className={`inline-flex min-h-[44px] items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-medium transition cursor-pointer ${classes}`}
       >
         {children}
       </button>
