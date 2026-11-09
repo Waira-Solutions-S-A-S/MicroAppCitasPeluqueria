@@ -145,7 +145,10 @@ export default async function AdminHomePage() {
       {/* Metis 4-Column Metric Cards (Accent Left Borders) */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {/* Card 1: Citas Hoy */}
-        <div className="flex items-center justify-between rounded-lg border border-zinc-200 border-l-4 border-l-zinc-900 bg-white p-4 shadow-xs">
+        <Link
+          href="/admin/agenda"
+          className="group flex items-center justify-between rounded-lg border border-zinc-200 border-l-4 border-l-zinc-900 bg-white p-4 shadow-xs transition hover:border-zinc-300 hover:shadow-sm"
+        >
           <div>
             <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
               Citas Hoy
@@ -153,15 +156,18 @@ export default async function AdminHomePage() {
             <p className="mt-1 text-2xl font-bold tracking-tight text-zinc-950 font-mono">
               {todayAppointments.length}
             </p>
-            <p className="text-[11px] text-zinc-500">Turnos agendados</p>
+            <p className="text-[11px] text-zinc-500 group-hover:text-zinc-700">Turnos agendados &rarr;</p>
           </div>
-          <div className="grid size-11 place-items-center rounded-lg bg-zinc-100 text-zinc-800">
+          <div className="grid size-11 place-items-center rounded-lg bg-zinc-100 text-zinc-800 transition group-hover:bg-zinc-900 group-hover:text-white">
             <CalendarDays className="size-5" />
           </div>
-        </div>
+        </Link>
 
         {/* Card 2: Por Confirmar */}
-        <div className="flex items-center justify-between rounded-lg border border-zinc-200 border-l-4 border-l-amber-500 bg-white p-4 shadow-xs">
+        <Link
+          href="/admin/agenda"
+          className="group flex items-center justify-between rounded-lg border border-zinc-200 border-l-4 border-l-amber-500 bg-white p-4 shadow-xs transition hover:border-amber-300 hover:shadow-sm"
+        >
           <div>
             <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600">
               Por Confirmar
@@ -169,15 +175,18 @@ export default async function AdminHomePage() {
             <p className="mt-1 text-2xl font-bold tracking-tight text-zinc-950 font-mono">
               {pendingCount}
             </p>
-            <p className="text-[11px] text-zinc-500">Pendientes de respuesta</p>
+            <p className="text-[11px] text-zinc-500 group-hover:text-amber-700">Pendientes de respuesta &rarr;</p>
           </div>
-          <div className="grid size-11 place-items-center rounded-lg bg-amber-50 text-amber-700">
+          <div className="grid size-11 place-items-center rounded-lg bg-amber-50 text-amber-700 transition group-hover:bg-amber-500 group-hover:text-white">
             <Clock className="size-5" />
           </div>
-        </div>
+        </Link>
 
         {/* Card 3: Próximos 7 días */}
-        <div className="flex items-center justify-between rounded-lg border border-zinc-200 border-l-4 border-l-sky-600 bg-white p-4 shadow-xs">
+        <Link
+          href="/admin/agenda"
+          className="group flex items-center justify-between rounded-lg border border-zinc-200 border-l-4 border-l-sky-600 bg-white p-4 shadow-xs transition hover:border-sky-300 hover:shadow-sm"
+        >
           <div>
             <span className="text-[10px] font-bold uppercase tracking-wider text-sky-600">
               Próximos 7 Días
@@ -185,12 +194,12 @@ export default async function AdminHomePage() {
             <p className="mt-1 text-2xl font-bold tracking-tight text-zinc-950 font-mono">
               {weekCount}
             </p>
-            <p className="text-[11px] text-zinc-500">Citas en calendario</p>
+            <p className="text-[11px] text-zinc-500 group-hover:text-sky-700">Citas en calendario &rarr;</p>
           </div>
-          <div className="grid size-11 place-items-center rounded-lg bg-sky-50 text-sky-700">
+          <div className="grid size-11 place-items-center rounded-lg bg-sky-50 text-sky-700 transition group-hover:bg-sky-600 group-hover:text-white">
             <Users className="size-5" />
           </div>
-        </div>
+        </Link>
 
         {/* Card 4: Facturación estimada */}
         <div className="flex items-center justify-between rounded-lg border border-zinc-200 border-l-4 border-l-emerald-600 bg-white p-4 shadow-xs">

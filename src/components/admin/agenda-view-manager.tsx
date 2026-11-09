@@ -100,13 +100,11 @@ export function AgendaViewManager({
           </div>
         </div>
 
-        <Link
-          href="/admin/reservar"
-          className="inline-flex min-h-[32px] items-center gap-1.5 rounded-md bg-zinc-900 px-3 py-1 text-xs font-semibold text-white shadow-xs transition hover:bg-zinc-800"
-        >
-          <CalendarPlus className="size-3.5" />
-          <span>+ Cargar cita</span>
-        </Link>
+        <div className="flex items-center gap-2 text-xs text-zinc-600 font-mono">
+          <span className="rounded bg-zinc-100 px-2 py-0.5 border border-zinc-200">
+            {appointments.filter((a) => a.status !== "CANCELLED").length} citas activas
+          </span>
+        </div>
       </div>
 
       {/* Render Table View */}

@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
   CalendarDays,
   Check,
   CheckCheck,
@@ -117,8 +120,31 @@ export function BookingsTable({
   const [search, setSearch] = useState("");
   const [pageSize, setPageSize] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [sortField, setSortField] = useState<"time" | "client" | "staff" | "price" | "status">("time");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [cancellingItem, setCancellingItem] = useState<AppointmentItem | null>(null);
   const [detailItem, setDetailItem] = useState<AppointmentItem | null>(null);
+
+  // Keyboard shortcut: close open modals on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setDetailItem(null);
+        setCancellingItem(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  const toggleSort = (field: "time" | "client" | "staff" | "price" | "status") => {
+    if (sortField === field) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDir("asc");
+    }
+  };
 
   // Extract distinct staff members
   const staffList = useMemo(() => {
@@ -174,10 +200,30 @@ export function BookingsTable({
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const safePage = Math.min(currentPage, totalPages);
 
+  const sorted = useMemo(() => {
+    return [...filtered].sort((a, b) => {
+      let comparison = 0;
+      if (sortField === "time") {
+        comparison = new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
+      } else if (sortField === "client") {
+        comparison = a.clientName.localeCompare(b.clientName);
+      } else if (sortField === "staff") {
+        comparison = a.staff.name.localeCompare(b.staff.name);
+      } else if (sortField === "price") {
+        const priceA = a.totalPriceCents ?? a.service.priceCents;
+        const priceB = b.totalPriceCents ?? b.service.priceCents;
+        comparison = priceA - priceB;
+      } else if (sortField === "status") {
+        comparison = a.status.localeCompare(b.status);
+      }
+      return sortDir === "asc" ? comparison : -comparison;
+    });
+  }, [filtered, sortField, sortDir]);
+
   const paginatedItems = useMemo(() => {
     const startIndex = (safePage - 1) * pageSize;
-    return filtered.slice(startIndex, startIndex + pageSize);
-  }, [filtered, safePage, pageSize]);
+    return sorted.slice(startIndex, startIndex + pageSize);
+  }, [sorted, safePage, pageSize]);
 
   const fromRecord = filtered.length === 0 ? 0 : (safePage - 1) * pageSize + 1;
   const toRecord = Math.min(safePage * pageSize, filtered.length);
@@ -452,12 +498,92 @@ export function BookingsTable({
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-left text-xs">
             <thead>
-              <tr className="border-b border-zinc-200 bg-[#f8f9fa] text-[11px] font-bold uppercase tracking-wider text-zinc-600">
-                <th className="px-4 py-2.5">Horario</th>
-                <th className="px-4 py-2.5">Cliente</th>
-                <th className="px-4 py-2.5">Servicio</th>
-                <th className="px-4 py-2.5">Profesional</th>
-                <th className="px-4 py-2.5">Estado</th>
+              <tr className="border-b border-zinc-200 bg-[#f8f9fa] text-[11px] font-bold uppercase tracking-wider text-zinc-600 select-none">
+                <th className="px-4 py-2.5">
+                  <button
+                    type="button"
+                    onClick={() => toggleSort("time")}
+                    className="group inline-flex items-center gap-1.5 font-bold uppercase tracking-wider text-zinc-600 hover:text-zinc-950 cursor-pointer"
+                    title="Ordenar por horario"
+                  >
+                    <span>Horario</span>
+                    {sortField !== "time" ? (
+                      <ArrowUpDown className="size-3 text-zinc-400 group-hover:text-zinc-700" />
+                    ) : sortDir === "asc" ? (
+                      <ArrowUp className="size-3 text-zinc-950" />
+                    ) : (
+                      <ArrowDown className="size-3 text-zinc-950" />
+                    )}
+                  </button>
+                </th>
+                <th className="px-4 py-2.5">
+                  <button
+                    type="button"
+                    onClick={() => toggleSort("client")}
+                    className="group inline-flex items-center gap-1.5 font-bold uppercase tracking-wider text-zinc-600 hover:text-zinc-950 cursor-pointer"
+                    title="Ordenar por nombre de cliente"
+                  >
+                    <span>Cliente</span>
+                    {sortField !== "client" ? (
+                      <ArrowUpDown className="size-3 text-zinc-400 group-hover:text-zinc-700" />
+                    ) : sortDir === "asc" ? (
+                      <ArrowUp className="size-3 text-zinc-950" />
+                    ) : (
+                      <ArrowDown className="size-3 text-zinc-950" />
+                    )}
+                  </button>
+                </th>
+                <th className="px-4 py-2.5">
+                  <button
+                    type="button"
+                    onClick={() => toggleSort("price")}
+                    className="group inline-flex items-center gap-1.5 font-bold uppercase tracking-wider text-zinc-600 hover:text-zinc-950 cursor-pointer"
+                    title="Ordenar por tarifa o servicio"
+                  >
+                    <span>Servicio / Total</span>
+                    {sortField !== "price" ? (
+                      <ArrowUpDown className="size-3 text-zinc-400 group-hover:text-zinc-700" />
+                    ) : sortDir === "asc" ? (
+                      <ArrowUp className="size-3 text-zinc-950" />
+                    ) : (
+                      <ArrowDown className="size-3 text-zinc-950" />
+                    )}
+                  </button>
+                </th>
+                <th className="px-4 py-2.5">
+                  <button
+                    type="button"
+                    onClick={() => toggleSort("staff")}
+                    className="group inline-flex items-center gap-1.5 font-bold uppercase tracking-wider text-zinc-600 hover:text-zinc-950 cursor-pointer"
+                    title="Ordenar por profesional asignado"
+                  >
+                    <span>Profesional</span>
+                    {sortField !== "staff" ? (
+                      <ArrowUpDown className="size-3 text-zinc-400 group-hover:text-zinc-700" />
+                    ) : sortDir === "asc" ? (
+                      <ArrowUp className="size-3 text-zinc-950" />
+                    ) : (
+                      <ArrowDown className="size-3 text-zinc-950" />
+                    )}
+                  </button>
+                </th>
+                <th className="px-4 py-2.5">
+                  <button
+                    type="button"
+                    onClick={() => toggleSort("status")}
+                    className="group inline-flex items-center gap-1.5 font-bold uppercase tracking-wider text-zinc-600 hover:text-zinc-950 cursor-pointer"
+                    title="Ordenar por estado del turno"
+                  >
+                    <span>Estado</span>
+                    {sortField !== "status" ? (
+                      <ArrowUpDown className="size-3 text-zinc-400 group-hover:text-zinc-700" />
+                    ) : sortDir === "asc" ? (
+                      <ArrowUp className="size-3 text-zinc-950" />
+                    ) : (
+                      <ArrowDown className="size-3 text-zinc-950" />
+                    )}
+                  </button>
+                </th>
                 <th className="px-4 py-2.5 text-right">Acciones</th>
               </tr>
             </thead>
@@ -704,8 +830,16 @@ export function BookingsTable({
 
       {/* 5. Detail Modal Inspector */}
       {detailItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-          <div className="w-full max-w-lg rounded-lg border border-zinc-200 bg-white p-5 shadow-2xl">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-150"
+          onClick={() => setDetailItem(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="w-full max-w-lg rounded-lg border border-zinc-200 bg-white p-5 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between border-b border-zinc-100 pb-3 mb-4">
               <div className="flex items-center gap-2">
                 <Info className="size-4 text-zinc-700" />
@@ -881,8 +1015,16 @@ export function BookingsTable({
 
       {/* 6. Confirmation Modal Safeguard for Cancellation */}
       {cancellingItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-          <div className="w-full max-w-md rounded-lg border border-zinc-200 bg-white p-5 shadow-2xl">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-150"
+          onClick={() => setCancellingItem(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="w-full max-w-md rounded-lg border border-zinc-200 bg-white p-5 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center gap-3 text-red-600 mb-3">
               <div className="flex size-10 items-center justify-center rounded-full bg-red-50 text-red-600">
                 <AlertTriangle className="size-5" />
@@ -898,13 +1040,16 @@ export function BookingsTable({
                 <strong>Cliente:</strong> {cancellingItem.clientName} ({cancellingItem.clientPhone})
               </p>
               <p>
-                <strong>Servicio:</strong> {cancellingItem.service.name}
+                <strong>Servicio:</strong> {cancellingItem.serviceNamesLabel ?? cancellingItem.service.name}
               </p>
               <p>
                 <strong>Profesional:</strong> {cancellingItem.staff.name}
               </p>
               <p>
                 <strong>Horario:</strong> {formatHour(cancellingItem.startAt)} a {formatHour(cancellingItem.endAt)} hs
+              </p>
+              <p>
+                <strong>Total:</strong> {formatPrice(cancellingItem.totalPriceCents ?? cancellingItem.service.priceCents, currency)}
               </p>
             </div>
 

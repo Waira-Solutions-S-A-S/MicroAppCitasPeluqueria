@@ -1,7 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Check, Edit2, Plus, RotateCcw, Scissors, Search, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  Check,
+  Edit2,
+  Plus,
+  RotateCcw,
+  Scissors,
+  Search,
+  X,
+} from "lucide-react";
 
 import { toggleServiceAction, updateServiceAction } from "@/app/admin/actions";
 import { formatPrice } from "@/lib/format";
@@ -26,6 +37,28 @@ export function ServicesList({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"ALL" | "ACTIVE" | "PAUSED">("ALL");
   const [search, setSearch] = useState("");
+  const [sortField, setSortField] = useState<"name" | "duration" | "price" | "status">("name");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+
+  // Escape key cancels active editing
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setEditingId(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  const toggleSort = (field: "name" | "duration" | "price" | "status") => {
+    if (sortField === field) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDir("asc");
+    }
+  };
 
   const counts = useMemo(() => {
     return {
@@ -47,6 +80,22 @@ export function ServicesList({
       );
     });
   }, [services, filter, search]);
+
+  const sorted = useMemo(() => {
+    return [...filtered].sort((a, b) => {
+      let comparison = 0;
+      if (sortField === "name") {
+        comparison = a.name.localeCompare(b.name);
+      } else if (sortField === "duration") {
+        comparison = a.durationMin - b.durationMin;
+      } else if (sortField === "price") {
+        comparison = a.priceCents - b.priceCents;
+      } else if (sortField === "status") {
+        comparison = Number(b.isActive) - Number(a.isActive);
+      }
+      return sortDir === "asc" ? comparison : -comparison;
+    });
+  }, [filtered, sortField, sortDir]);
 
   if (services.length === 0) {
     return (
@@ -128,16 +177,80 @@ export function ServicesList({
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-left text-xs">
             <thead>
-              <tr className="border-b border-zinc-200 bg-[#f8f9fa] text-[11px] font-bold uppercase tracking-wider text-zinc-600">
-                <th className="px-4 py-2.5">Servicio</th>
-                <th className="px-4 py-2.5">Duración</th>
-                <th className="px-4 py-2.5">Precio</th>
-                <th className="px-4 py-2.5">Estado</th>
+              <tr className="border-b border-zinc-200 bg-[#f8f9fa] text-[11px] font-bold uppercase tracking-wider text-zinc-600 select-none">
+                <th className="px-4 py-2.5">
+                  <button
+                    type="button"
+                    onClick={() => toggleSort("name")}
+                    className="group inline-flex items-center gap-1.5 font-bold uppercase tracking-wider text-zinc-600 hover:text-zinc-950 cursor-pointer"
+                    title="Ordenar por nombre de servicio"
+                  >
+                    <span>Servicio</span>
+                    {sortField !== "name" ? (
+                      <ArrowUpDown className="size-3 text-zinc-400 group-hover:text-zinc-700" />
+                    ) : sortDir === "asc" ? (
+                      <ArrowUp className="size-3 text-zinc-950" />
+                    ) : (
+                      <ArrowDown className="size-3 text-zinc-950" />
+                    )}
+                  </button>
+                </th>
+                <th className="px-4 py-2.5">
+                  <button
+                    type="button"
+                    onClick={() => toggleSort("duration")}
+                    className="group inline-flex items-center gap-1.5 font-bold uppercase tracking-wider text-zinc-600 hover:text-zinc-950 cursor-pointer"
+                    title="Ordenar por duración"
+                  >
+                    <span>Duración</span>
+                    {sortField !== "duration" ? (
+                      <ArrowUpDown className="size-3 text-zinc-400 group-hover:text-zinc-700" />
+                    ) : sortDir === "asc" ? (
+                      <ArrowUp className="size-3 text-zinc-950" />
+                    ) : (
+                      <ArrowDown className="size-3 text-zinc-950" />
+                    )}
+                  </button>
+                </th>
+                <th className="px-4 py-2.5">
+                  <button
+                    type="button"
+                    onClick={() => toggleSort("price")}
+                    className="group inline-flex items-center gap-1.5 font-bold uppercase tracking-wider text-zinc-600 hover:text-zinc-950 cursor-pointer"
+                    title="Ordenar por tarifa"
+                  >
+                    <span>Precio</span>
+                    {sortField !== "price" ? (
+                      <ArrowUpDown className="size-3 text-zinc-400 group-hover:text-zinc-700" />
+                    ) : sortDir === "asc" ? (
+                      <ArrowUp className="size-3 text-zinc-950" />
+                    ) : (
+                      <ArrowDown className="size-3 text-zinc-950" />
+                    )}
+                  </button>
+                </th>
+                <th className="px-4 py-2.5">
+                  <button
+                    type="button"
+                    onClick={() => toggleSort("status")}
+                    className="group inline-flex items-center gap-1.5 font-bold uppercase tracking-wider text-zinc-600 hover:text-zinc-950 cursor-pointer"
+                    title="Ordenar por estado activo/pausado"
+                  >
+                    <span>Estado</span>
+                    {sortField !== "status" ? (
+                      <ArrowUpDown className="size-3 text-zinc-400 group-hover:text-zinc-700" />
+                    ) : sortDir === "asc" ? (
+                      <ArrowUp className="size-3 text-zinc-950" />
+                    ) : (
+                      <ArrowDown className="size-3 text-zinc-950" />
+                    )}
+                  </button>
+                </th>
                 <th className="px-4 py-2.5 text-right">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-200">
-              {filtered.map((service, idx) => {
+              {sorted.map((service, idx) => {
                 const isEditing = editingId === service.id;
 
                 if (isEditing) {
