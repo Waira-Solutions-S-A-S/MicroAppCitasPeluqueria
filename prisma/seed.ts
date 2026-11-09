@@ -1,9 +1,6 @@
-import { PrismaClient } from "@prisma/client";
-
+import { prisma } from "../src/lib/prisma";
 import { hashPassword } from "../src/lib/password";
 import { addDays, addMinutes, nowWallClock, startOfDay } from "../src/lib/time";
-
-const prisma = new PrismaClient();
 
 type Seeded = { id: string; durationMin: number };
 

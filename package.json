@@ -4,12 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build --webpack",
+    "build": "prisma generate && next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "db:push": "prisma db push",
     "db:seed": "prisma db seed",
     "db:setup": "prisma db push && prisma db seed",
+    "db:turso:push": "node scripts/sync-turso.mjs",
     "db:studio": "prisma studio",
     "icons": "node scripts/gen-icons.mjs"
   },
@@ -17,6 +18,8 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@libsql/client": "^0.18.0",
+    "@prisma/adapter-libsql": "^7.10.1",
     "@prisma/client": "^6.19.3",
     "jose": "^6.2.15",
     "lucide-react": "^1.69.0",
