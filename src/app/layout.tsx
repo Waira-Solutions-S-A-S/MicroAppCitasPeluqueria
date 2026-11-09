@@ -12,6 +12,11 @@ export const metadata: Metadata = {
   description:
     "Reserva corte, color y uñas en segundos desde el celular. Turnos online, también recurrentes.",
   applicationName: "Estudio Nube",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/icons/icon-192.png",
+    apple: "/icons/apple-touch-icon.png",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

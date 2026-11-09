@@ -1,10 +1,15 @@
 import type { MetadataRoute } from "next";
 
-export default function manifest(): MetadataRoute.Manifest {
+import { getSettings } from "@/lib/settings";
+
+export default async function manifest(): Promise<MetadataRoute.Manifest> {
+  const settings = await getSettings();
+
   return {
-    name: "Estudio Nube — Reservas",
-    short_name: "Estudio Nube",
+    name: `${settings.businessName} — Turnos & Reservas`,
+    short_name: settings.businessName,
     description:
+      settings.tagline ||
       "Reserva corte, color y uñas en segundos. Turnos online, también recurrentes.",
     start_url: "/",
     scope: "/",

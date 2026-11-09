@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Tag } from "lucide-react";
+import { Plus, Tag, X } from "lucide-react";
 
 import { createServiceAction } from "@/app/admin/actions";
 import { formatPrice } from "@/lib/format";
@@ -9,6 +9,7 @@ import { formatPrice } from "@/lib/format";
 const DURATION_PRESETS = [15, 30, 45, 60, 90, 120];
 
 export function NewServiceForm({ currency }: { currency: string }) {
+  const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
   const [duration, setDuration] = useState(45);
   const [price, setPrice] = useState(15000);
@@ -17,22 +18,43 @@ export function NewServiceForm({ currency }: { currency: string }) {
 
   return (
     <div className="rounded-lg border border-zinc-200 bg-white shadow-xs overflow-hidden">
-      <div className="border-b border-zinc-200 bg-zinc-50/75 px-5 py-3.5 flex items-center justify-between">
-        <h2 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-zinc-800">
-          <Plus className="size-4 text-zinc-700" />
-          <span>Agregar Nuevo Servicio al Catálogo</span>
-        </h2>
-        {/* Live Preview Badge */}
-        {name.trim() && (
-          <div className="hidden sm:flex items-center gap-2 rounded bg-zinc-100 px-2.5 py-1 text-xs">
-            <span className="size-2 rounded-full" style={{ backgroundColor: color }} />
-            <span className="font-semibold text-zinc-900">{name}</span>
-            <span className="text-zinc-500 font-mono">({duration}m · {formatPrice(price * 100, currency)})</span>
-          </div>
-        )}
+      <div className="border-b border-zinc-200 bg-zinc-50/75 px-5 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <h2 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-zinc-800">
+            <Plus className="size-4 text-zinc-700" />
+            <span>Agregar Nuevo Servicio al Catálogo</span>
+          </h2>
+          {/* Live Preview Badge if typing */}
+          {isOpen && name.trim() && (
+            <div className="hidden sm:flex items-center gap-2 rounded bg-zinc-100 px-2.5 py-1 text-xs">
+              <span className="size-2 rounded-full" style={{ backgroundColor: color }} />
+              <span className="font-semibold text-zinc-900">{name}</span>
+              <span className="text-zinc-500 font-mono">({duration}m · {formatPrice(price * 100, currency)})</span>
+            </div>
+          )}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setIsOpen((prev) => !prev)}
+          className="inline-flex items-center gap-1.5 rounded border border-zinc-200 bg-white px-3 py-1 text-xs font-semibold text-zinc-800 shadow-xs hover:bg-zinc-50 transition cursor-pointer"
+        >
+          {isOpen ? (
+            <>
+              <X className="size-3.5 text-zinc-500" />
+              <span>Ocultar formulario</span>
+            </>
+          ) : (
+            <>
+              <Plus className="size-3.5 text-zinc-500" />
+              <span>+ Nuevo Servicio</span>
+            </>
+          )}
+        </button>
       </div>
 
-      <form action={createServiceAction} className="p-5 grid gap-4 sm:grid-cols-2">
+      {isOpen && (
+        <form action={createServiceAction} className="p-5 grid gap-4 sm:grid-cols-2 animate-in fade-in duration-150">
         <label className="sm:col-span-2 block">
           <span className="mb-1 block text-xs font-semibold text-zinc-700">
             Nombre del servicio
@@ -140,6 +162,7 @@ export function NewServiceForm({ currency }: { currency: string }) {
           </button>
         </div>
       </form>
+      )}
     </div>
   );
 }
