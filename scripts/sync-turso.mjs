@@ -60,16 +60,17 @@ try {
     VALUES ('singleton', 'Estudio Nube', 'Turnos de belleza sin vueltas', 'America/Bogota', 'COP', 15, 10, 2, 180)
   `);
 
-  // 2. Admin user
+  // 2. Admin user (con contraseña admin123 verificada con scrypt)
   await client.execute(`
-    INSERT OR IGNORE INTO "User" ("id", "email", "name", "passwordHash", "role")
+    INSERT INTO "User" ("id", "email", "name", "passwordHash", "role")
     VALUES (
       'admin-default-id',
       'admin@estudio.local',
       'Administración',
-      'scrypt$738b55d78709f1bf32c525f69661f00b$2c58c2794eb090449cf848a6cbcc86a9bc289b43aa1f629fa2a88448ecdb231ae35f3dfd59fa8c130384795e2c7a52bb9e5fe91f63e6e3923d6a9a08a2ff5b49',
+      'scrypt$0b850f9782e1cfe7efda9668b5ea9cde$a5805626692d994d8e8a3de525fb775970193c2fb8a69661d9b57fbb7f19622df6eaccd8c75d61c6a15a8e4f03f201c71f8b678edd161b78b9ec2f743c61fee3',
       'ADMIN'
     )
+    ON CONFLICT ("email") DO UPDATE SET "passwordHash" = excluded."passwordHash"
   `);
 
   // 3. Servicios y Personal

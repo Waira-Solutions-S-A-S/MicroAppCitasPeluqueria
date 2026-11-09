@@ -141,17 +141,17 @@ export async function GET() {
     });
 
     const adminEmail = "admin@estudio.local";
-    const existingAdmin = await prisma.user.findUnique({ where: { email: adminEmail } });
-    if (!existingAdmin) {
-      await prisma.user.create({
-        data: {
-          email: adminEmail,
-          name: "Administración",
-          passwordHash:
-            "scrypt$738b55d78709f1bf32c525f69661f00b$2c58c2794eb090449cf848a6cbcc86a9bc289b43aa1f629fa2a88448ecdb231ae35f3dfd59fa8c130384795e2c7a52bb9e5fe91f63e6e3923d6a9a08a2ff5b49",
-        },
-      });
-    }
+    const passwordHash =
+      "scrypt$0b850f9782e1cfe7efda9668b5ea9cde$a5805626692d994d8e8a3de525fb775970193c2fb8a69661d9b57fbb7f19622df6eaccd8c75d61c6a15a8e4f03f201c71f8b678edd161b78b9ec2f743c61fee3";
+    await prisma.user.upsert({
+      where: { email: adminEmail },
+      update: { passwordHash },
+      create: {
+        email: adminEmail,
+        name: "Administración",
+        passwordHash,
+      },
+    });
 
     // Seed sample services if none exist
     const serviceCount = await prisma.service.count();
