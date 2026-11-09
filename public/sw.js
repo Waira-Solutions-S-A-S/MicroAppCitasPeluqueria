@@ -2,7 +2,7 @@
 // Navigation requests are network-first (fresh availability), with an offline
 // fallback. Static assets are cache-first so the shell loads instantly.
 
-const VERSION = "reservas-pwa-v2";
+const VERSION = "reservas-pwa-v3";
 const STATIC_CACHE = `${VERSION}-static`;
 const PAGE_CACHE = `${VERSION}-pages`;
 const APP_SHELL = ["/", "/reservar", "/offline", "/manifest.webmanifest"];
