@@ -245,12 +245,33 @@ export async function saveHoursAction(formData: FormData): Promise<void> {
   if (!staffId) back("/admin/horarios", "error", "Profesional inválido.");
 
   for (let day = 0; day < 7; day += 1) {
-    const isOpen = formData.get(`open-${day}`) === "on";
-    const startMin = parseTime(formData.get(`start-${day}`), 9 * 60);
-    const endMin = parseTime(formData.get(`end-${day}`), 19 * 60);
+    // Robust detection supporting open-X, open_X, closed-X, closed_X
+    const openRaw = formData.get(`open-${day}`) ?? formData.get(`open_${day}`);
+    const closedRaw = formData.get(`closed-${day}`) ?? formData.get(`closed_${day}`);
+
+    let isOpen = false;
+    if (openRaw !== null) {
+      isOpen = openRaw === "on" || openRaw === "true" || openRaw === "1";
+    } else if (closedRaw !== null) {
+      isOpen = !(closedRaw === "on" || closedRaw === "true" || closedRaw === "1");
+    }
+
+    const startVal =
+      formData.get(`start-${day}`) ??
+      formData.get(`start_${day}`) ??
+      formData.get(`startAt-${day}`) ??
+      null;
+    const endVal =
+      formData.get(`end-${day}`) ??
+      formData.get(`end_${day}`) ??
+      formData.get(`endAt-${day}`) ??
+      null;
+
+    const startMin = parseTime(startVal, 9 * 60);
+    const endMin = parseTime(endVal, 19 * 60);
 
     if (isOpen && endMin <= startMin) {
-      back("/admin/horarios", "error", "El cierre debe ser posterior a la apertura.");
+      back("/admin/horarios", "error", "El horario de cierre debe ser posterior a la apertura.");
     }
 
     await prisma.workingHours.upsert({
@@ -261,7 +282,9 @@ export async function saveHoursAction(formData: FormData): Promise<void> {
   }
 
   revalidatePath("/admin/horarios");
-  back("/admin/horarios", "ok", "Horarios guardados.");
+  revalidatePath("/admin/agenda");
+  revalidatePath("/");
+  back("/admin/horarios", "ok", "Horarios guardados correctamente.");
 }
 
 export async function updateSettingsAction(formData: FormData): Promise<void> {
