@@ -18,10 +18,18 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const availability = await getAvailability(targetServices, date, staffId);
-  if (!availability) {
-    return Response.json({ error: "Servicio(s) o fecha inválidos." }, { status: 404 });
-  }
+  try {
+    const availability = await getAvailability(targetServices, date, staffId);
+    if (!availability) {
+      return Response.json({ error: "Servicio(s) o fecha inválidos." }, { status: 404 });
+    }
 
-  return Response.json(availability);
+    return Response.json(availability);
+  } catch (error: any) {
+    console.error("Error in availability route:", error);
+    return Response.json(
+      { error: "Error interno al calcular la disponibilidad." },
+      { status: 500 }
+    );
+  }
 }

@@ -25,10 +25,9 @@ export async function GET() {
         name: error?.name,
         message: error?.message,
         code: error?.code,
-        stack: error?.stack,
-        cause: error?.cause ? String(error.cause) : undefined,
+        stack: process.env.NODE_ENV === "development" ? error?.stack : undefined,
       },
-      { status: 200 } // return 200 so we can read the JSON error in the browser/fetch
+      { status: 500 }
     );
   }
 }

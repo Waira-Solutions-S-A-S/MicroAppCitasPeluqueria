@@ -9,10 +9,13 @@ export async function GET() {
   let authToken = process.env.TURSO_AUTH_TOKEN;
 
   if (!url) {
-    return NextResponse.json({
-      status: "error",
-      message: "TURSO_DATABASE_URL no está configurado en las variables de entorno.",
-    });
+    return NextResponse.json(
+      {
+        status: "error",
+        message: "TURSO_DATABASE_URL no está configurado en las variables de entorno.",
+      },
+      { status: 500 }
+    );
   }
 
   url = url.trim().replace(/^["']|["']$/g, "");
@@ -219,11 +222,14 @@ export async function GET() {
       }
     }
   } catch (err: any) {
-    return NextResponse.json({
-      status: "schema_created_but_seed_error",
-      results,
-      seedError: err?.message,
-    });
+    return NextResponse.json(
+      {
+        status: "schema_created_but_seed_error",
+        results,
+        seedError: err?.message,
+      },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({
