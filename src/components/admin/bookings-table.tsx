@@ -59,7 +59,7 @@ export type AppointmentItem = {
   };
 };
 
-function formatWhatsAppPhone(phone: string): string {
+export function formatWhatsAppPhone(phone: string): string {
   const digits = phone.replace(/\D/g, "");
   if (digits.length === 10 && digits.startsWith("3")) {
     return `57${digits}`;
@@ -67,7 +67,7 @@ function formatWhatsAppPhone(phone: string): string {
   return digits;
 }
 
-function buildAdminWhatsAppMessage({
+export function buildAdminWhatsAppMessage({
   clientName,
   businessName,
   serviceName,

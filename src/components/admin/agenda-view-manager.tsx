@@ -5,6 +5,8 @@ import { useState } from "react";
 import {
   CalendarDays,
   CalendarPlus,
+  Check,
+  CheckCheck,
   Clock,
   LayoutGrid,
   List,
@@ -13,7 +15,13 @@ import {
   User,
 } from "lucide-react";
 
-import { BookingsTable, type AppointmentItem } from "@/components/admin/bookings-table";
+import { updateAppointmentStatusAction } from "@/app/admin/actions";
+import {
+  BookingsTable,
+  buildAdminWhatsAppMessage,
+  formatWhatsAppPhone,
+  type AppointmentItem,
+} from "@/components/admin/bookings-table";
 import { formatPrice, STATUS_CLASSES, STATUS_LABELS } from "@/lib/format";
 
 type StaffItem = {
@@ -27,14 +35,6 @@ function formatHour(iso: string): string {
   const h = String(date.getUTCHours()).padStart(2, "0");
   const m = String(date.getUTCMinutes()).padStart(2, "0");
   return `${h}:${m}`;
-}
-
-function formatWhatsAppPhone(phone: string): string {
-  const digits = phone.replace(/\D/g, "");
-  if (digits.length === 10 && digits.startsWith("3")) {
-    return `57${digits}`;
-  }
-  return digits;
 }
 
 export function AgendaViewManager({
@@ -181,7 +181,17 @@ export function AgendaViewManager({
                         const start = formatHour(item.startAt);
                         const end = formatHour(item.endAt);
                         const cleanPhone = formatWhatsAppPhone(item.clientPhone);
-                        const waUrl = `https://wa.me/${cleanPhone}`;
+                        const srvName = item.serviceNamesLabel ?? item.service.name;
+                        const timeStr = `${start} a ${end} hs`;
+                        const waMessage = buildAdminWhatsAppMessage({
+                          clientName: item.clientName,
+                          businessName,
+                          serviceName: srvName,
+                          staffName: member.name,
+                          timeStr,
+                          status: item.status,
+                        });
+                        const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(waMessage)}`;
 
                         return (
                           <div
@@ -206,7 +216,7 @@ export function AgendaViewManager({
                             </p>
                             <div className="mt-0.5">
                               <p className="text-xs text-zinc-700 font-medium truncate">
-                                {item.serviceNamesLabel ?? item.service.name}
+                                {srvName}
                               </p>
                               <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-zinc-500 font-mono">
                                 <span>{item.totalDurationMin ?? item.service.durationMin}m</span>
@@ -223,25 +233,61 @@ export function AgendaViewManager({
                             </div>
 
                             <div className="mt-2.5 pt-2 border-t border-zinc-100 flex items-center justify-between text-[11px]">
-                              <a
-                                href={`tel:${item.clientPhone}`}
-                                className="inline-flex items-center gap-1 text-zinc-500 hover:text-zinc-900"
-                              >
-                                <Phone className="size-3 text-zinc-400" />
-                                <span>{item.clientPhone}</span>
-                              </a>
-
-                              {cleanPhone.length >= 7 && (
+                              <div className="flex items-center gap-2">
                                 <a
-                                  href={waUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 text-emerald-700 font-semibold hover:underline"
+                                  href={`tel:${item.clientPhone}`}
+                                  className="inline-flex items-center gap-1 text-zinc-500 hover:text-zinc-900"
+                                  title="Llamar al cliente"
                                 >
-                                  <MessageCircle className="size-3 text-emerald-600" />
-                                  <span>WhatsApp</span>
+                                  <Phone className="size-3 text-zinc-400" />
+                                  <span>{item.clientPhone}</span>
                                 </a>
-                              )}
+
+                                {cleanPhone.length >= 7 && (
+                                  <a
+                                    href={waUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 text-emerald-700 font-semibold hover:underline"
+                                    title="Enviar mensaje por WhatsApp"
+                                  >
+                                    <MessageCircle className="size-3 text-emerald-600" />
+                                    <span>WhatsApp</span>
+                                  </a>
+                                )}
+                              </div>
+
+                              <div className="flex items-center gap-1">
+                                {item.status === "PENDING" && (
+                                  <form action={updateAppointmentStatusAction}>
+                                    <input type="hidden" name="id" value={item.id} />
+                                    <input type="hidden" name="status" value="CONFIRMED" />
+                                    <button
+                                      type="submit"
+                                      className="inline-flex h-6 items-center gap-1 rounded bg-zinc-900 px-2 text-[10px] font-semibold text-white hover:bg-zinc-800 cursor-pointer"
+                                      title="Confirmar asistencia"
+                                    >
+                                      <Check className="size-2.5" />
+                                      <span>Confirmar</span>
+                                    </button>
+                                  </form>
+                                )}
+
+                                {item.status === "CONFIRMED" && (
+                                  <form action={updateAppointmentStatusAction}>
+                                    <input type="hidden" name="id" value={item.id} />
+                                    <input type="hidden" name="status" value="COMPLETED" />
+                                    <button
+                                      type="submit"
+                                      className="inline-flex h-6 items-center gap-1 rounded border border-zinc-300 bg-white px-2 text-[10px] font-semibold text-zinc-700 hover:bg-zinc-100 cursor-pointer"
+                                      title="Marcar turno como completado"
+                                    >
+                                      <CheckCheck className="size-2.5" />
+                                      <span>Completar</span>
+                                    </button>
+                                  </form>
+                                )}
+                              </div>
                             </div>
                           </div>
                         );

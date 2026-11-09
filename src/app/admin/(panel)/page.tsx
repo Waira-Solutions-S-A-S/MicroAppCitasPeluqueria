@@ -231,9 +231,11 @@ export default async function AdminHomePage() {
             {activeStaff.map((member) => {
               const count = member.appointments.length;
               return (
-                <div
+                <Link
                   key={member.id}
-                  className="flex items-center gap-3 rounded-md border border-zinc-100 bg-zinc-50/60 p-3"
+                  href="/admin/agenda"
+                  className="flex items-center gap-3 rounded-md border border-zinc-200/80 bg-zinc-50/60 p-3 transition hover:border-zinc-400 hover:bg-zinc-100/80 cursor-pointer shadow-xs"
+                  title={`Ver agenda de ${member.name}`}
                 >
                   <div
                     className="flex size-9 items-center justify-center rounded font-mono text-xs font-bold text-white shadow-xs"
@@ -249,7 +251,7 @@ export default async function AdminHomePage() {
                       {count} {count === 1 ? "turno hoy" : "turnos hoy"}
                     </p>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>
