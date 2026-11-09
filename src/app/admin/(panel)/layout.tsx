@@ -1,5 +1,6 @@
 import { AdminShell } from "@/components/admin/admin-shell";
 import { requireAdmin } from "@/lib/auth";
+import { decodeAppointmentNotes } from "@/lib/multi-service";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
 import { nowWallClock, startOfDay } from "@/lib/time";
@@ -32,21 +33,29 @@ export default async function AdminPanelLayout({
         clientName: true,
         clientPhone: true,
         startAt: true,
+        notes: true,
         service: { select: { name: true } },
         staff: { select: { name: true, color: true } },
       },
     }),
   ]);
 
-  const serializedPending = pendingAppointments.map((p) => ({
-    id: p.id,
-    clientName: p.clientName,
-    clientPhone: p.clientPhone,
-    startAt: p.startAt.toISOString(),
-    serviceName: p.service.name,
-    staffName: p.staff.name,
-    staffColor: p.staff.color,
-  }));
+  const serializedPending = pendingAppointments.map((p) => {
+    const { extraServiceIds } = decodeAppointmentNotes(p.notes);
+    const serviceName =
+      extraServiceIds.length > 0
+        ? `${p.service.name} (+${extraServiceIds.length})`
+        : p.service.name;
+    return {
+      id: p.id,
+      clientName: p.clientName,
+      clientPhone: p.clientPhone,
+      startAt: p.startAt.toISOString(),
+      serviceName,
+      staffName: p.staff.name,
+      staffColor: p.staff.color,
+    };
+  });
 
   return (
     <AdminShell

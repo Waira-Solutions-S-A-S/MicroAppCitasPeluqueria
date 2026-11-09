@@ -2,27 +2,33 @@ import { z } from "zod";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export const bookingSchema = z.object({
-  serviceId: z.string().min(1),
-  staffId: z.string().min(1),
-  startAt: z.string().min(1),
-  clientName: z.string().trim().min(2).max(80),
-  clientPhone: z.string().trim().min(6).max(30),
-  clientEmail: z
-    .string()
-    .trim()
-    .max(120)
-    .refine((value) => value === "" || EMAIL_PATTERN.test(value), "email inválido")
-    .optional(),
-  notes: z.string().trim().max(500).optional(),
-  repeat: z
-    .object({
-      intervalWeeks: z.number().int().min(1).max(12),
-      occurrences: z.number().int().min(2).max(24),
-    })
-    .nullable()
-    .optional(),
-});
+export const bookingSchema = z
+  .object({
+    serviceId: z.string().optional(),
+    serviceIds: z.array(z.string().min(1)).optional(),
+    staffId: z.string().min(1),
+    startAt: z.string().min(1),
+    clientName: z.string().trim().min(2).max(80),
+    clientPhone: z.string().trim().min(6).max(30),
+    clientEmail: z
+      .string()
+      .trim()
+      .max(120)
+      .refine((value) => value === "" || EMAIL_PATTERN.test(value), "email inválido")
+      .optional(),
+    notes: z.string().trim().max(500).optional(),
+    repeat: z
+      .object({
+        intervalWeeks: z.number().int().min(1).max(12),
+        occurrences: z.number().int().min(2).max(24),
+      })
+      .nullable()
+      .optional(),
+  })
+  .refine(
+    (data) => Boolean(data.serviceId || (data.serviceIds && data.serviceIds.length > 0)),
+    { message: "Debes seleccionar al menos un servicio" },
+  );
 
 export const loginSchema = z.object({
   email: z.string().trim().min(3).max(120),

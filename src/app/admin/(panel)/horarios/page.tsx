@@ -135,11 +135,7 @@ export default async function HorariosPage({
                       return (
                         <label
                           key={service.id}
-                          className={`inline-flex items-center gap-1.5 rounded border px-2.5 py-1 text-xs cursor-pointer transition ${
-                            assigned
-                              ? "border-zinc-900 bg-zinc-900 text-white font-medium"
-                              : "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50"
-                          }`}
+                          className="inline-flex items-center gap-1.5 rounded border border-zinc-200 bg-white px-2.5 py-1 text-xs cursor-pointer transition select-none hover:bg-zinc-50 text-zinc-700 has-[:checked]:border-zinc-900 has-[:checked]:bg-zinc-900 has-[:checked]:text-white has-[:checked]:font-medium"
                         >
                           <input
                             type="checkbox"

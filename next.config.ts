@@ -3,6 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   cacheComponents: false,
   serverExternalPackages: ["@prisma/client"],
+  experimental: {
+    cpus: 1,
+  },
   images: {
     remotePatterns: [
       {

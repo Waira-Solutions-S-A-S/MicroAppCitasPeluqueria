@@ -42,6 +42,16 @@ export type AppointmentItem = {
     priceCents: number;
     color: string;
   };
+  services?: {
+    id: string;
+    name: string;
+    durationMin: number;
+    priceCents: number;
+    color: string;
+  }[];
+  totalDurationMin?: number;
+  totalPriceCents?: number;
+  serviceNamesLabel?: string;
   staff: {
     id: string;
     name: string;
@@ -140,10 +150,16 @@ export function BookingsTable({
 
       if (!search.trim()) return true;
       const term = search.toLowerCase();
+      const allServiceNames = (
+        a.services?.map((s) => s.name) || [a.service.name]
+      )
+        .join(" ")
+        .toLowerCase();
+
       return (
         a.clientName.toLowerCase().includes(term) ||
         a.clientPhone.toLowerCase().includes(term) ||
-        a.service.name.toLowerCase().includes(term) ||
+        allServiceNames.includes(term) ||
         a.staff.name.toLowerCase().includes(term)
       );
     });
@@ -152,7 +168,7 @@ export function BookingsTable({
   const filteredRevenue = useMemo(() => {
     return filtered
       .filter((a) => a.status !== "CANCELLED")
-      .reduce((sum, a) => sum + a.service.priceCents, 0);
+      .reduce((sum, a) => sum + (a.totalPriceCents ?? a.service.priceCents), 0);
   }, [filtered]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
@@ -182,27 +198,35 @@ export function BookingsTable({
       "Cliente",
       "Teléfono",
       "Email",
-      "Servicio",
+      "Servicios",
       "Duración (min)",
-      "Precio",
+      "Precio Total",
       "Profesional",
       "Estado",
       "Notas",
     ];
 
-    const rows = filtered.map((a) => [
-      formatHour(a.startAt),
-      formatHour(a.endAt),
-      `"${a.clientName.replace(/"/g, '""')}"`,
-      `"${a.clientPhone}"`,
-      `"${a.clientEmail ?? ""}"`,
-      `"${a.service.name.replace(/"/g, '""')}"`,
-      a.service.durationMin,
-      formatPrice(a.service.priceCents, currency),
-      `"${a.staff.name.replace(/"/g, '""')}"`,
-      STATUS_LABELS[a.status] ?? a.status,
-      `"${(a.notes ?? "").replace(/"/g, '""')}"`,
-    ]);
+    const rows = filtered.map((a) => {
+      const srvLabel =
+        a.serviceNamesLabel ||
+        (a.services && a.services.length > 0
+          ? a.services.map((s) => s.name).join(" + ")
+          : a.service.name);
+
+      return [
+        formatHour(a.startAt),
+        formatHour(a.endAt),
+        `"${a.clientName.replace(/"/g, '""')}"`,
+        `"${a.clientPhone}"`,
+        `"${a.clientEmail ?? ""}"`,
+        `"${srvLabel.replace(/"/g, '""')}"`,
+        a.totalDurationMin ?? a.service.durationMin,
+        formatPrice(a.totalPriceCents ?? a.service.priceCents, currency),
+        `"${a.staff.name.replace(/"/g, '""')}"`,
+        STATUS_LABELS[a.status] ?? a.status,
+        `"${(a.notes ?? "").replace(/"/g, '""')}"`,
+      ];
+    });
 
     const csvContent =
       "\uFEFF" + [headers.join(","), ...rows.map((r) => r.join(","))].join("\r\n");
@@ -443,10 +467,16 @@ export function BookingsTable({
                 const endTime = formatHour(item.endAt);
                 const timeStr = `${startTime} a ${endTime} hs`;
                 const cleanPhone = formatWhatsAppPhone(item.clientPhone);
+                const srvName =
+                  item.serviceNamesLabel ||
+                  (item.services && item.services.length > 0
+                    ? item.services.map((s) => s.name).join(" + ")
+                    : item.service.name);
+
                 const waMessage = buildAdminWhatsAppMessage({
                   clientName: item.clientName,
                   businessName,
-                  serviceName: item.service.name,
+                  serviceName: srvName,
                   staffName: item.staff.name,
                   timeStr,
                   status: item.status,
@@ -465,7 +495,7 @@ export function BookingsTable({
                       <span>{startTime}</span>
                       <span className="text-zinc-500"> - {endTime}</span>
                       <span className="ml-2 rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] font-normal text-zinc-600 font-sans">
-                        {item.service.durationMin}m
+                        {item.totalDurationMin ?? item.service.durationMin}m
                       </span>
                     </td>
 
@@ -500,12 +530,21 @@ export function BookingsTable({
 
                     {/* Servicio */}
                     <td className="px-4 py-3">
-                      <span className="block font-medium text-zinc-900">
-                        {item.service.name}
-                      </span>
-                      <span className="text-[11px] text-zinc-500 font-mono">
-                        {formatPrice(item.service.priceCents, currency)}
-                      </span>
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-zinc-900 leading-tight">
+                          {srvName}
+                        </span>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          {item.services && item.services.length > 1 && (
+                            <span className="rounded bg-zinc-100 px-1.5 py-0.2 text-[10px] font-semibold text-zinc-700 border border-zinc-200">
+                              {item.services.length} servicios
+                            </span>
+                          )}
+                          <span className="text-[11px] text-zinc-500 font-mono">
+                            {formatPrice(item.totalPriceCents ?? item.service.priceCents, currency)}
+                          </span>
+                        </div>
+                      </div>
                     </td>
 
                     {/* Profesional */}
@@ -708,22 +747,67 @@ export function BookingsTable({
                     {formatHour(detailItem.startAt)} - {formatHour(detailItem.endAt)} hs
                   </p>
                   <p className="text-[11px] text-zinc-500 mt-0.5">
-                    Duración: {detailItem.service.durationMin} minutos
+                    Duración total: {detailItem.totalDurationMin ?? detailItem.service.durationMin} minutos
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 rounded-md bg-zinc-50 p-3 border border-zinc-100">
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
-                    Servicio & Tarifa
+              <div className="rounded-md bg-zinc-50 p-3 border border-zinc-100">
+                <div className="flex items-center justify-between pb-1 border-b border-zinc-200/60 mb-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                    {detailItem.services && detailItem.services.length > 1
+                      ? `Servicios Incluidos (${detailItem.services.length})`
+                      : "Servicio Seleccionado"}
                   </span>
-                  <p className="font-semibold text-zinc-950 mt-0.5">{detailItem.service.name}</p>
-                  <p className="font-mono text-zinc-600 mt-0.5 font-bold">
-                    {formatPrice(detailItem.service.priceCents, currency)}
-                  </p>
+                  <span className="text-[10px] font-mono font-semibold text-zinc-600">
+                    {detailItem.totalDurationMin ?? detailItem.service.durationMin} min totales
+                  </span>
                 </div>
 
+                {detailItem.services && detailItem.services.length > 1 ? (
+                  <div className="space-y-1.5">
+                    {detailItem.services.map((s, idx) => (
+                      <div
+                        key={s.id}
+                        className="flex items-center justify-between text-xs border-b border-zinc-200/40 pb-1"
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className="size-2 rounded-full"
+                            style={{ backgroundColor: s.color }}
+                          />
+                          <span className="font-semibold text-zinc-900">
+                            {idx + 1}. {s.name}
+                          </span>
+                        </div>
+                        <span className="font-mono text-zinc-600">
+                          {s.durationMin}m · {formatPrice(s.priceCents, currency)}
+                        </span>
+                      </div>
+                    ))}
+                    <div className="flex items-center justify-between pt-1.5 text-xs font-bold text-zinc-950">
+                      <span>Total acumulado:</span>
+                      <span className="font-mono">
+                        {detailItem.totalDurationMin}m · {formatPrice(detailItem.totalPriceCents ?? detailItem.service.priceCents, currency)}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold text-zinc-950">{detailItem.service.name}</p>
+                      <p className="text-[11px] text-zinc-500 font-mono">
+                        {detailItem.service.durationMin} minutos
+                      </p>
+                    </div>
+                    <p className="font-mono text-zinc-950 font-bold text-sm">
+                      {formatPrice(detailItem.service.priceCents, currency)}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 rounded-md bg-zinc-50 p-3 border border-zinc-100">
                 <div>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
                     Profesional Asignado
@@ -735,13 +819,21 @@ export function BookingsTable({
                     />
                     <span className="font-semibold text-zinc-900">{detailItem.staff.name}</span>
                   </div>
-                  <span
-                    className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-medium border mt-2 ${
-                      STATUS_CLASSES[detailItem.status] ?? "bg-zinc-100 text-zinc-700 border-zinc-200"
-                    }`}
-                  >
-                    <span>{STATUS_LABELS[detailItem.status] ?? detailItem.status}</span>
+                </div>
+
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                    Estado del Turno
                   </span>
+                  <div className="mt-1">
+                    <span
+                      className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-medium border ${
+                        STATUS_CLASSES[detailItem.status] ?? "bg-zinc-100 text-zinc-700 border-zinc-200"
+                      }`}
+                    >
+                      <span>{STATUS_LABELS[detailItem.status] ?? detailItem.status}</span>
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -761,7 +853,7 @@ export function BookingsTable({
                   buildAdminWhatsAppMessage({
                     clientName: detailItem.clientName,
                     businessName,
-                    serviceName: detailItem.service.name,
+                    serviceName: detailItem.serviceNamesLabel ?? detailItem.service.name,
                     staffName: detailItem.staff.name,
                     timeStr: `${formatHour(detailItem.startAt)} a ${formatHour(detailItem.endAt)} hs`,
                     status: detailItem.status,

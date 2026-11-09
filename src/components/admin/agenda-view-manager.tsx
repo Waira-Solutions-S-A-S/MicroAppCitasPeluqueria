@@ -204,9 +204,23 @@ export function AgendaViewManager({
                             <p className="font-bold text-xs text-zinc-950 truncate">
                               {item.clientName}
                             </p>
-                            <p className="text-xs text-zinc-600 truncate mt-0.5">
-                              {item.service.name} ({formatPrice(item.service.priceCents, currency)})
-                            </p>
+                            <div className="mt-0.5">
+                              <p className="text-xs text-zinc-700 font-medium truncate">
+                                {item.serviceNamesLabel ?? item.service.name}
+                              </p>
+                              <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-zinc-500 font-mono">
+                                <span>{item.totalDurationMin ?? item.service.durationMin}m</span>
+                                <span>·</span>
+                                <span className="font-semibold text-zinc-800">
+                                  {formatPrice(item.totalPriceCents ?? item.service.priceCents, currency)}
+                                </span>
+                                {item.services && item.services.length > 1 && (
+                                  <span className="rounded bg-zinc-100 px-1 py-0.5 text-[9px] font-sans font-bold text-zinc-600">
+                                    {item.services.length} serv.
+                                  </span>
+                                )}
+                              </div>
+                            </div>
 
                             <div className="mt-2.5 pt-2 border-t border-zinc-100 flex items-center justify-between text-[11px]">
                               <a

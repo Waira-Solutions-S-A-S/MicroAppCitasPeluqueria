@@ -11,8 +11,11 @@ import {
   ChevronRight,
   Clock,
   Loader2,
+  Plus,
   Repeat,
+  Scissors,
   User,
+  X,
 } from "lucide-react";
 
 import { formatPrice } from "@/lib/format";
@@ -48,7 +51,7 @@ type Props = {
 };
 
 const DAY_MS = 86_400_000;
-const STEPS = ["Servicio", "Profesional", "Fecha y hora", "Tus datos"];
+const STEPS = ["Servicios", "Profesional", "Fecha y hora", "Tus datos"];
 
 function dayLabel(iso: string): { weekday: string; day: string; month: string } {
   const date = new Date(`${iso}T00:00:00Z`);
@@ -90,7 +93,9 @@ export function BookingWizard({
   const router = useRouter();
 
   const [step, setStep] = useState(initialServiceId ? 1 : 0);
-  const [serviceId, setServiceId] = useState(initialServiceId ?? "");
+  const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>(
+    initialServiceId ? [initialServiceId] : [],
+  );
   const [staffId, setStaffId] = useState("any");
   const [date, setDate] = useState(todayKey);
   const [slotKey, setSlotKey] = useState("");
@@ -108,12 +113,46 @@ export function BookingWizard({
   const [intervalWeeks, setIntervalWeeks] = useState(4);
   const [occurrences, setOccurrences] = useState(4);
 
-  const service = services.find((item) => item.id === serviceId);
+  // Selected services in order of user selection
+  const selectedServices = useMemo(() => {
+    return selectedServiceIds
+      .map((id) => services.find((s) => s.id === id))
+      .filter((s): s is WizardService => Boolean(s));
+  }, [selectedServiceIds, services]);
 
+  const totalDurationMin = useMemo(() => {
+    return selectedServices.reduce((sum, s) => sum + s.durationMin, 0);
+  }, [selectedServices]);
+
+  const totalPriceCents = useMemo(() => {
+    return selectedServices.reduce((sum, s) => sum + s.priceCents, 0);
+  }, [selectedServices]);
+
+  const toggleService = (id: string) => {
+    setSelectedServiceIds((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((item) => item !== id);
+      }
+      return [...prev, id];
+    });
+    setSlotKey("");
+  };
+
+  // Staff members who can provide ALL selected services
   const staffForService = useMemo(() => {
-    if (!serviceId) return [];
-    return staff.filter((member) => member.serviceIds.includes(serviceId));
-  }, [serviceId, staff]);
+    if (selectedServiceIds.length === 0) return [];
+    return staff.filter((member) =>
+      selectedServiceIds.every((srvId) => member.serviceIds.includes(srvId)),
+    );
+  }, [selectedServiceIds, staff]);
+
+  // If currently selected staffId cannot provide all services, reset to "any"
+  useEffect(() => {
+    if (staffId !== "any" && !staffForService.some((m) => m.id === staffId)) {
+      setStaffId("any");
+      setSlotKey("");
+    }
+  }, [staffForService, staffId]);
 
   const days = useMemo(() => {
     const list: string[] = [];
@@ -139,7 +178,7 @@ export function BookingWizard({
   };
 
   useEffect(() => {
-    if (!serviceId || !date) return;
+    if (selectedServiceIds.length === 0 || !date) return;
     let cancelled = false;
 
     async function fetchSlots() {
@@ -147,7 +186,7 @@ export function BookingWizard({
       setError("");
       try {
         const query = new URLSearchParams({
-          serviceId,
+          serviceIds: selectedServiceIds.join(","),
           date,
           staffId: staffId === "any" ? "" : staffId,
         });
@@ -173,7 +212,7 @@ export function BookingWizard({
     return () => {
       cancelled = true;
     };
-  }, [serviceId, staffId, date]);
+  }, [selectedServiceIds, staffId, date]);
 
   const selectedSlot = slots.find((s) => slotKeyFor(s) === slotKey);
 
@@ -195,21 +234,22 @@ export function BookingWizard({
   }, [slots]);
 
   const canContinue = useMemo(() => {
-    if (step === 0) return Boolean(serviceId);
-    if (step === 1) return Boolean(staffId);
+    if (step === 0) return selectedServiceIds.length > 0;
+    if (step === 1) return Boolean(staffId) && staffForService.length > 0;
     if (step === 2) return Boolean(selectedSlot);
     if (step === 3) return clientName.trim().length >= 2 && clientPhone.trim().length >= 6;
     return false;
-  }, [step, serviceId, staffId, selectedSlot, clientName, clientPhone]);
+  }, [step, selectedServiceIds, staffId, staffForService, selectedSlot, clientName, clientPhone]);
 
   async function submit() {
-    if (!service || !selectedSlot) return;
+    if (selectedServices.length === 0 || !selectedSlot) return;
     setSubmitting(true);
     setError("");
 
     try {
       const body = {
-        serviceId: service.id,
+        serviceIds: selectedServiceIds,
+        serviceId: selectedServiceIds[0],
         staffId: selectedSlot.staffId,
         startAt: selectedSlot.startAt,
         clientName: clientName.trim(),
@@ -301,34 +341,74 @@ export function BookingWizard({
 
       <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
         <div className="rounded-lg border border-zinc-200 bg-white p-5 sm:p-6 shadow-xs">
-          {/* Paso 1: Servicios */}
+          {/* Paso 1: Servicios (Permite Selección Múltiple) */}
           {step === 0 && (
             <section className="animate-rise">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-                Paso 1 de 4
-              </span>
-              <h1 className="mt-1 text-xl font-bold tracking-tight text-zinc-950">
-                Elige tu Servicio
-              </h1>
-              <p className="mt-1 text-xs text-zinc-600">
-                Selecciona la atención que deseas reservar en el estudio.
-              </p>
+              <div className="flex flex-col gap-1 border-b border-zinc-100 pb-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                    Paso 1 de 4
+                  </span>
+                  <h1 className="text-xl font-bold tracking-tight text-zinc-950">
+                    Elige tus Servicios
+                  </h1>
+                  <p className="text-xs text-zinc-500">
+                    Puedes seleccionar uno o combinar varios servicios para tu cita (ej. Corte + Barba).
+                  </p>
+                </div>
+
+                {selectedServices.length > 0 && (
+                  <span className="self-start sm:self-auto rounded bg-zinc-900 px-2.5 py-1 text-xs font-bold text-white shadow-xs">
+                    {selectedServices.length} {selectedServices.length === 1 ? "seleccionado" : "seleccionados"}
+                  </span>
+                )}
+              </div>
+
+              {/* Multi-Service Active Strip Banner */}
+              {selectedServices.length > 0 && (
+                <div className="mt-4 rounded-md border border-zinc-200 bg-zinc-50/80 p-3 flex flex-col gap-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-zinc-900">
+                      Servicios en tu cita ({selectedServices.length}):
+                    </span>
+                    <span className="font-mono font-bold text-zinc-950">
+                      {totalDurationMin} min · {formatPrice(totalPriceCents, currency)}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {selectedServices.map((item) => (
+                      <span
+                        key={item.id}
+                        className="inline-flex items-center gap-1.5 rounded border border-zinc-300 bg-white px-2 py-0.5 text-[11px] font-semibold text-zinc-800 shadow-2xs"
+                      >
+                        <span className="size-2 rounded-full" style={{ backgroundColor: item.color }} />
+                        <span>{item.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => toggleService(item.id)}
+                          className="hover:text-red-600 cursor-pointer ml-0.5"
+                          title={`Quitar ${item.name}`}
+                        >
+                          <X className="size-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
                 {services.map((item) => {
-                  const active = item.id === serviceId;
+                  const active = selectedServiceIds.includes(item.id);
                   return (
                     <button
                       key={item.id}
                       type="button"
-                      onClick={() => {
-                        setServiceId(item.id);
-                        setStaffId("any");
-                        setSlotKey("");
-                      }}
-                      className={`relative flex flex-col justify-between rounded-md border p-4 text-left transition ${
+                      onClick={() => toggleService(item.id)}
+                      className={`relative flex flex-col justify-between rounded-md border p-4 text-left transition cursor-pointer ${
                         active
-                          ? "border-zinc-900 bg-zinc-50 shadow-xs ring-1 ring-zinc-900"
+                          ? "border-zinc-950 bg-zinc-50 shadow-xs ring-1 ring-zinc-950"
                           : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50/50"
                       }`}
                     >
@@ -338,11 +418,19 @@ export function BookingWizard({
                             className="size-2.5 rounded-full"
                             style={{ backgroundColor: item.color }}
                           />
-                          {active && (
-                            <span className="rounded bg-zinc-900 px-1.5 py-0.5 text-[10px] font-semibold text-white">
-                              Seleccionado
-                            </span>
-                          )}
+                          <div className="flex items-center gap-1.5">
+                            {active ? (
+                              <span className="inline-flex items-center gap-1 rounded bg-zinc-900 px-2 py-0.5 text-[10px] font-bold text-white">
+                                <Check className="size-2.5" />
+                                <span>Seleccionado</span>
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-0.5 text-[10px] text-zinc-400 font-medium hover:text-zinc-700">
+                                <Plus className="size-3" />
+                                <span>Sumar</span>
+                              </span>
+                            )}
+                          </div>
                         </div>
                         <h3 className="mt-2.5 text-xs font-bold text-zinc-950">{item.name}</h3>
                         {item.description && (
@@ -368,7 +456,7 @@ export function BookingWizard({
             </section>
           )}
 
-          {/* Paso 2: Profesional */}
+          {/* Paso 2: Profesional (Filtrado por quienes realizan TODOS los servicios seleccionados) */}
           {step === 1 && (
             <section className="animate-rise">
               <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
@@ -378,12 +466,30 @@ export function BookingWizard({
                 ¿Con quién te atenderás?
               </h1>
               <p className="mt-1 text-xs text-zinc-600">
-                Elige un profesional o selecciona «Cualquiera disponible» para mayor flexibilidad de horarios.
+                {selectedServices.length > 1 ? (
+                  <>
+                    Mostrando profesionales capacitados para atender tus{" "}
+                    <strong>{selectedServices.length} servicios</strong> seleccionados.
+                  </>
+                ) : (
+                  "Elige un profesional o selecciona «Cualquiera disponible» para mayor disponibilidad."
+                )}
               </p>
 
               {staffForService.length === 0 ? (
-                <div className="mt-5 rounded-md border border-dashed border-zinc-200 bg-zinc-50 p-6 text-center text-xs text-zinc-500">
-                  No hay profesionales disponibles para este servicio en este momento.
+                <div className="mt-5 rounded-md border border-dashed border-red-200 bg-red-50/60 p-5 text-center text-xs text-red-800">
+                  <p className="font-bold">Ningún profesional atiende todos los servicios seleccionados a la vez.</p>
+                  <p className="mt-1 text-red-600">
+                    Prueba quitando uno de los servicios en el paso anterior o reservándolos en citas separadas.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setStep(0)}
+                    className="mt-3 inline-flex items-center gap-1.5 rounded border border-red-300 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50 cursor-pointer"
+                  >
+                    <ArrowLeft className="size-3" />
+                    <span>Modificar selección de servicios</span>
+                  </button>
                 </div>
               ) : (
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -393,9 +499,9 @@ export function BookingWizard({
                       setStaffId("any");
                       setSlotKey("");
                     }}
-                    className={`flex items-center gap-3 rounded-md border p-3.5 text-left transition ${
+                    className={`flex items-center gap-3 rounded-md border p-3.5 text-left transition cursor-pointer ${
                       staffId === "any"
-                        ? "border-zinc-900 bg-zinc-50 shadow-xs ring-1 ring-zinc-900"
+                        ? "border-zinc-950 bg-zinc-50 shadow-xs ring-1 ring-zinc-950"
                         : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50/50"
                     }`}
                   >
@@ -406,7 +512,7 @@ export function BookingWizard({
                       <span className="block text-xs font-bold text-zinc-950">
                         Cualquiera disponible
                       </span>
-                      <span className="block text-[11px] text-zinc-500">Mayor disponibilidad</span>
+                      <span className="block text-[11px] text-zinc-500">Mayor disponibilidad de horarios</span>
                     </div>
                   </button>
 
@@ -420,9 +526,9 @@ export function BookingWizard({
                           setStaffId(member.id);
                           setSlotKey("");
                         }}
-                        className={`flex items-center gap-3 rounded-md border p-3.5 text-left transition ${
+                        className={`flex items-center gap-3 rounded-md border p-3.5 text-left transition cursor-pointer ${
                           active
-                            ? "border-zinc-900 bg-zinc-50 shadow-xs ring-1 ring-zinc-900"
+                            ? "border-zinc-950 bg-zinc-50 shadow-xs ring-1 ring-zinc-950"
                             : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50/50"
                         }`}
                       >
@@ -458,7 +564,7 @@ export function BookingWizard({
                 Selecciona Fecha y Hora
               </h1>
               <p className="mt-1 text-xs text-zinc-600 capitalize">
-                {longDate(date)} · Duración estimada: {service?.durationMin} min
+                {longDate(date)} · Duración estimada total: <strong>{totalDurationMin} min</strong>
               </p>
 
               {/* Date navigator */}
@@ -510,7 +616,7 @@ export function BookingWizard({
                           setDate(iso);
                           setSlotKey("");
                         }}
-                        className={`flex min-h-[58px] min-w-0 flex-col items-center justify-center rounded border px-1 py-1.5 transition ${
+                        className={`flex min-h-[58px] min-w-0 flex-col items-center justify-center rounded border px-1 py-1.5 transition cursor-pointer ${
                           active
                             ? "border-zinc-900 bg-zinc-900 text-white shadow-xs"
                             : "border-zinc-200 bg-white text-zinc-800 hover:border-zinc-300 hover:bg-zinc-50"
@@ -540,7 +646,7 @@ export function BookingWizard({
                   </div>
                 ) : groups.length === 0 ? (
                   <div className="rounded-md border border-dashed border-zinc-200 bg-zinc-50 p-6 text-center text-xs text-zinc-500">
-                    No hay turnos disponibles para esta fecha. Intenta seleccionar otro día o
+                    No hay turnos disponibles continuos de {totalDurationMin} min para esta fecha. Intenta seleccionando otro día o
                     eligiendo «Cualquiera disponible».
                   </div>
                 ) : (
@@ -558,7 +664,7 @@ export function BookingWizard({
                                 key={`${slot.startAt}-${slot.staffId}`}
                                 type="button"
                                 onClick={() => setSlotKey(slotKeyFor(slot))}
-                                className={`rounded border py-2 px-2.5 text-center transition ${
+                                className={`rounded border py-2 px-2.5 text-center transition cursor-pointer ${
                                   active
                                     ? "border-zinc-900 bg-zinc-900 text-white shadow-xs"
                                     : "border-zinc-200 bg-white text-zinc-800 hover:border-zinc-300 hover:bg-zinc-50"
@@ -651,7 +757,7 @@ export function BookingWizard({
                     value={notes}
                     onChange={(event) => setNotes(event.target.value)}
                     rows={2}
-                    placeholder="Detalles sobre el corte, barba, diseño o referencias…"
+                    placeholder="Detalles sobre el corte, barba, diseño o preferencias…"
                     className="w-full resize-none rounded border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
                   />
                 </label>
@@ -782,12 +888,31 @@ export function BookingWizard({
             <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
               Resumen de la Cita
             </span>
-            <p className="mt-1 text-base font-bold text-zinc-950">
-              {service?.name ?? "Selecciona un servicio"}
-            </p>
-            <p className="text-xs text-zinc-500 font-mono">
-              {service ? `${service.durationMin} minutos de atención` : "Paso 1"}
-            </p>
+
+            {selectedServices.length === 0 ? (
+              <p className="mt-1 text-sm font-semibold text-zinc-500">
+                Selecciona al menos un servicio
+              </p>
+            ) : (
+              <div className="mt-2 space-y-2">
+                {selectedServices.map((srv, idx) => (
+                  <div key={srv.id} className="flex items-start justify-between gap-2 text-xs">
+                    <div className="flex items-center gap-1.5 truncate">
+                      <span className="size-2 rounded-full shrink-0" style={{ backgroundColor: srv.color }} />
+                      <span className="font-semibold text-zinc-900 truncate">
+                        {idx + 1}. {srv.name}
+                      </span>
+                    </div>
+                    <span className="font-mono text-zinc-600 shrink-0 font-medium">
+                      {formatPrice(srv.priceCents, currency)}
+                    </span>
+                  </div>
+                ))}
+                <p className="pt-1 text-[11px] text-zinc-500 font-mono">
+                  Duración total: {totalDurationMin} min
+                </p>
+              </div>
+            )}
           </div>
 
           <dl className="mt-3.5 space-y-2.5 text-xs text-zinc-600">
@@ -825,8 +950,8 @@ export function BookingWizard({
 
             <div className="flex items-center justify-between gap-3 border-t border-zinc-200 pt-3 text-xs font-semibold text-zinc-950">
               <dt>Total estimado</dt>
-              <dd className="text-sm font-bold font-mono">
-                {service ? formatPrice(service.priceCents, currency) : "—"}
+              <dd className="text-base font-bold font-mono">
+                {selectedServices.length > 0 ? formatPrice(totalPriceCents, currency) : "—"}
               </dd>
             </div>
           </dl>

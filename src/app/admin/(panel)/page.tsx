@@ -13,6 +13,7 @@ import {
 
 import { BookingsTable, type AppointmentItem } from "@/components/admin/bookings-table";
 import { formatPrice } from "@/lib/format";
+import { resolveAppointmentServices } from "@/lib/multi-service";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
 import { addDays, labelDateLong, nowWallClock, startOfDay } from "@/lib/time";
@@ -27,7 +28,7 @@ export default async function AdminHomePage() {
   const tomorrow = addDays(today, 1);
   const nextWeek = addDays(today, 7);
 
-  const [todayAppointments, pendingCount, weekCount, activeStaff] = await Promise.all([
+  const [todayAppointments, pendingCount, weekCount, activeStaff, allServices] = await Promise.all([
     prisma.appointment.findMany({
       where: {
         startAt: { gte: today, lt: tomorrow },
@@ -59,35 +60,53 @@ export default async function AdminHomePage() {
         },
       },
     }),
+    prisma.service.findMany({
+      select: {
+        id: true,
+        name: true,
+        durationMin: true,
+        priceCents: true,
+        color: true,
+      },
+    }),
   ]);
 
-  const revenue = todayAppointments.reduce(
-    (total, appointment) => total + appointment.service.priceCents,
+  const servicesMap = new Map(allServices.map((s) => [s.id, s]));
+
+  const serialized: AppointmentItem[] = todayAppointments.map((a) => {
+    const resolved = resolveAppointmentServices(a.service, a.notes, servicesMap);
+    return {
+      id: a.id,
+      startAt: a.startAt.toISOString(),
+      endAt: a.endAt.toISOString(),
+      clientName: a.clientName,
+      clientPhone: a.clientPhone,
+      clientEmail: a.clientEmail,
+      status: a.status,
+      notes: resolved.cleanNotes,
+      service: {
+        id: a.service.id,
+        name: a.service.name,
+        durationMin: a.service.durationMin,
+        priceCents: a.service.priceCents,
+        color: a.service.color,
+      },
+      services: resolved.services,
+      totalDurationMin: resolved.totalDurationMin,
+      totalPriceCents: resolved.totalPriceCents,
+      serviceNamesLabel: resolved.serviceNamesLabel,
+      staff: {
+        id: a.staff.id,
+        name: a.staff.name,
+        color: a.staff.color,
+      },
+    };
+  });
+
+  const revenue = serialized.reduce(
+    (total, item) => total + (item.totalPriceCents ?? item.service.priceCents),
     0,
   );
-
-  const serialized: AppointmentItem[] = todayAppointments.map((a) => ({
-    id: a.id,
-    startAt: a.startAt.toISOString(),
-    endAt: a.endAt.toISOString(),
-    clientName: a.clientName,
-    clientPhone: a.clientPhone,
-    clientEmail: a.clientEmail,
-    status: a.status,
-    notes: a.notes,
-    service: {
-      id: a.service.id,
-      name: a.service.name,
-      durationMin: a.service.durationMin,
-      priceCents: a.service.priceCents,
-      color: a.service.color,
-    },
-    staff: {
-      id: a.staff.id,
-      name: a.staff.name,
-      color: a.staff.color,
-    },
-  }));
 
   return (
     <div className="space-y-6">

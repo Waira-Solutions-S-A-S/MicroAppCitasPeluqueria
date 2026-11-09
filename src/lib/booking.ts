@@ -1,3 +1,4 @@
+import { encodeAppointmentNotes } from "@/lib/multi-service";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
 import {
@@ -19,7 +20,8 @@ export type RepeatInput = {
 };
 
 export type BookingInput = {
-  serviceId: string;
+  serviceId?: string;
+  serviceIds?: string[];
   staffId: string;
   startAt: string;
   clientName: string;
@@ -60,19 +62,48 @@ function fail(code: string, message: string): BookingFailure {
 export async function createBooking(input: BookingInput): Promise<BookingResult> {
   const settings = await getSettings();
 
-  const service = await prisma.service.findFirst({
-    where: { id: input.serviceId, isActive: true },
+  const rawIds =
+    input.serviceIds && input.serviceIds.length > 0
+      ? input.serviceIds
+      : input.serviceId
+        ? [input.serviceId]
+        : [];
+
+  if (rawIds.length === 0) {
+    return fail("SERVICE_REQUIRED", "Debes seleccionar al menos un servicio.");
+  }
+
+  const services = await prisma.service.findMany({
+    where: { id: { in: rawIds }, isActive: true },
   });
-  if (!service) return fail("SERVICE_NOT_FOUND", "El servicio ya no está disponible.");
+  if (services.length === 0) {
+    return fail("SERVICE_NOT_FOUND", "Los servicios seleccionados ya no están disponibles.");
+  }
+
+  const orderedServices = rawIds
+    .map((id) => services.find((s) => s.id === id))
+    .filter((s): s is (typeof services)[number] => Boolean(s));
+
+  if (orderedServices.length === 0) {
+    return fail("SERVICE_NOT_FOUND", "Los servicios seleccionados ya no están disponibles.");
+  }
+
+  const primaryService = orderedServices[0];
+  const extraServiceIds = orderedServices.slice(1).map((s) => s.id);
+  const totalDurationMin = orderedServices.reduce((sum, s) => sum + s.durationMin, 0);
 
   const staff = await prisma.staffMember.findFirst({
     where: {
       id: input.staffId,
       isActive: true,
-      services: { some: { id: service.id } },
+      AND: orderedServices.map((s) => ({
+        services: { some: { id: s.id } },
+      })),
     },
   });
-  if (!staff) return fail("STAFF_NOT_FOUND", "El profesional no atiende este servicio.");
+  if (!staff) {
+    return fail("STAFF_NOT_FOUND", "El profesional no atiende todos los servicios seleccionados.");
+  }
 
   const base = new Date(input.startAt);
   if (Number.isNaN(base.getTime())) return fail("BAD_DATE", "La fecha elegida no es válida.");
@@ -96,7 +127,7 @@ export async function createBooking(input: BookingInput): Promise<BookingResult>
   const earliest = addMinutes(now, settings.minLeadHours * 60);
   const latestDay = addDays(today, settings.maxAdvanceDays);
   const bufferMs = settings.bufferMin * 60_000;
-  const durationMs = service.durationMin * 60_000;
+  const durationMs = totalDurationMin * 60_000;
 
   // Validate working hours and lead time before touching the database.
   for (const start of starts) {
@@ -114,13 +145,13 @@ export async function createBooking(input: BookingInput): Promise<BookingResult>
       return fail("CLOSED", "El profesional no atiende ese día.");
     }
     const startMinute = minutesSinceMidnight(start);
-    if (startMinute < hours.startMin || startMinute + service.durationMin > hours.endMin) {
+    if (startMinute < hours.startMin || startMinute + totalDurationMin > hours.endMin) {
       return fail("OUTSIDE_HOURS", "El horario elegido está fuera del horario de atención.");
     }
   }
 
   const email = input.clientEmail?.trim() ? input.clientEmail.trim() : null;
-  const notes = input.notes?.trim() ? input.notes.trim() : null;
+  const finalNotes = encodeAppointmentNotes(extraServiceIds, input.notes);
 
   try {
     const created = await prisma.$transaction(async (tx) => {
@@ -156,12 +187,12 @@ export async function createBooking(input: BookingInput): Promise<BookingResult>
       for (const start of starts) {
         const appointment = await tx.appointment.create({
           data: {
-            serviceId: service.id,
+            serviceId: primaryService.id,
             staffId: staff.id,
             clientName: input.clientName,
             clientPhone: input.clientPhone,
             clientEmail: email,
-            notes,
+            notes: finalNotes,
             startAt: start,
             endAt: new Date(start.getTime() + durationMs),
             status: "PENDING",

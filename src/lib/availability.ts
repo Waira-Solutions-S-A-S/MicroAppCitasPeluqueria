@@ -21,6 +21,9 @@ export type Slot = {
 export type Availability = {
   date: string;
   service: { id: string; name: string; durationMin: number; priceCents: number; color: string };
+  services: { id: string; name: string; durationMin: number; priceCents: number; color: string }[];
+  totalDurationMin: number;
+  totalPriceCents: number;
   settings: {
     slotStepMin: number;
     bufferMin: number;
@@ -32,17 +35,34 @@ export type Availability = {
 };
 
 export async function getAvailability(
-  serviceId: string,
+  serviceInput: string | string[],
   dayKey: string,
   staffId?: string | null,
 ): Promise<Availability | null> {
   const parts = parseDateKey(dayKey);
   if (!parts) return null;
 
-  const service = await prisma.service.findFirst({
-    where: { id: serviceId, isActive: true },
+  const rawIds = Array.isArray(serviceInput)
+    ? serviceInput
+    : serviceInput.split(",").map((s) => s.trim()).filter(Boolean);
+
+  if (rawIds.length === 0) return null;
+
+  const services = await prisma.service.findMany({
+    where: { id: { in: rawIds }, isActive: true },
   });
-  if (!service) return null;
+  if (services.length === 0) return null;
+
+  // Preserve the selection order
+  const orderedServices = rawIds
+    .map((id) => services.find((s) => s.id === id))
+    .filter((s): s is (typeof services)[number] => Boolean(s));
+
+  if (orderedServices.length === 0) return null;
+
+  const primaryService = orderedServices[0];
+  const totalDurationMin = orderedServices.reduce((sum, s) => sum + s.durationMin, 0);
+  const totalPriceCents = orderedServices.reduce((sum, s) => sum + s.priceCents, 0);
 
   const settings = await getSettings();
   const dayStart = startOfDay(new Date(Date.UTC(parts.y, parts.m - 1, parts.d)));
@@ -53,18 +73,21 @@ export async function getAvailability(
   const earliest = new Date(now.getTime() + settings.minLeadHours * 60 * MS_MINUTE);
   const latest = addDays(today, settings.maxAdvanceDays);
 
+  // Eligible staff members must have ALL selected services assigned to them
   const staffList = await prisma.staffMember.findMany({
     where: {
       isActive: true,
       ...(staffId ? { id: staffId } : {}),
-      services: { some: { id: serviceId } },
+      AND: orderedServices.map((srv) => ({
+        services: { some: { id: srv.id } },
+      })),
     },
     orderBy: { createdAt: "asc" },
   });
 
   const slots: Slot[] = [];
   const bufferMs = settings.bufferMin * MS_MINUTE;
-  const durationMs = service.durationMin * MS_MINUTE;
+  const durationMs = totalDurationMin * MS_MINUTE;
 
   for (const staff of staffList) {
     if (dayStart.getTime() > latest.getTime()) continue;
@@ -101,7 +124,7 @@ export async function getAvailability(
 
     for (
       let minute = hours.startMin;
-      minute + service.durationMin <= hours.endMin;
+      minute + totalDurationMin <= hours.endMin;
       minute += settings.slotStepMin
     ) {
       const start = new Date(dayStart.getTime() + minute * MS_MINUTE);
@@ -130,12 +153,21 @@ export async function getAvailability(
   return {
     date: dateKey(dayStart),
     service: {
-      id: service.id,
-      name: service.name,
-      durationMin: service.durationMin,
-      priceCents: service.priceCents,
-      color: service.color,
+      id: primaryService.id,
+      name: primaryService.name,
+      durationMin: primaryService.durationMin,
+      priceCents: primaryService.priceCents,
+      color: primaryService.color,
     },
+    services: orderedServices.map((s) => ({
+      id: s.id,
+      name: s.name,
+      durationMin: s.durationMin,
+      priceCents: s.priceCents,
+      color: s.color,
+    })),
+    totalDurationMin,
+    totalPriceCents,
     settings: {
       slotStepMin: settings.slotStepMin,
       bufferMin: settings.bufferMin,

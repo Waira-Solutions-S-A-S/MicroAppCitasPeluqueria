@@ -12,6 +12,7 @@ import { AgendaViewManager } from "@/components/admin/agenda-view-manager";
 import { type AppointmentItem } from "@/components/admin/bookings-table";
 import { DateNavigator } from "@/components/admin/date-navigator";
 import { formatPrice } from "@/lib/format";
+import { resolveAppointmentServices } from "@/lib/multi-service";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
 import {
@@ -44,7 +45,7 @@ export default async function AgendaPage({
   const currentKey = dateKey(day);
   const todayKey = dateKey(today);
 
-  const [appointments, staffMembers] = await Promise.all([
+  const [appointments, staffMembers, allServices] = await Promise.all([
     prisma.appointment.findMany({
       where: { startAt: { gte: day, lt: nextDay } },
       orderBy: { startAt: "asc" },
@@ -55,35 +56,56 @@ export default async function AgendaPage({
       orderBy: { name: "asc" },
       select: { id: true, name: true, color: true },
     }),
+    prisma.service.findMany({
+      select: {
+        id: true,
+        name: true,
+        durationMin: true,
+        priceCents: true,
+        color: true,
+      },
+    }),
   ]);
 
-  const active = appointments.filter((appointment) => appointment.status !== "CANCELLED");
+  const servicesMap = new Map(allServices.map((s) => [s.id, s]));
+
+  const serialized: AppointmentItem[] = appointments.map((a) => {
+    const resolved = resolveAppointmentServices(a.service, a.notes, servicesMap);
+    return {
+      id: a.id,
+      startAt: a.startAt.toISOString(),
+      endAt: a.endAt.toISOString(),
+      clientName: a.clientName,
+      clientPhone: a.clientPhone,
+      clientEmail: a.clientEmail,
+      status: a.status,
+      notes: resolved.cleanNotes,
+      service: {
+        id: a.service.id,
+        name: a.service.name,
+        durationMin: a.service.durationMin,
+        priceCents: a.service.priceCents,
+        color: a.service.color,
+      },
+      services: resolved.services,
+      totalDurationMin: resolved.totalDurationMin,
+      totalPriceCents: resolved.totalPriceCents,
+      serviceNamesLabel: resolved.serviceNamesLabel,
+      staff: {
+        id: a.staff.id,
+        name: a.staff.name,
+        color: a.staff.color,
+      },
+    };
+  });
+
+  const active = serialized.filter((appointment) => appointment.status !== "CANCELLED");
   const pending = active.filter((appointment) => appointment.status === "PENDING").length;
   const confirmed = active.filter((appointment) => appointment.status === "CONFIRMED").length;
-  const dayRevenue = active.reduce((sum, app) => sum + app.service.priceCents, 0);
-
-  const serialized: AppointmentItem[] = appointments.map((a) => ({
-    id: a.id,
-    startAt: a.startAt.toISOString(),
-    endAt: a.endAt.toISOString(),
-    clientName: a.clientName,
-    clientPhone: a.clientPhone,
-    clientEmail: a.clientEmail,
-    status: a.status,
-    notes: a.notes,
-    service: {
-      id: a.service.id,
-      name: a.service.name,
-      durationMin: a.service.durationMin,
-      priceCents: a.service.priceCents,
-      color: a.service.color,
-    },
-    staff: {
-      id: a.staff.id,
-      name: a.staff.name,
-      color: a.staff.color,
-    },
-  }));
+  const dayRevenue = active.reduce(
+    (sum, app) => sum + (app.totalPriceCents ?? app.service.priceCents),
+    0,
+  );
 
   return (
     <div className="space-y-6 antialiased text-zinc-900">

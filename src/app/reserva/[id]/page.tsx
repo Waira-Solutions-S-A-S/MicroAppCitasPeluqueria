@@ -16,6 +16,7 @@ import {
 
 import { getCurrentUser } from "@/lib/auth";
 import { formatPrice, STATUS_CLASSES, STATUS_LABELS } from "@/lib/format";
+import { resolveAppointmentServices } from "@/lib/multi-service";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
 import { labelDateLong, labelTime } from "@/lib/time";
@@ -82,15 +83,27 @@ export default async function ReservaPage({
 
   const user = await getCurrentUser();
 
-  const [appointment, settings] = await Promise.all([
+  const [appointment, settings, allServices] = await Promise.all([
     prisma.appointment.findUnique({
       where: { id },
       include: { service: true, staff: true },
     }),
     getSettings(),
+    prisma.service.findMany({
+      select: {
+        id: true,
+        name: true,
+        durationMin: true,
+        priceCents: true,
+        color: true,
+      },
+    }),
   ]);
 
   if (!appointment) notFound();
+
+  const servicesMap = new Map(allServices.map((s) => [s.id, s]));
+  const resolved = resolveAppointmentServices(appointment.service, appointment.notes, servicesMap);
 
   const seriesCount = appointment.seriesId
     ? await prisma.appointment.count({ where: { seriesId: appointment.seriesId } })
@@ -105,8 +118,8 @@ export default async function ReservaPage({
   const timeLabel = `${labelTime(appointment.startAt)} a ${labelTime(appointment.endAt)}`;
 
   const googleCalUrl = buildGoogleCalendarUrl({
-    title: `${appointment.service.name} - ${settings.businessName}`,
-    description: `Turno confirmado con ${appointment.staff.name} para ${appointment.clientName}.`,
+    title: `${resolved.serviceNamesLabel} - ${settings.businessName}`,
+    description: `Turno confirmado con ${appointment.staff.name} para ${appointment.clientName}. Servicios: ${resolved.serviceNamesLabel}`,
     location: settings.businessName,
     startAt: appointment.startAt,
     endAt: appointment.endAt,
@@ -114,7 +127,7 @@ export default async function ReservaPage({
 
   const whatsappUrl = buildWhatsAppShareUrl({
     businessName: settings.businessName,
-    serviceName: appointment.service.name,
+    serviceName: resolved.serviceNamesLabel,
     staffName: appointment.staff.name,
     dateLabel,
     timeLabel,
@@ -172,7 +185,7 @@ export default async function ReservaPage({
               Comprobante de Turno
             </p>
             <h1 className="mt-1 text-xl font-bold tracking-tight text-zinc-950">
-              {appointment.service.name}
+              {resolved.serviceNamesLabel}
             </h1>
           </div>
           <span
@@ -215,11 +228,41 @@ export default async function ReservaPage({
 
           <div className="flex items-start gap-3">
             <Scissors className="mt-0.5 size-4 shrink-0 text-zinc-500" />
-            <div>
-              <dt className="text-zinc-500">Duración</dt>
-              <dd className="font-semibold text-zinc-950">
-                {appointment.service.durationMin} minutos
-              </dd>
+            <div className="flex-1">
+              <dt className="text-zinc-500">
+                {resolved.services.length > 1 ? `Servicios incluidos (${resolved.services.length})` : "Servicio y Duración"}
+              </dt>
+              {resolved.services.length > 1 ? (
+                <div className="mt-2 space-y-2 rounded-md border border-zinc-200 bg-zinc-50/70 p-3">
+                  {resolved.services.map((s, idx) => (
+                    <div
+                      key={s.id}
+                      className="flex items-center justify-between border-b border-zinc-200/50 pb-1.5 last:border-0 last:pb-0"
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className="size-2 rounded-full"
+                          style={{ backgroundColor: s.color }}
+                        />
+                        <span className="font-medium text-zinc-900">
+                          {idx + 1}. {s.name}
+                        </span>
+                      </div>
+                      <span className="font-mono text-zinc-600">
+                        {s.durationMin}m · {formatPrice(s.priceCents, settings.currency)}
+                      </span>
+                    </div>
+                  ))}
+                  <div className="flex items-center justify-between pt-1 border-t border-zinc-200 text-zinc-950 font-bold">
+                    <span>Duración estimada total:</span>
+                    <span className="font-mono">{resolved.totalDurationMin} minutos</span>
+                  </div>
+                </div>
+              ) : (
+                <dd className="font-semibold text-zinc-950">
+                  {appointment.service.durationMin} minutos
+                </dd>
+              )}
             </div>
           </div>
 
@@ -245,13 +288,13 @@ export default async function ReservaPage({
             </div>
           )}
 
-          {appointment.notes && (
+          {resolved.cleanNotes && (
             <div className="rounded-md border border-zinc-200 bg-zinc-50 p-3">
               <dt className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
                 Notas
               </dt>
               <dd className="mt-1 text-xs text-zinc-700 leading-relaxed italic">
-                “{appointment.notes}”
+                “{resolved.cleanNotes}”
               </dd>
             </div>
           )}
@@ -260,7 +303,7 @@ export default async function ReservaPage({
         <div className="mt-6 flex items-center justify-between border-t border-zinc-100 pt-5 text-sm">
           <span className="text-xs text-zinc-500">Total a abonar en el estudio</span>
           <span className="text-base font-bold text-zinc-950 font-mono">
-            {formatPrice(appointment.service.priceCents, settings.currency)}
+            {formatPrice(resolved.totalPriceCents, settings.currency)}
           </span>
         </div>
 
