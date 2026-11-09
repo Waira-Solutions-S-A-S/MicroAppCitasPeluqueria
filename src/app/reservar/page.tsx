@@ -18,30 +18,38 @@ export default async function ReservarPage({
   const params = await searchParams;
   const settings = await getSettings();
 
-  const [services, staffRecords] = await Promise.all([
-    prisma.service.findMany({
-      where: { isActive: true },
-      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        durationMin: true,
-        priceCents: true,
-        color: true,
-      },
-    }),
-    prisma.staffMember.findMany({
-      where: { isActive: true },
-      orderBy: { createdAt: "asc" },
-      select: {
-        id: true,
-        name: true,
-        color: true,
-        services: { select: { id: true } },
-      },
-    }),
-  ]);
+  let services: any[] = [];
+  let staffRecords: any[] = [];
+  try {
+    const res = await Promise.all([
+      prisma.service.findMany({
+        where: { isActive: true },
+        orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          durationMin: true,
+          priceCents: true,
+          color: true,
+        },
+      }),
+      prisma.staffMember.findMany({
+        where: { isActive: true },
+        orderBy: { createdAt: "asc" },
+        select: {
+          id: true,
+          name: true,
+          color: true,
+          services: { select: { id: true } },
+        },
+      }),
+    ]);
+    services = res[0];
+    staffRecords = res[1];
+  } catch (e) {
+    console.warn("DB not initialized yet in /reservar:", e);
+  }
 
   const staff = staffRecords.map(({ services: staffServices, ...member }) => ({
     ...member,
