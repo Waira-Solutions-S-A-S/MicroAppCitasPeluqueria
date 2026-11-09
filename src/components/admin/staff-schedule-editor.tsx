@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, RotateCcw, Save, Sparkles } from "lucide-react";
+import { Check, Copy, RotateCcw, Save } from "lucide-react";
 
 import { saveHoursAction } from "@/app/admin/actions";
 import { minutesToLabel, WEEKDAYS } from "@/lib/time";
@@ -48,19 +48,13 @@ export function StaffScheduleEditor({
   const [days, setDays] = useState<DaySchedule[]>(initialDays);
   const [copiedNotice, setCopiedNotice] = useState<string | null>(null);
 
-  const toggleDay = (weekday: number) => {
-    setDays((prev) =>
-      prev.map((d) => (d.weekday === weekday ? { ...d, isOpen: !d.isOpen } : d)),
-    );
-  };
-
   const copyMondayToWeekdays = () => {
-    const monday = days[1]; // Monday is index 1
+    const monday = days[1]; // Lunes es índice 1
     if (!monday) return;
 
     setDays((prev) =>
       prev.map((day) => {
-        // Apply Monday hours to Tuesday through Friday (2 to 5)
+        // Replicar horario de lunes de martes a viernes (2 a 5)
         if (day.weekday >= 2 && day.weekday <= 5) {
           return {
             ...day,
@@ -73,26 +67,26 @@ export function StaffScheduleEditor({
       }),
     );
 
-    setCopiedNotice("¡Horario del Lunes replicado de Martes a Viernes!");
+    setCopiedNotice("Horario de lunes copiado a martes, miércoles, jueves y viernes.");
     setTimeout(() => setCopiedNotice(null), 3000);
   };
 
-  const applyStandardHours = () => {
+  const applyCommercialHours = () => {
     setDays((prev) =>
       prev.map((day) => {
         if (day.weekday === 0) {
-          // Domingo libre
+          // Domingo cerrado
           return { ...day, start: "09:00", end: "19:00", isOpen: false };
         }
         if (day.weekday === 6) {
-          // Sábado jornada media
+          // Sábado media jornada
           return { ...day, start: "09:00", end: "14:00", isOpen: true };
         }
         // Lunes a Viernes jornada estándar
         return { ...day, start: "09:00", end: "19:00", isOpen: true };
       }),
     );
-    setCopiedNotice("¡Plantilla estándar aplicada (Lun-Vie 9-19hs, Sáb 9-14hs)!");
+    setCopiedNotice("Plantilla aplicada (Lun-Vie 9-19hs, Sáb 9-14hs, Dom libre).");
     setTimeout(() => setCopiedNotice(null), 3000);
   };
 
@@ -100,14 +94,9 @@ export function StaffScheduleEditor({
     <form action={saveHoursAction} className="space-y-3">
       <input type="hidden" name="staffId" value={staffId} />
 
-      {/* Hidden inputs to guarantee 100% reliable form transmission */}
+      {/* Hidden inputs para respaldo y compatibilidad 100% con FormData */}
       {days.map((day) => (
         <div key={day.weekday} className="hidden">
-          <input
-            type="hidden"
-            name={`open-${day.weekday}`}
-            value={day.isOpen ? "true" : "false"}
-          />
           <input
             type="hidden"
             name={`open_${day.weekday}`}
@@ -115,18 +104,8 @@ export function StaffScheduleEditor({
           />
           <input
             type="hidden"
-            name={`start-${day.weekday}`}
-            value={day.start}
-          />
-          <input
-            type="hidden"
             name={`start_${day.weekday}`}
             value={day.start}
-          />
-          <input
-            type="hidden"
-            name={`end-${day.weekday}`}
-            value={day.end}
           />
           <input
             type="hidden"
@@ -138,11 +117,11 @@ export function StaffScheduleEditor({
 
       <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-zinc-100">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-600">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-700">
             Horario semanal de atención
           </p>
-          <p className="text-[11px] text-zinc-400">
-            Haz clic en el botón de estado para alternar entre &ldquo;Atiende&rdquo; o &ldquo;Libre&rdquo;.
+          <p className="text-[11px] text-zinc-500">
+            Ajusta los días y horarios en la tabla inferior y haz clic en &ldquo;Guardar horarios&rdquo; para aplicar los cambios.
           </p>
         </div>
 
@@ -150,8 +129,8 @@ export function StaffScheduleEditor({
           <button
             type="button"
             onClick={copyMondayToWeekdays}
-            className="inline-flex items-center gap-1.5 rounded border border-zinc-200 bg-zinc-50 px-2.5 py-1 text-[11px] font-medium text-zinc-700 hover:bg-zinc-100 cursor-pointer"
-            title="Copiar horario del lunes a martes, miércoles, jueves y viernes"
+            className="inline-flex items-center gap-1.5 rounded border border-zinc-200 bg-white px-2.5 py-1 text-[11px] font-medium text-zinc-700 hover:bg-zinc-50 cursor-pointer shadow-xs"
+            title="Copiar horas del lunes al resto de la semana laboral"
           >
             <Copy className="size-3 text-zinc-500" />
             <span>Copiar Lunes a Mar-Vie</span>
@@ -159,18 +138,18 @@ export function StaffScheduleEditor({
 
           <button
             type="button"
-            onClick={applyStandardHours}
-            className="inline-flex items-center gap-1.5 rounded border border-zinc-200 bg-zinc-50 px-2.5 py-1 text-[11px] font-medium text-zinc-700 hover:bg-zinc-100 cursor-pointer"
-            title="Aplicar horario estándar"
+            onClick={applyCommercialHours}
+            className="inline-flex items-center gap-1.5 rounded border border-zinc-200 bg-white px-2.5 py-1 text-[11px] font-medium text-zinc-700 hover:bg-zinc-50 cursor-pointer shadow-xs"
+            title="Restablecer plantilla comercial habitual"
           >
-            <Sparkles className="size-3 text-zinc-500" />
-            <span>Estándar</span>
+            <RotateCcw className="size-3 text-zinc-500" />
+            <span>Horario habitual</span>
           </button>
         </div>
       </div>
 
       {copiedNotice && (
-        <div className="rounded bg-emerald-50 border border-emerald-200 px-3 py-1.5 text-xs text-emerald-800 flex items-center gap-1.5 animate-in fade-in">
+        <div className="rounded bg-emerald-50 border border-emerald-200 px-3 py-1.5 text-xs text-emerald-800 flex items-center gap-1.5">
           <Check className="size-3.5 text-emerald-600 shrink-0" />
           <span>{copiedNotice}</span>
         </div>
@@ -180,10 +159,10 @@ export function StaffScheduleEditor({
         <table className="w-full border-collapse text-left text-xs">
           <thead>
             <tr className="border-b border-zinc-200 text-[11px] font-semibold text-zinc-600 uppercase bg-[#f8f9fa]">
-              <th className="py-2 px-3">Día de la semana</th>
-              <th className="py-2 px-3">Hora Inicio</th>
-              <th className="py-2 px-3">Hora Cierre</th>
-              <th className="py-2 px-3 text-right">Disponibilidad</th>
+              <th className="py-2.5 px-3">Día</th>
+              <th className="py-2.5 px-3">Estado</th>
+              <th className="py-2.5 px-3">Hora Inicio</th>
+              <th className="py-2.5 px-3">Hora Cierre</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-200 bg-white">
@@ -194,26 +173,35 @@ export function StaffScheduleEditor({
                   !day.isOpen ? "bg-zinc-50/70 text-zinc-400" : "hover:bg-zinc-50/50"
                 }`}
               >
+                <td className="py-2 px-3 font-semibold text-zinc-900">
+                  {day.name}
+                </td>
+
                 <td className="py-2 px-3">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`size-2 rounded-full ${
-                        day.isOpen ? "bg-emerald-500" : "bg-zinc-300"
-                      }`}
-                    />
-                    <span
-                      className={`font-semibold ${
-                        day.isOpen ? "text-zinc-900" : "text-zinc-500"
-                      }`}
-                    >
-                      {day.name}
-                    </span>
-                  </div>
+                  <select
+                    name={`open-${day.weekday}`}
+                    value={day.isOpen ? "true" : "false"}
+                    onChange={(e) => {
+                      const val = e.target.value === "true";
+                      setDays((prev) =>
+                        prev.map((d) => (d.weekday === day.weekday ? { ...d, isOpen: val } : d)),
+                      );
+                    }}
+                    className={`h-7 rounded border px-2 text-xs font-semibold outline-none transition cursor-pointer ${
+                      day.isOpen
+                        ? "border-emerald-300 bg-emerald-50/70 text-emerald-950 focus:border-emerald-600"
+                        : "border-zinc-300 bg-zinc-100 text-zinc-600 focus:border-zinc-500"
+                    }`}
+                  >
+                    <option value="true">Abierto (Atiende)</option>
+                    <option value="false">Cerrado (Libre)</option>
+                  </select>
                 </td>
 
                 <td className="py-2 px-3">
                   <input
                     type="time"
+                    name={`start-${day.weekday}`}
                     value={day.start}
                     disabled={!day.isOpen}
                     onChange={(e) => {
@@ -222,7 +210,7 @@ export function StaffScheduleEditor({
                         prev.map((d) => (d.weekday === day.weekday ? { ...d, start: val } : d)),
                       );
                     }}
-                    className={`h-7 rounded border border-zinc-300 bg-white px-2 font-mono text-xs text-zinc-800 outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 ${
+                    className={`h-7 rounded border border-zinc-300 bg-white px-2 font-mono text-xs text-zinc-800 outline-none focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950 ${
                       !day.isOpen ? "opacity-30 cursor-not-allowed bg-zinc-100" : ""
                     }`}
                   />
@@ -231,6 +219,7 @@ export function StaffScheduleEditor({
                 <td className="py-2 px-3">
                   <input
                     type="time"
+                    name={`end-${day.weekday}`}
                     value={day.end}
                     disabled={!day.isOpen}
                     onChange={(e) => {
@@ -239,36 +228,10 @@ export function StaffScheduleEditor({
                         prev.map((d) => (d.weekday === day.weekday ? { ...d, end: val } : d)),
                       );
                     }}
-                    className={`h-7 rounded border border-zinc-300 bg-white px-2 font-mono text-xs text-zinc-800 outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 ${
+                    className={`h-7 rounded border border-zinc-300 bg-white px-2 font-mono text-xs text-zinc-800 outline-none focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950 ${
                       !day.isOpen ? "opacity-30 cursor-not-allowed bg-zinc-100" : ""
                     }`}
                   />
-                </td>
-
-                <td className="py-2 px-3 text-right">
-                  <button
-                    type="button"
-                    onClick={() => toggleDay(day.weekday)}
-                    className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-semibold cursor-pointer border transition shadow-2xs ${
-                      day.isOpen
-                        ? "border-emerald-300 bg-emerald-50 text-emerald-900 hover:bg-emerald-100"
-                        : "border-zinc-300 bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
-                    }`}
-                    title={
-                      day.isOpen
-                        ? "Haz clic para marcar como no atiende / libre"
-                        : "Haz clic para habilitar atención este día"
-                    }
-                  >
-                    {day.isOpen ? (
-                      <>
-                        <Check className="size-3 text-emerald-600" />
-                        <span>Atiende</span>
-                      </>
-                    ) : (
-                      <span>Cerrado / Libre</span>
-                    )}
-                  </button>
                 </td>
               </tr>
             ))}
@@ -278,7 +241,7 @@ export function StaffScheduleEditor({
 
       <div className="pt-2 flex items-center justify-between">
         <p className="text-[11px] text-zinc-500">
-          Los turnos reservados no se alteran al cambiar los horarios futuros.
+          Haz clic en el botón para persistir la configuración semanal en el sistema.
         </p>
 
         <button
