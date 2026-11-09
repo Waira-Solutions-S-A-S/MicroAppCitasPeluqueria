@@ -1,4 +1,4 @@
-// Script para sincronizar el esquema SQL con Turso automáticamente y sembrar datos iniciales
+// Sincronizacion de esquema SQL y datos iniciales en Turso
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -12,33 +12,33 @@ let url = process.env.TURSO_DATABASE_URL;
 let authToken = process.env.TURSO_AUTH_TOKEN;
 
 if (!url) {
-  console.log("ℹ️ No TURSO_DATABASE_URL defined, skipping Turso schema sync.");
+  console.log("[turso] TURSO_DATABASE_URL no configurado, omitiendo sincronizacion.");
   process.exit(0);
 }
 
-// Clean wrapping quotes if pasted with quotes
+// Limpiar comillas envolventes si provienen de variables de entorno formateadas
 url = url.trim().replace(/^["']|["']$/g, "");
 if (authToken) {
   authToken = authToken.trim().replace(/^["']|["']$/g, "");
 }
 
-console.log(`🔌 Conectando a Turso: ${url.replace(/:[^@]+@/, ":****@")} ...`);
+console.log(`[turso] Conectando: ${url.replace(/:[^@]+@/, ":****@")}`);
 
 const client = createClient({ url, authToken });
 const sqlPath = path.join(root, "prisma", "schema.sql");
 let rawSql = fs.readFileSync(sqlPath, "utf-8");
 
-// Strip UTF-8 BOM if present
+// Remover UTF-8 BOM si existe
 rawSql = rawSql.replace(/^\uFEFF/, "");
 
-// Remove line comments and split into individual statements
+// Eliminar comentarios de linea y separar en sentencias individuales
 const cleanSql = rawSql.replace(/--.*$/gm, "");
 const statements = cleanSql
   .split(";")
   .map((s) => s.trim())
   .filter((s) => s.length > 0);
 
-console.log(`📦 Aplicando ${statements.length} sentencias DDL en Turso...`);
+console.log(`[turso] Aplicando ${statements.length} sentencias DDL...`);
 
 for (const stmt of statements) {
   try {
@@ -48,7 +48,7 @@ for (const stmt of statements) {
     if (msg.includes("already exists") || msg.includes("duplicate")) {
       continue;
     }
-    console.warn(`⚠️ Advertencia en sentencia (${stmt.slice(0, 35)}...): ${msg}`);
+    console.warn(`[turso] Advertencia en sentencia (${stmt.slice(0, 35)}...): ${msg}`);
   }
 }
 
@@ -60,7 +60,7 @@ try {
     VALUES ('singleton', 'Estudio Nube', 'Turnos de belleza sin vueltas', 'America/Bogota', 'COP', 15, 10, 2, 180)
   `);
 
-  // 2. Admin user (con contraseña admin123 verificada con scrypt)
+  // 2. Admin user (con contrasena admin123 verificada con scrypt)
   await client.execute(`
     INSERT INTO "User" ("id", "email", "name", "passwordHash", "role")
     VALUES (
@@ -77,7 +77,7 @@ try {
   const servicesRes = await client.execute('SELECT count(*) as count FROM "Service"');
   const count = Number(servicesRes.rows[0]?.count ?? 0);
   if (count === 0) {
-    console.log("🌱 Sembrando servicios y profesionales iniciales...");
+    console.log("[turso] Sembrando servicios y profesionales iniciales...");
     await client.execute(`
       INSERT OR IGNORE INTO "Service" ("id", "name", "description", "durationMin", "priceCents", "color", "isActive", "sortOrder")
       VALUES 
@@ -113,7 +113,7 @@ try {
     }
   }
 } catch (seedErr) {
-  console.warn("⚠️ Aviso al sembrar datos (puede que ya existan):", seedErr?.message || seedErr);
+  console.warn("[turso] Aviso al sembrar datos:", seedErr?.message || seedErr);
 }
 
-console.log("✅ ¡Esquema y datos sincronizados exitosamente en Turso!");
+console.log("[turso] Esquema y datos sincronizados correctamente.");

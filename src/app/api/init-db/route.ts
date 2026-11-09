@@ -234,7 +234,7 @@ export async function GET() {
 
   return NextResponse.json({
     status: "ok",
-    message: "¡Base de datos de Turso inicializada y sembrada con éxito!",
+    message: "Base de datos sincronizada y datos iniciales sembrados correctamente.",
     results,
   });
 }
