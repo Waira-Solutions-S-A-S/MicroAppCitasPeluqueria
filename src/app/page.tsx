@@ -155,18 +155,18 @@ export default async function HomePage({
           </nav>
 
           {/* Action buttons */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             {user ? (
               <div className="flex items-center gap-2">
                 <Link
                   href="/admin"
-                  className="inline-flex min-h-[44px] items-center rounded-full border border-zinc-200 bg-zinc-50 px-3.5 py-1.5 text-xs font-medium text-zinc-800 transition hover:bg-zinc-100"
+                  className="inline-flex min-h-[36px] items-center rounded border border-zinc-200 bg-zinc-50 px-3.5 py-1.5 text-xs font-semibold text-zinc-800 transition hover:bg-zinc-100"
                 >
                   Mi cuenta
                 </Link>
                 <a
                   href="/salir"
-                  className="inline-flex min-h-[44px] items-center rounded-full px-3 py-1.5 text-xs font-medium text-zinc-500 transition hover:text-red-600"
+                  className="inline-flex min-h-[36px] items-center rounded px-3 py-1.5 text-xs font-semibold text-zinc-500 transition hover:text-red-600"
                 >
                   Salir
                 </a>
@@ -174,7 +174,7 @@ export default async function HomePage({
             ) : (
               <Link
                 href="/admin/login"
-                className="hidden min-h-[44px] items-center rounded-full border border-zinc-200 px-3.5 py-1.5 text-xs font-medium text-zinc-600 transition hover:border-zinc-300 hover:text-zinc-900 sm:inline-flex"
+                className="hidden min-h-[36px] items-center rounded border border-zinc-200 px-3.5 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-950 sm:inline-flex"
               >
                 Ingresar
               </Link>
@@ -182,10 +182,10 @@ export default async function HomePage({
 
             <Link
               href="#precios"
-              className="inline-flex min-h-[42px] items-center gap-2 rounded-full border border-zinc-950 bg-zinc-950 px-5 py-2 text-xs font-medium tracking-wide text-white transition hover:bg-zinc-800"
+              className="inline-flex min-h-[36px] items-center gap-1.5 rounded bg-zinc-950 px-4 py-2 text-xs font-semibold tracking-wide text-white transition hover:bg-zinc-800"
             >
-              <ArrowRight className="size-3.5" />
               <span>Empezar gratis</span>
+              <ArrowRight className="size-3.5" />
             </Link>
           </div>
         </div>
@@ -250,14 +250,14 @@ export default async function HomePage({
           <div className="flex flex-wrap items-center gap-3">
             <Link
               href="#precios"
-              className="inline-flex min-h-[48px] items-center gap-2.5 rounded-full border border-white bg-white px-7 py-3 text-sm font-medium text-zinc-950 transition hover:bg-zinc-200"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded border border-white bg-white px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-zinc-950 transition hover:bg-zinc-200"
             >
               <span>Empezar gratis</span>
               <ArrowRight className="size-4" />
             </Link>
             <Link
               href="/reservar"
-              className="inline-flex min-h-[48px] items-center gap-2.5 rounded-full border border-white/80 bg-white/10 px-7 py-3 text-sm font-medium text-white backdrop-blur-md transition hover:bg-white hover:text-zinc-950"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded border border-white/80 bg-white/10 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-md transition hover:bg-white hover:text-zinc-950"
             >
               <span>Ver demo</span>
               <Calendar className="size-4" />
@@ -287,7 +287,7 @@ export default async function HomePage({
           {studioLookbook.map((item, index) => (
             <div
               key={index}
-              className="group relative h-[320px] w-[240px] shrink-0 overflow-hidden rounded-2xl bg-zinc-100 shadow-sm md:h-[380px] md:w-[280px]"
+              className="group relative h-[320px] w-[240px] shrink-0 overflow-hidden rounded-lg bg-zinc-100 shadow-xs md:h-[380px] md:w-[280px]"
             >
               <Image
                 src={item.src}
@@ -297,7 +297,7 @@ export default async function HomePage({
                 className="size-full object-cover transition duration-500 group-hover:scale-105"
               />
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-4 text-white">
-                <p className="text-xs font-medium tracking-wide">{item.title}</p>
+                <p className="text-xs font-semibold tracking-wide">{item.title}</p>
               </div>
             </div>
           ))}
@@ -308,7 +308,7 @@ export default async function HomePage({
       <section id="beneficios" className="mx-auto max-w-7xl px-6 pt-28 md:px-12">
         <div className="flex flex-col gap-6 md:flex-row">
           {/* Left: Full photo with huge overlay typography */}
-          <div className="relative min-h-[420px] w-full overflow-hidden rounded-2xl md:min-h-[560px] md:w-1/2">
+          <div className="relative min-h-[420px] w-full overflow-hidden rounded-lg md:min-h-[560px] md:w-1/2">
             <Image
               src="/studio/img-section-01.jpg"
               alt="Barbería con reservas online"
@@ -322,7 +322,7 @@ export default async function HomePage({
           </div>
 
           {/* Right: Clean panel with description and benefits list */}
-          <div className="flex w-full flex-col justify-center rounded-2xl bg-zinc-100 p-8 sm:p-12 md:w-1/2 md:p-16">
+          <div className="flex w-full flex-col justify-center rounded-lg bg-zinc-100 p-8 sm:p-12 md:w-1/2 md:p-16">
             <h3 className="text-2xl font-light text-zinc-900 sm:text-3xl">
               Reservar tiene que ser <br />
               <span className="font-medium">fácil para tu cliente.</span>
@@ -355,7 +355,7 @@ export default async function HomePage({
             <div className="mt-8">
               <Link
                 href="#precios"
-                className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-zinc-950 bg-transparent px-6 py-2.5 text-xs font-medium tracking-wide text-zinc-950 transition hover:bg-zinc-950 hover:text-white"
+                className="inline-flex min-h-[40px] items-center gap-2 rounded border border-zinc-950 bg-transparent px-5 py-2 text-xs font-semibold tracking-wide text-zinc-950 transition hover:bg-zinc-950 hover:text-white"
               >
                 <span>Quiero reservas así</span>
                 <Calendar className="size-3.5" />
@@ -377,7 +377,7 @@ export default async function HomePage({
       <section id="fidelizacion" className="mx-auto max-w-7xl px-6 md:px-12">
         <div className="flex flex-col gap-6 md:flex-row">
           {/* Left: Content panel */}
-          <div className="order-2 flex w-full flex-col justify-center rounded-2xl bg-zinc-100 p-8 sm:p-12 md:order-1 md:w-1/2 md:p-16">
+          <div className="order-2 flex w-full flex-col justify-center rounded-lg bg-zinc-100 p-8 sm:p-12 md:order-1 md:w-1/2 md:p-16">
             <h3 className="text-2xl font-light text-zinc-900 sm:text-3xl">
               Que vuelvan <br />
               <span className="font-medium">no es suerte. Es sistema.</span>
@@ -409,7 +409,7 @@ export default async function HomePage({
             <div className="mt-8 flex items-center gap-3">
               <Link
                 href="#precios"
-                className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-zinc-950 bg-transparent px-6 py-2.5 text-xs font-medium tracking-wide text-zinc-950 transition hover:bg-zinc-950 hover:text-white"
+                className="inline-flex min-h-[40px] items-center gap-2 rounded border border-zinc-950 bg-transparent px-5 py-2 text-xs font-semibold tracking-wide text-zinc-950 transition hover:bg-zinc-950 hover:text-white"
               >
                 <span>Quiero clientes que vuelvan</span>
                 <Calendar className="size-3.5" />
@@ -418,7 +418,7 @@ export default async function HomePage({
           </div>
 
           {/* Right: Full photo with huge overlay typography */}
-          <div className="order-1 relative min-h-[420px] w-full overflow-hidden rounded-2xl md:order-2 md:min-h-[560px] md:w-1/2">
+          <div className="order-1 relative min-h-[420px] w-full overflow-hidden rounded-lg md:order-2 md:min-h-[560px] md:w-1/2">
             <Image
               src="/studio/img-section-03.jpg"
               alt="Estética y fidelización de clientes"
@@ -460,7 +460,7 @@ export default async function HomePage({
             {audiences.map((audience) => (
               <div
                 key={audience.name}
-                className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-zinc-200/80 bg-white shadow-xs transition duration-200 hover:-translate-y-1 hover:border-zinc-300 hover:shadow-md"
+                className="group flex flex-col justify-between overflow-hidden rounded-lg border border-zinc-200/80 bg-white shadow-xs transition duration-200 hover:-translate-y-1 hover:border-zinc-300 hover:shadow-md"
               >
                 <div>
                   <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-100">
@@ -472,7 +472,7 @@ export default async function HomePage({
                       className="size-full object-cover transition duration-500 group-hover:scale-105"
                     />
                     <div className="absolute top-3 left-3">
-                      <span className="inline-flex items-center rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-zinc-900 shadow-xs backdrop-blur-xs">
+                      <span className="inline-flex items-center rounded bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-zinc-900 shadow-xs border border-zinc-200">
                         {audience.tag}
                       </span>
                     </div>
@@ -481,7 +481,7 @@ export default async function HomePage({
                   <div className="p-6">
                     <div className="flex items-center gap-3">
                       <div
-                        className="flex size-9 items-center justify-center rounded-lg text-xs font-semibold text-white shadow-xs"
+                        className="flex size-9 items-center justify-center rounded text-xs font-semibold text-white shadow-xs"
                         style={{ backgroundColor: audience.color }}
                       >
                         {audience.initial}
@@ -501,7 +501,7 @@ export default async function HomePage({
                 <div className="p-6 pt-0">
                   <Link
                     href="#precios"
-                    className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 py-2.5 text-xs font-medium text-zinc-900 transition hover:bg-zinc-100"
+                    className="flex min-h-[38px] w-full items-center justify-center gap-2 rounded border border-zinc-200 bg-zinc-50 py-2 text-xs font-semibold text-zinc-900 transition hover:bg-zinc-100"
                   >
                     <span>Empezar gratis</span>
                     <ArrowRight className="size-3.5" />
@@ -531,7 +531,7 @@ export default async function HomePage({
 
         <div className="mx-auto mt-12 grid max-w-5xl gap-6 md:grid-cols-2">
           {/* Plan Gratis */}
-          <div className="flex flex-col rounded-2xl border border-zinc-200/80 bg-white p-8 shadow-xs">
+          <div className="flex flex-col rounded-lg border border-zinc-200/80 bg-white p-8 shadow-xs">
             <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
               Plan Gratis
             </p>
@@ -554,7 +554,7 @@ export default async function HomePage({
 
             <Link
               href="/admin/login"
-              className="mt-8 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border border-zinc-950 bg-transparent px-6 py-2.5 text-xs font-medium tracking-wide text-zinc-950 transition hover:bg-zinc-950 hover:text-white"
+              className="mt-8 flex min-h-[38px] w-full items-center justify-center gap-2 rounded border border-zinc-950 bg-transparent px-5 py-2 text-xs font-semibold tracking-wide text-zinc-950 transition hover:bg-zinc-950 hover:text-white"
             >
               <span>Empezar gratis</span>
               <Calendar className="size-3.5" />
@@ -562,8 +562,8 @@ export default async function HomePage({
           </div>
 
           {/* Plan Pro */}
-          <div className="relative flex flex-col rounded-2xl border border-zinc-950 bg-zinc-50 p-8 shadow-xs">
-            <span className="absolute right-6 top-6 rounded-full bg-zinc-950 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">
+          <div className="relative flex flex-col rounded-lg border border-zinc-950 bg-zinc-50 p-8 shadow-xs">
+            <span className="absolute right-6 top-6 rounded bg-zinc-950 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
               Recomendado
             </span>
             <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
@@ -588,7 +588,7 @@ export default async function HomePage({
 
             <Link
               href="/admin/login"
-              className="mt-8 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border border-zinc-950 bg-zinc-950 px-6 py-2.5 text-xs font-medium tracking-wide text-white transition hover:bg-zinc-800"
+              className="mt-8 flex min-h-[38px] w-full items-center justify-center gap-2 rounded border border-zinc-950 bg-zinc-950 px-5 py-2 text-xs font-semibold tracking-wide text-white transition hover:bg-zinc-800"
             >
               <span>Pasar a Pro</span>
               <ArrowRight className="size-3.5" />
@@ -615,7 +615,7 @@ export default async function HomePage({
               <div className="mt-6">
                 <Link
                   href="#precios"
-                  className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-zinc-950 bg-zinc-950 px-6 py-2.5 text-xs font-medium text-white transition hover:bg-zinc-800"
+                  className="inline-flex min-h-[38px] items-center gap-2 rounded bg-zinc-950 px-5 py-2 text-xs font-semibold text-white transition hover:bg-zinc-800"
                 >
                   <ArrowRight className="size-3.5" />
                   <span>Empezar gratis</span>
