@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, RotateCcw, Save } from "lucide-react";
+import { Save } from "lucide-react";
 
 import { saveHoursAction } from "@/app/admin/actions";
 import { minutesToLabel, WEEKDAYS } from "@/lib/time";
@@ -46,49 +46,6 @@ export function StaffScheduleEditor({
   });
 
   const [days, setDays] = useState<DaySchedule[]>(initialDays);
-  const [copiedNotice, setCopiedNotice] = useState<string | null>(null);
-
-  const copyMondayToWeekdays = () => {
-    const monday = days[1]; // Lunes es índice 1
-    if (!monday) return;
-
-    setDays((prev) =>
-      prev.map((day) => {
-        // Replicar horario de lunes de martes a viernes (2 a 5)
-        if (day.weekday >= 2 && day.weekday <= 5) {
-          return {
-            ...day,
-            start: monday.start,
-            end: monday.end,
-            isOpen: monday.isOpen,
-          };
-        }
-        return day;
-      }),
-    );
-
-    setCopiedNotice("Horario de lunes copiado a martes, miércoles, jueves y viernes.");
-    setTimeout(() => setCopiedNotice(null), 3000);
-  };
-
-  const applyCommercialHours = () => {
-    setDays((prev) =>
-      prev.map((day) => {
-        if (day.weekday === 0) {
-          // Domingo cerrado
-          return { ...day, start: "09:00", end: "19:00", isOpen: false };
-        }
-        if (day.weekday === 6) {
-          // Sábado media jornada
-          return { ...day, start: "09:00", end: "14:00", isOpen: true };
-        }
-        // Lunes a Viernes jornada estándar
-        return { ...day, start: "09:00", end: "19:00", isOpen: true };
-      }),
-    );
-    setCopiedNotice("Plantilla aplicada (Lun-Vie 9-19hs, Sáb 9-14hs, Dom libre).");
-    setTimeout(() => setCopiedNotice(null), 3000);
-  };
 
   return (
     <form action={saveHoursAction} className="space-y-3">
@@ -115,45 +72,14 @@ export function StaffScheduleEditor({
         </div>
       ))}
 
-      <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-zinc-100">
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-700">
-            Horario semanal de atención
-          </p>
-          <p className="text-[11px] text-zinc-500">
-            Ajusta los días y horarios en la tabla inferior y haz clic en &ldquo;Guardar horarios&rdquo; para aplicar los cambios.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={copyMondayToWeekdays}
-            className="inline-flex items-center gap-1.5 rounded border border-zinc-200 bg-white px-2.5 py-1 text-[11px] font-medium text-zinc-700 hover:bg-zinc-50 cursor-pointer shadow-xs"
-            title="Copiar horas del lunes al resto de la semana laboral"
-          >
-            <Copy className="size-3 text-zinc-500" />
-            <span>Copiar Lunes a Mar-Vie</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={applyCommercialHours}
-            className="inline-flex items-center gap-1.5 rounded border border-zinc-200 bg-white px-2.5 py-1 text-[11px] font-medium text-zinc-700 hover:bg-zinc-50 cursor-pointer shadow-xs"
-            title="Restablecer plantilla comercial habitual"
-          >
-            <RotateCcw className="size-3 text-zinc-500" />
-            <span>Horario habitual</span>
-          </button>
-        </div>
+      <div className="pb-2 border-b border-zinc-100">
+        <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-700">
+          Horario semanal de atención
+        </p>
+        <p className="text-[11px] text-zinc-500">
+          Configura cada día de la semana y pulsa &ldquo;Guardar horarios de {staffName}&rdquo; para aplicar los cambios.
+        </p>
       </div>
-
-      {copiedNotice && (
-        <div className="rounded bg-emerald-50 border border-emerald-200 px-3 py-1.5 text-xs text-emerald-800 flex items-center gap-1.5">
-          <Check className="size-3.5 text-emerald-600 shrink-0" />
-          <span>{copiedNotice}</span>
-        </div>
-      )}
 
       <div className="overflow-x-auto rounded border border-zinc-200">
         <table className="w-full border-collapse text-left text-xs">
