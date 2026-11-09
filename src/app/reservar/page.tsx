@@ -51,9 +51,9 @@ export default async function ReservarPage({
     console.warn("DB not initialized yet in /reservar:", e);
   }
 
-  const staff = staffRecords.map(({ services: staffServices, ...member }) => ({
+  const staff = staffRecords.map(({ services: staffServices, ...member }: any) => ({
     ...member,
-    serviceIds: staffServices.map((service) => service.id),
+    serviceIds: (staffServices || []).map((service: { id: string }) => service.id),
   }));
 
   if (services.length === 0 || staff.length === 0) {
