@@ -3,14 +3,23 @@ import type { MetadataRoute } from "next";
 import { getSettings } from "@/lib/settings";
 
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
-  const settings = await getSettings();
+  let businessName = "Estudio Nube";
+  let tagline = "Reserva corte, color y uñas en segundos. Turnos online, también recurrentes.";
+
+  try {
+    const settings = await getSettings();
+    businessName = settings.businessName;
+    if (settings.tagline) {
+      tagline = settings.tagline;
+    }
+  } catch {
+    // Fallback if DB is not reachable during build prerendering
+  }
 
   return {
-    name: `${settings.businessName} — Turnos & Reservas`,
-    short_name: settings.businessName,
-    description:
-      settings.tagline ||
-      "Reserva corte, color y uñas en segundos. Turnos online, también recurrentes.",
+    name: `${businessName} — Turnos & Reservas`,
+    short_name: businessName,
+    description: tagline,
     start_url: "/",
     scope: "/",
     display: "standalone",

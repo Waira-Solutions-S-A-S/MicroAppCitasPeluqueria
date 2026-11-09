@@ -12,8 +12,8 @@ const url = process.env.TURSO_DATABASE_URL;
 const authToken = process.env.TURSO_AUTH_TOKEN;
 
 if (!url) {
-  console.error(" Error: Debes configurar TURSO_DATABASE_URL en tu archivo .env o en el entorno.");
-  process.exit(1);
+  console.log("ℹ️ No TURSO_DATABASE_URL defined, skipping Turso schema sync.");
+  process.exit(0);
 }
 
 console.log(`🔌 Conectando a Turso: ${url.replace(/:[^@]+@/, ":****@")} ...`);
