@@ -512,13 +512,13 @@ export function AdminShell({
         {/* Center + Cita Button */}
         <Link
           href="/admin/reservar"
-          className="flex flex-col items-center -mt-4 transition group"
+          className={`flex flex-col items-center gap-1 text-[10px] font-medium transition ${
+            pathname.startsWith("/admin/reservar") ? "text-white font-bold" : "hover:text-zinc-200"
+          }`}
           title="Cargar cita manual"
         >
-          <div className="flex size-11 items-center justify-center rounded-full bg-zinc-900 border-2 border-[#1f2228] text-white shadow-lg group-hover:bg-zinc-800 transition">
-            <CalendarPlus className="size-5" />
-          </div>
-          <span className="text-[10px] font-semibold text-white mt-0.5">+ Cita</span>
+          <CalendarPlus className="size-4" />
+          <span>+ Cita</span>
         </Link>
 
         <Link

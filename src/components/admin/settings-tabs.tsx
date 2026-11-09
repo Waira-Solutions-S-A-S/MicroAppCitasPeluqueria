@@ -131,11 +131,22 @@ export function SettingsTabs({
               </span>
               <input
                 name="currency"
+                list="currencies"
                 defaultValue={settings.currency}
                 maxLength={3}
                 required
                 className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs uppercase text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950 font-mono"
               />
+              <datalist id="currencies">
+                <option value="COP">COP - Peso colombiano</option>
+                <option value="USD">USD - Dólar estadounidense</option>
+                <option value="EUR">EUR - Euro</option>
+                <option value="ARS">ARS - Peso argentino</option>
+                <option value="MXN">MXN - Peso mexicano</option>
+                <option value="CLP">CLP - Peso chileno</option>
+                <option value="PEN">PEN - Sol peruano</option>
+                <option value="UYU">UYU - Peso uruguayo</option>
+              </datalist>
               <span className="mt-1 block text-[11px] text-zinc-400">
                 Ej: COP, USD, EUR, ARS, MXN. Se utilizará para formatear todas las tarifas.
               </span>
@@ -147,12 +158,25 @@ export function SettingsTabs({
               </span>
               <input
                 name="timezone"
+                list="timezones"
                 defaultValue={settings.timezone}
                 required
                 className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950 font-mono"
               />
+              <datalist id="timezones">
+                <option value="America/Bogota">America/Bogota (Colombia, Perú, Ecuador)</option>
+                <option value="America/Argentina/Buenos_Aires">America/Argentina/Buenos_Aires (Argentina)</option>
+                <option value="America/Mexico_City">America/Mexico_City (México Central)</option>
+                <option value="America/Santiago">America/Santiago (Chile)</option>
+                <option value="America/Lima">America/Lima (Perú)</option>
+                <option value="America/Caracas">America/Caracas (Venezuela)</option>
+                <option value="America/Montevideo">America/Montevideo (Uruguay)</option>
+                <option value="Europe/Madrid">Europe/Madrid (España)</option>
+                <option value="America/New_York">America/New_York (EE.UU. Este)</option>
+                <option value="America/Los_Angeles">America/Los_Angeles (EE.UU. Pacífico)</option>
+              </datalist>
               <span className="mt-1 block text-[11px] text-zinc-400">
-                Zona horaria IANA (ej: America/Bogota, America/Argentina/Buenos_Aires).
+                Zona horaria IANA oficial para el cálculo de turnos y disponibilidad.
               </span>
             </label>
 
