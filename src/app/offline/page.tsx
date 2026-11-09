@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { RefreshCw, WifiOff } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = { title: "Sin conexión · Sistema de Citas" };
 
 export default function OfflinePage() {
