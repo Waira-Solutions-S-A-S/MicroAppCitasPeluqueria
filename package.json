@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",
-    "@prisma/adapter-libsql": "^7.10.1",
+    "@prisma/adapter-libsql": "^6.19.3",
     "@prisma/client": "^6.19.3",
     "jose": "^6.2.15",
     "lucide-react": "^1.69.0",

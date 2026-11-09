@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaLibSql } from "@prisma/adapter-libsql";
+import { PrismaLibSQL } from "@prisma/adapter-libsql";
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
@@ -13,7 +13,7 @@ function makePrismaClient(): PrismaClient {
       tursoAuthToken = tursoAuthToken.trim().replace(/^["']|["']$/g, "");
     }
 
-    const adapter = new PrismaLibSql({
+    const adapter = new PrismaLibSQL({
       url: tursoUrl,
       authToken: tursoAuthToken,
     });
