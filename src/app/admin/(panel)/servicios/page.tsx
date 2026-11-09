@@ -6,6 +6,7 @@ import {
   toggleServiceAction,
   updateServiceAction,
 } from "@/app/admin/actions";
+import { Flash } from "@/components/admin/flash";
 import { NewServiceForm } from "@/components/admin/new-service-form";
 import { ServicesList } from "@/components/admin/services-list";
 import { formatPrice } from "@/lib/format";
@@ -61,21 +62,6 @@ export default async function ServiciosPage({
 
         <ServicesList services={services} currency={settings.currency} />
       </div>
-    </div>
-  );
-}
-
-function Flash({ ok, error }: { ok?: string; error?: string }) {
-  if (!ok && !error) return null;
-  return (
-    <div
-      className={`rounded-md border px-4 py-3 text-xs font-semibold shadow-xs ${
-        error
-          ? "border-red-200 bg-red-50 text-red-700"
-          : "border-emerald-200 bg-emerald-50 text-emerald-800"
-      }`}
-    >
-      {error ?? ok}
     </div>
   );
 }

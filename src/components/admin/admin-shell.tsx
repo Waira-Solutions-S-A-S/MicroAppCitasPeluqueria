@@ -477,12 +477,71 @@ export function AdminShell({
         </aside>
 
         {/* 3. CONTENT CANVAS (#content / .outer / .inner) */}
-        <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
+        <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 pb-20 lg:pb-8">
           {children}
         </main>
       </div>
 
-      {/* 4. METIS FOOTER (#footer) */}
+      {/* 4. MOBILE BOTTOM QUICK NAVIGATION BAR (UX Boost for Salon Operation) */}
+      <nav className="fixed bottom-0 inset-x-0 z-40 flex h-14 items-center justify-around border-t border-zinc-800 bg-[#1f2228] px-2 text-zinc-400 lg:hidden shadow-2xl">
+        <Link
+          href="/admin"
+          className={`flex flex-col items-center gap-1 text-[10px] font-medium transition ${
+            pathname === "/admin" ? "text-white font-bold" : "hover:text-zinc-200"
+          }`}
+        >
+          <LayoutDashboard className="size-4" />
+          <span>Dashboard</span>
+        </Link>
+
+        <Link
+          href="/admin/agenda"
+          className={`relative flex flex-col items-center gap-1 text-[10px] font-medium transition ${
+            pathname.startsWith("/admin/agenda") ? "text-white font-bold" : "hover:text-zinc-200"
+          }`}
+        >
+          <CalendarDays className="size-4" />
+          <span>Agenda</span>
+          {pendingCount > 0 && (
+            <span className="absolute -top-1 right-1 flex size-3.5 items-center justify-center rounded-full bg-amber-500 text-[9px] font-bold text-zinc-950">
+              {pendingCount}
+            </span>
+          )}
+        </Link>
+
+        {/* Center + Cita Button */}
+        <Link
+          href="/admin/reservar"
+          className="flex flex-col items-center -mt-4 transition group"
+          title="Cargar cita manual"
+        >
+          <div className="flex size-11 items-center justify-center rounded-full bg-zinc-900 border-2 border-[#1f2228] text-white shadow-lg group-hover:bg-zinc-800 transition">
+            <CalendarPlus className="size-5" />
+          </div>
+          <span className="text-[10px] font-semibold text-white mt-0.5">+ Cita</span>
+        </Link>
+
+        <Link
+          href="/admin/servicios"
+          className={`flex flex-col items-center gap-1 text-[10px] font-medium transition ${
+            pathname.startsWith("/admin/servicios") ? "text-white font-bold" : "hover:text-zinc-200"
+          }`}
+        >
+          <Scissors className="size-4" />
+          <span>Servicios</span>
+        </Link>
+
+        <button
+          type="button"
+          onClick={() => setMobileDrawerOpen((prev) => !prev)}
+          className="flex flex-col items-center gap-1 text-[10px] font-medium text-zinc-400 hover:text-white cursor-pointer"
+        >
+          <Menu className="size-4" />
+          <span>Más</span>
+        </button>
+      </nav>
+
+      {/* 5. METIS FOOTER (#footer) */}
       <footer className="border-t border-zinc-200 bg-white py-3 px-6 text-xs text-zinc-500 flex flex-col sm:flex-row items-center justify-between gap-2">
         <p>
           2026 &copy; <strong className="text-zinc-800">{businessName}</strong> · Sistema de Gestión de Citas & Agenda

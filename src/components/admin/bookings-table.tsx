@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
   AlertTriangle,
@@ -8,7 +9,11 @@ import {
   CheckCheck,
   ChevronLeft,
   ChevronRight,
+  Download,
+  Eye,
   Filter,
+  Info,
+  Mail,
   MessageCircle,
   Phone,
   RotateCcw,
@@ -103,6 +108,7 @@ export function BookingsTable({
   const [pageSize, setPageSize] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [cancellingItem, setCancellingItem] = useState<AppointmentItem | null>(null);
+  const [detailItem, setDetailItem] = useState<AppointmentItem | null>(null);
 
   // Extract distinct staff members
   const staffList = useMemo(() => {
@@ -143,6 +149,12 @@ export function BookingsTable({
     });
   }, [appointments, filter, staffFilter, search]);
 
+  const filteredRevenue = useMemo(() => {
+    return filtered
+      .filter((a) => a.status !== "CANCELLED")
+      .reduce((sum, a) => sum + a.service.priceCents, 0);
+  }, [filtered]);
+
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const safePage = Math.min(currentPage, totalPages);
 
@@ -163,6 +175,49 @@ export function BookingsTable({
     setCurrentPage(1);
   };
 
+  const exportToCSV = () => {
+    const headers = [
+      "Horario Inicio",
+      "Horario Fin",
+      "Cliente",
+      "Teléfono",
+      "Email",
+      "Servicio",
+      "Duración (min)",
+      "Precio",
+      "Profesional",
+      "Estado",
+      "Notas",
+    ];
+
+    const rows = filtered.map((a) => [
+      formatHour(a.startAt),
+      formatHour(a.endAt),
+      `"${a.clientName.replace(/"/g, '""')}"`,
+      `"${a.clientPhone}"`,
+      `"${a.clientEmail ?? ""}"`,
+      `"${a.service.name.replace(/"/g, '""')}"`,
+      a.service.durationMin,
+      formatPrice(a.service.priceCents, currency),
+      `"${a.staff.name.replace(/"/g, '""')}"`,
+      STATUS_LABELS[a.status] ?? a.status,
+      `"${(a.notes ?? "").replace(/"/g, '""')}"`,
+    ]);
+
+    const csvContent =
+      "\uFEFF" + [headers.join(","), ...rows.map((r) => r.join(","))].join("\r\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `turnos-${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="rounded-lg border border-zinc-200 bg-white shadow-xs overflow-hidden">
       {/* 1. Metis .box Header */}
@@ -175,67 +230,87 @@ export function BookingsTable({
           <span className="rounded bg-zinc-200 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-zinc-700">
             {filtered.length}
           </span>
+          {filtered.length > 0 && (
+            <span className="hidden sm:inline-flex items-center gap-1 rounded bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-800 border border-emerald-200 font-mono">
+              Total: {formatPrice(filteredRevenue, currency)}
+            </span>
+          )}
         </div>
 
-        {/* Filter Pills */}
-        <div className="inline-flex rounded-md border border-zinc-200 bg-white p-0.5 text-xs font-medium">
-          <button
-            type="button"
-            onClick={() => {
-              setFilter("ALL");
-              setCurrentPage(1);
-            }}
-            className={`rounded px-2.5 py-1 transition cursor-pointer ${
-              filter === "ALL"
-                ? "bg-zinc-900 text-white font-semibold shadow-xs"
-                : "text-zinc-600 hover:text-zinc-950"
-            }`}
-          >
-            Todos ({counts.all})
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setFilter("PENDING");
-              setCurrentPage(1);
-            }}
-            className={`inline-flex items-center gap-1 rounded px-2.5 py-1 transition cursor-pointer ${
-              filter === "PENDING"
-                ? "bg-amber-500 text-zinc-950 font-semibold shadow-xs"
-                : "text-zinc-600 hover:text-zinc-950"
-            }`}
-          >
-            {counts.pending > 0 && <span className="size-1.5 rounded-full bg-amber-600" />}
-            <span>Pendientes ({counts.pending})</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setFilter("CONFIRMED");
-              setCurrentPage(1);
-            }}
-            className={`rounded px-2.5 py-1 transition cursor-pointer ${
-              filter === "CONFIRMED"
-                ? "bg-emerald-600 text-white font-semibold shadow-xs"
-                : "text-zinc-600 hover:text-zinc-950"
-            }`}
-          >
-            Confirmados ({counts.confirmed})
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setFilter("COMPLETED");
-              setCurrentPage(1);
-            }}
-            className={`rounded px-2.5 py-1 transition cursor-pointer ${
-              filter === "COMPLETED"
-                ? "bg-zinc-700 text-white font-semibold shadow-xs"
-                : "text-zinc-600 hover:text-zinc-950"
-            }`}
-          >
-            Completados ({counts.completed})
-          </button>
+        {/* Toolbar: Export CSV + Filter Pills */}
+        <div className="flex flex-wrap items-center gap-2">
+          {filtered.length > 0 && (
+            <button
+              type="button"
+              onClick={exportToCSV}
+              className="inline-flex items-center gap-1.5 rounded border border-zinc-200 bg-white px-2.5 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-50 shadow-xs cursor-pointer"
+              title="Descargar listado en formato Excel / CSV"
+            >
+              <Download className="size-3.5 text-zinc-500" />
+              <span>CSV</span>
+            </button>
+          )}
+
+          {/* Filter Pills */}
+          <div className="inline-flex rounded-md border border-zinc-200 bg-white p-0.5 text-xs font-medium">
+            <button
+              type="button"
+              onClick={() => {
+                setFilter("ALL");
+                setCurrentPage(1);
+              }}
+              className={`rounded px-2.5 py-1 transition cursor-pointer ${
+                filter === "ALL"
+                  ? "bg-zinc-900 text-white font-semibold shadow-xs"
+                  : "text-zinc-600 hover:text-zinc-950"
+              }`}
+            >
+              Todos ({counts.all})
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setFilter("PENDING");
+                setCurrentPage(1);
+              }}
+              className={`inline-flex items-center gap-1 rounded px-2.5 py-1 transition cursor-pointer ${
+                filter === "PENDING"
+                  ? "bg-amber-500 text-zinc-950 font-semibold shadow-xs"
+                  : "text-zinc-600 hover:text-zinc-950"
+              }`}
+            >
+              {counts.pending > 0 && <span className="size-1.5 rounded-full bg-amber-600" />}
+              <span>Pendientes ({counts.pending})</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setFilter("CONFIRMED");
+                setCurrentPage(1);
+              }}
+              className={`rounded px-2.5 py-1 transition cursor-pointer ${
+                filter === "CONFIRMED"
+                  ? "bg-emerald-600 text-white font-semibold shadow-xs"
+                  : "text-zinc-600 hover:text-zinc-950"
+              }`}
+            >
+              Confirmados ({counts.confirmed})
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setFilter("COMPLETED");
+                setCurrentPage(1);
+              }}
+              className={`rounded px-2.5 py-1 transition cursor-pointer ${
+                filter === "COMPLETED"
+                  ? "bg-zinc-700 text-white font-semibold shadow-xs"
+                  : "text-zinc-600 hover:text-zinc-950"
+              }`}
+            >
+              Completados ({counts.completed})
+            </button>
+          </div>
         </div>
       </div>
 
@@ -316,14 +391,14 @@ export function BookingsTable({
         <div className="p-12 text-center">
           <CalendarDays className="mx-auto size-8 text-zinc-300" />
           <p className="mt-2 text-xs font-semibold text-zinc-800">
-            No se encontraron registros
+            No se encontraron citas
           </p>
           <p className="mt-0.5 text-xs text-zinc-500">
             {hasActiveFilters
               ? "Prueba modificando el texto de búsqueda o cambiando el filtro."
-              : "No hay citas registradas para este criterio."}
+              : "No hay turnos registrados para este criterio en este momento."}
           </p>
-          {hasActiveFilters && (
+          {hasActiveFilters ? (
             <button
               type="button"
               onClick={resetFilters}
@@ -332,6 +407,21 @@ export function BookingsTable({
               <RotateCcw className="size-3 text-zinc-500" />
               <span>Restablecer filtros</span>
             </button>
+          ) : (
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+              <Link
+                href="/admin/reservar"
+                className="inline-flex items-center gap-1.5 rounded-md bg-zinc-900 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs transition hover:bg-zinc-800"
+              >
+                <span>+ Cargar cita</span>
+              </Link>
+              <Link
+                href="/admin/agenda"
+                className="inline-flex items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-zinc-700 shadow-xs transition hover:bg-zinc-50"
+              >
+                <span>Ver agenda</span>
+              </Link>
+            </div>
           )}
         </div>
       ) : (
@@ -381,9 +471,16 @@ export function BookingsTable({
 
                     {/* Cliente */}
                     <td className="px-4 py-3">
-                      <span className="block font-semibold text-zinc-900">
-                        {item.clientName}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setDetailItem(item)}
+                          className="font-semibold text-zinc-900 hover:text-blue-600 hover:underline text-left cursor-pointer"
+                          title="Ver ficha completa de la cita"
+                        >
+                          {item.clientName}
+                        </button>
+                      </div>
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <a
                           href={`tel:${item.clientPhone}`}
@@ -447,6 +544,15 @@ export function BookingsTable({
                     {/* Acciones */}
                     <td className="whitespace-nowrap px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setDetailItem(item)}
+                          className="inline-flex size-7 items-center justify-center rounded border border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 cursor-pointer"
+                          title="Ver detalle completo"
+                        >
+                          <Eye className="size-3.5" />
+                        </button>
+
                         {cleanPhone.length >= 7 && (
                           <a
                             href={waUrl}
@@ -557,7 +663,131 @@ export function BookingsTable({
         )}
       </div>
 
-      {/* 5. Confirmation Modal Safeguard for Cancellation */}
+      {/* 5. Detail Modal Inspector */}
+      {detailItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+          <div className="w-full max-w-lg rounded-lg border border-zinc-200 bg-white p-5 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-zinc-100 pb-3 mb-4">
+              <div className="flex items-center gap-2">
+                <Info className="size-4 text-zinc-700" />
+                <h3 className="text-sm font-bold text-zinc-950">Ficha Detallada del Turno</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDetailItem(null)}
+                className="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-800 cursor-pointer"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div className="grid grid-cols-2 gap-3 rounded-md bg-zinc-50 p-3 border border-zinc-100">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                    Cliente
+                  </span>
+                  <p className="font-semibold text-zinc-950 mt-0.5">{detailItem.clientName}</p>
+                  <a
+                    href={`tel:${detailItem.clientPhone}`}
+                    className="inline-flex items-center gap-1 text-zinc-600 hover:underline mt-0.5"
+                  >
+                    <Phone className="size-3 text-zinc-400" />
+                    <span>{detailItem.clientPhone}</span>
+                  </a>
+                  {detailItem.clientEmail && (
+                    <p className="text-[11px] text-zinc-500 mt-0.5 truncate">{detailItem.clientEmail}</p>
+                  )}
+                </div>
+
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                    Horario Programado
+                  </span>
+                  <p className="font-mono font-bold text-zinc-950 mt-0.5">
+                    {formatHour(detailItem.startAt)} - {formatHour(detailItem.endAt)} hs
+                  </p>
+                  <p className="text-[11px] text-zinc-500 mt-0.5">
+                    Duración: {detailItem.service.durationMin} minutos
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 rounded-md bg-zinc-50 p-3 border border-zinc-100">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                    Servicio & Tarifa
+                  </span>
+                  <p className="font-semibold text-zinc-950 mt-0.5">{detailItem.service.name}</p>
+                  <p className="font-mono text-zinc-600 mt-0.5 font-bold">
+                    {formatPrice(detailItem.service.priceCents, currency)}
+                  </p>
+                </div>
+
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                    Profesional Asignado
+                  </span>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <span
+                      className="size-2.5 rounded-full"
+                      style={{ backgroundColor: detailItem.staff.color }}
+                    />
+                    <span className="font-semibold text-zinc-900">{detailItem.staff.name}</span>
+                  </div>
+                  <span
+                    className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-medium border mt-2 ${
+                      STATUS_CLASSES[detailItem.status] ?? "bg-zinc-100 text-zinc-700 border-zinc-200"
+                    }`}
+                  >
+                    <span>{STATUS_LABELS[detailItem.status] ?? detailItem.status}</span>
+                  </span>
+                </div>
+              </div>
+
+              {detailItem.notes && (
+                <div className="rounded-md border border-amber-200 bg-amber-50/60 p-3">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800">
+                    Notas o Preferencias del Cliente
+                  </span>
+                  <p className="mt-1 text-zinc-800 italic leading-relaxed">{detailItem.notes}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between">
+              <a
+                href={`https://wa.me/${formatWhatsAppPhone(detailItem.clientPhone)}?text=${encodeURIComponent(
+                  buildAdminWhatsAppMessage({
+                    clientName: detailItem.clientName,
+                    businessName,
+                    serviceName: detailItem.service.name,
+                    staffName: detailItem.staff.name,
+                    timeStr: `${formatHour(detailItem.startAt)} a ${formatHour(detailItem.endAt)} hs`,
+                    status: detailItem.status,
+                  })
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-8 items-center gap-1.5 rounded border border-emerald-300 bg-emerald-50 px-3 text-xs font-semibold text-emerald-950 hover:bg-emerald-100"
+              >
+                <MessageCircle className="size-3.5 text-emerald-600" />
+                <span>Contactar por WhatsApp</span>
+              </a>
+
+              <button
+                type="button"
+                onClick={() => setDetailItem(null)}
+                className="inline-flex h-8 items-center rounded border border-zinc-300 bg-white px-3 text-xs font-medium text-zinc-700 hover:bg-zinc-50 cursor-pointer"
+              >
+                Cerrar ficha
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 6. Confirmation Modal Safeguard for Cancellation */}
       {cancellingItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
           <div className="w-full max-w-md rounded-lg border border-zinc-200 bg-white p-5 shadow-2xl">

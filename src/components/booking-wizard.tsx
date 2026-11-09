@@ -244,24 +244,24 @@ export function BookingWizard({
   }
 
   return (
-    <div className={embedded ? "w-full pb-10" : "mx-auto w-full max-w-5xl px-6 pb-20 pt-6 text-zinc-900"}>
+    <div className={embedded ? "w-full pb-10" : "mx-auto w-full max-w-5xl px-4 sm:px-6 pb-20 pt-6 text-zinc-900"}>
       {!embedded && (
-        <header className="mb-8 flex items-center justify-between border-b border-zinc-200 pb-5">
+        <header className="mb-6 flex items-center justify-between border-b border-zinc-200 pb-4">
           <Link
             href="/"
-            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-zinc-700 shadow-xs transition hover:bg-zinc-50 hover:text-zinc-950"
+            className="inline-flex items-center gap-1.5 rounded border border-zinc-300 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 shadow-xs transition hover:bg-zinc-50 hover:text-zinc-950"
           >
             <ChevronLeft className="size-3.5" />
             <span>Volver a la portada</span>
           </Link>
-          <span className="text-xs font-bold tracking-widest uppercase text-zinc-500">
+          <span className="text-xs font-bold tracking-wider uppercase text-zinc-600">
             {businessName}
           </span>
         </header>
       )}
 
-      {/* Stepper (Sattis Style Light) */}
-      <div className="mb-8">
+      {/* Stepper Header */}
+      <div className="mb-6 rounded-md border border-zinc-200 bg-white p-3 shadow-xs">
         <div className="flex items-center justify-between gap-2">
           {STEPS.map((label, index) => {
             const isDone = index < step;
@@ -269,19 +269,19 @@ export function BookingWizard({
             return (
               <div key={label} className="flex flex-1 items-center gap-2">
                 <div
-                  className={`flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition ${
+                  className={`flex size-6 shrink-0 items-center justify-center rounded font-mono text-xs font-bold transition ${
                     isDone
-                      ? "bg-zinc-950 text-white"
+                      ? "bg-zinc-900 text-white"
                       : isCurrent
-                        ? "border-2 border-zinc-950 bg-white text-zinc-950"
-                        : "border border-zinc-200 bg-white text-zinc-400"
+                        ? "border-2 border-zinc-900 bg-white text-zinc-900"
+                        : "border border-zinc-200 bg-zinc-50 text-zinc-400"
                   }`}
                 >
-                  {isDone ? <Check className="size-3.5" strokeWidth={3} /> : index + 1}
+                  {isDone ? <Check className="size-3" strokeWidth={3} /> : index + 1}
                 </div>
                 <span
-                  className={`hidden text-xs font-medium sm:block ${
-                    isCurrent ? "text-zinc-950 font-bold" : isDone ? "text-zinc-700" : "text-zinc-400"
+                  className={`hidden text-xs sm:block ${
+                    isCurrent ? "text-zinc-950 font-bold" : isDone ? "text-zinc-700 font-medium" : "text-zinc-400"
                   }`}
                 >
                   {label}
@@ -289,7 +289,7 @@ export function BookingWizard({
                 {index < STEPS.length - 1 && (
                   <span
                     className={`h-px flex-1 transition ${
-                      index < step ? "bg-zinc-950" : "bg-zinc-200"
+                      index < step ? "bg-zinc-900" : "bg-zinc-200"
                     }`}
                   />
                 )}
@@ -299,22 +299,22 @@ export function BookingWizard({
         </div>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr]">
-        <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-xs sm:p-8">
+      <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
+        <div className="rounded-lg border border-zinc-200 bg-white p-5 sm:p-6 shadow-xs">
           {/* Paso 1: Servicios */}
           {step === 0 && (
             <section className="animate-rise">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
                 Paso 1 de 4
               </span>
-              <h1 className="mt-1 text-2xl font-medium tracking-tight text-zinc-900 sm:text-3xl">
-                Elige tu servicio
+              <h1 className="mt-1 text-xl font-bold tracking-tight text-zinc-950">
+                Elige tu Servicio
               </h1>
-              <p className="mt-1.5 text-xs text-zinc-600">
-                Selecciona qué quieres hacerte. Puedes cambiarlo o sumar notas en el último paso.
+              <p className="mt-1 text-xs text-zinc-600">
+                Selecciona la atención que deseas reservar en el estudio.
               </p>
 
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
                 {services.map((item) => {
                   const active = item.id === serviceId;
                   return (
@@ -326,36 +326,38 @@ export function BookingWizard({
                         setStaffId("any");
                         setSlotKey("");
                       }}
-                      className={`relative flex flex-col justify-between rounded-2xl border p-5 text-left transition duration-150 ${
+                      className={`relative flex flex-col justify-between rounded-md border p-4 text-left transition ${
                         active
-                          ? "border-zinc-950 bg-zinc-50 shadow-xs ring-1 ring-zinc-950"
+                          ? "border-zinc-900 bg-zinc-50 shadow-xs ring-1 ring-zinc-900"
                           : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50/50"
                       }`}
                     >
                       <div>
                         <div className="flex items-center justify-between">
                           <span
-                            className="size-2 rounded-full"
+                            className="size-2.5 rounded-full"
                             style={{ backgroundColor: item.color }}
                           />
                           {active && (
-                            <span className="rounded-full bg-zinc-950 px-2 py-0.5 text-[10px] font-medium tracking-wide text-white">
+                            <span className="rounded bg-zinc-900 px-1.5 py-0.5 text-[10px] font-semibold text-white">
                               Seleccionado
                             </span>
                           )}
                         </div>
-                        <h3 className="mt-3 text-sm font-medium text-zinc-950">{item.name}</h3>
-                        <p className="mt-1 text-xs text-zinc-600 line-clamp-2 leading-relaxed">
-                          {item.description}
-                        </p>
+                        <h3 className="mt-2.5 text-xs font-bold text-zinc-950">{item.name}</h3>
+                        {item.description && (
+                          <p className="mt-1 text-xs text-zinc-600 line-clamp-2 leading-relaxed">
+                            {item.description}
+                          </p>
+                        )}
                       </div>
 
-                      <div className="mt-5 flex items-center justify-between border-t border-zinc-100 pt-3">
-                        <span className="inline-flex items-center gap-1 text-xs text-zinc-500">
+                      <div className="mt-4 flex items-center justify-between border-t border-zinc-100 pt-2.5 text-xs">
+                        <span className="inline-flex items-center gap-1 text-zinc-500 font-mono">
                           <Clock className="size-3 text-zinc-400" />
                           {item.durationMin} min
                         </span>
-                        <span className="text-sm font-semibold text-zinc-950">
+                        <span className="font-bold text-zinc-950 font-mono">
                           {formatPrice(item.priceCents, currency)}
                         </span>
                       </div>
@@ -369,43 +371,42 @@ export function BookingWizard({
           {/* Paso 2: Profesional */}
           {step === 1 && (
             <section className="animate-rise">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
                 Paso 2 de 4
               </span>
-              <h1 className="mt-1 text-2xl font-medium tracking-tight text-zinc-900 sm:text-3xl">
+              <h1 className="mt-1 text-xl font-bold tracking-tight text-zinc-950">
                 ¿Con quién te atenderás?
               </h1>
-              <p className="mt-1.5 text-xs text-zinc-600">
-                Elige un profesional específico o selecciona «Cualquiera disponible» para ver más
-                horarios.
+              <p className="mt-1 text-xs text-zinc-600">
+                Elige un profesional o selecciona «Cualquiera disponible» para mayor flexibilidad de horarios.
               </p>
 
               {staffForService.length === 0 ? (
-                <div className="mt-6 rounded-2xl border border-dashed border-zinc-200 bg-zinc-50 p-6 text-center text-xs text-zinc-500">
+                <div className="mt-5 rounded-md border border-dashed border-zinc-200 bg-zinc-50 p-6 text-center text-xs text-zinc-500">
                   No hay profesionales disponibles para este servicio en este momento.
                 </div>
               ) : (
-                <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
                   <button
                     type="button"
                     onClick={() => {
                       setStaffId("any");
                       setSlotKey("");
                     }}
-                    className={`flex items-center gap-3.5 rounded-2xl border p-4 text-left transition ${
+                    className={`flex items-center gap-3 rounded-md border p-3.5 text-left transition ${
                       staffId === "any"
-                        ? "border-zinc-950 bg-zinc-50 shadow-xs ring-1 ring-zinc-950"
+                        ? "border-zinc-900 bg-zinc-50 shadow-xs ring-1 ring-zinc-900"
                         : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50/50"
                     }`}
                   >
-                    <div className="flex size-10 items-center justify-center rounded-xl bg-zinc-100 text-zinc-800">
-                      <User className="size-5" />
+                    <div className="flex size-9 items-center justify-center rounded bg-zinc-100 text-zinc-700">
+                      <User className="size-4" />
                     </div>
                     <div>
-                      <span className="block text-sm font-bold text-zinc-950">
+                      <span className="block text-xs font-bold text-zinc-950">
                         Cualquiera disponible
                       </span>
-                      <span className="block text-xs text-zinc-500">Mayor disponibilidad</span>
+                      <span className="block text-[11px] text-zinc-500">Mayor disponibilidad</span>
                     </div>
                   </button>
 
@@ -419,23 +420,23 @@ export function BookingWizard({
                           setStaffId(member.id);
                           setSlotKey("");
                         }}
-                        className={`flex items-center gap-3.5 rounded-2xl border p-4 text-left transition ${
+                        className={`flex items-center gap-3 rounded-md border p-3.5 text-left transition ${
                           active
-                            ? "border-zinc-950 bg-zinc-50 shadow-xs ring-1 ring-zinc-950"
+                            ? "border-zinc-900 bg-zinc-50 shadow-xs ring-1 ring-zinc-900"
                             : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50/50"
                         }`}
                       >
                         <div
-                          className="flex size-10 items-center justify-center rounded-xl text-xs font-bold text-white shadow-xs"
+                          className="flex size-9 items-center justify-center rounded font-mono text-xs font-bold text-white shadow-xs"
                           style={{ backgroundColor: member.color }}
                         >
                           {member.name.slice(0, 1).toUpperCase()}
                         </div>
                         <div>
-                          <span className="block text-sm font-bold text-zinc-950">
+                          <span className="block text-xs font-bold text-zinc-950">
                             {member.name}
                           </span>
-                          <span className="block text-xs text-zinc-500">
+                          <span className="block text-[11px] text-zinc-500">
                             Profesional
                           </span>
                         </div>
@@ -450,24 +451,24 @@ export function BookingWizard({
           {/* Paso 3: Fecha y horario */}
           {step === 2 && (
             <section className="animate-rise">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
                 Paso 3 de 4
               </span>
-              <h1 className="mt-1 text-2xl font-medium tracking-tight text-zinc-900 sm:text-3xl">
-                Selecciona fecha y hora
+              <h1 className="mt-1 text-xl font-bold tracking-tight text-zinc-950">
+                Selecciona Fecha y Hora
               </h1>
-              <p className="mt-1.5 text-xs text-zinc-600">
-                {longDate(date)} · Duración aproximada: {service?.durationMin} min
+              <p className="mt-1 text-xs text-zinc-600 capitalize">
+                {longDate(date)} · Duración estimada: {service?.durationMin} min
               </p>
 
-              {/* Compact date navigator */}
-              <div className="mt-6 rounded-2xl border border-zinc-200 bg-zinc-50/60 p-3">
+              {/* Date navigator */}
+              <div className="mt-5 rounded-md border border-zinc-200 bg-zinc-50/70 p-3">
                 <div className="flex items-center justify-between gap-2">
                   <button
                     type="button"
                     onClick={() => shiftDate(-1)}
                     disabled={date === days[0]}
-                    className="grid size-11 shrink-0 place-items-center rounded-xl border border-zinc-200 bg-white text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-35"
+                    className="grid size-8 shrink-0 place-items-center rounded border border-zinc-200 bg-white text-zinc-700 transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-35"
                     aria-label="Día anterior"
                   >
                     <ChevronLeft className="size-4" />
@@ -483,70 +484,70 @@ export function BookingWizard({
                         setSlotKey("");
                       }
                     }}
-                    className="min-h-[44px] min-w-0 flex-1 rounded-xl border border-zinc-200 bg-white px-3 text-center text-xs font-semibold text-zinc-800 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+                    className="h-8 min-w-0 flex-1 rounded border border-zinc-200 bg-white px-3 text-center text-xs font-semibold text-zinc-800 outline-none transition focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
                     aria-label="Seleccionar fecha"
                   />
                   <button
                     type="button"
                     onClick={() => shiftDate(1)}
                     disabled={date === days[days.length - 1]}
-                    className="grid size-11 shrink-0 place-items-center rounded-xl border border-zinc-200 bg-white text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-35"
+                    className="grid size-8 shrink-0 place-items-center rounded border border-zinc-200 bg-white text-zinc-700 transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-35"
                     aria-label="Día siguiente"
                   >
                     <ChevronRight className="size-4" />
                   </button>
                 </div>
 
-                <div className="mt-3 grid grid-cols-5 gap-2">
-                {visibleDays.map((iso) => {
-                  const active = iso === date;
-                  const label = dayLabel(iso);
-                  return (
-                    <button
-                      key={iso}
-                      type="button"
-                      onClick={() => {
-                        setDate(iso);
-                        setSlotKey("");
-                      }}
-                      className={`flex min-h-[68px] min-w-0 flex-col items-center rounded-xl border px-1 py-2 transition ${
-                        active
-                          ? "border-zinc-950 bg-zinc-950 text-white shadow-xs"
-                          : "border-zinc-200 bg-white text-zinc-800 hover:border-zinc-300 hover:bg-zinc-50"
-                      }`}
-                    >
-                      <span className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                        {label.weekday}
-                      </span>
-                      <span className="text-xl font-bold leading-tight">
-                        {label.day}
-                      </span>
-                      <span className="text-[10px] font-semibold opacity-70 uppercase">
-                        {label.month}
-                      </span>
-                    </button>
-                  );
-                })}
+                <div className="mt-2.5 grid grid-cols-5 gap-1.5">
+                  {visibleDays.map((iso) => {
+                    const active = iso === date;
+                    const label = dayLabel(iso);
+                    return (
+                      <button
+                        key={iso}
+                        type="button"
+                        onClick={() => {
+                          setDate(iso);
+                          setSlotKey("");
+                        }}
+                        className={`flex min-h-[58px] min-w-0 flex-col items-center justify-center rounded border px-1 py-1.5 transition ${
+                          active
+                            ? "border-zinc-900 bg-zinc-900 text-white shadow-xs"
+                            : "border-zinc-200 bg-white text-zinc-800 hover:border-zinc-300 hover:bg-zinc-50"
+                        }`}
+                      >
+                        <span className="text-[9px] font-bold uppercase tracking-wider opacity-75">
+                          {label.weekday}
+                        </span>
+                        <span className="text-base font-bold font-mono leading-tight">
+                          {label.day}
+                        </span>
+                        <span className="text-[9px] font-semibold opacity-75 uppercase">
+                          {label.month}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* Time slots */}
-              <div className="mt-6 min-h-44 border-t border-zinc-100 pt-5">
+              <div className="mt-5 min-h-40 border-t border-zinc-100 pt-4">
                 {loadingSlots ? (
-                  <div className="flex items-center justify-center gap-2 py-12 text-xs font-medium text-zinc-500">
+                  <div className="flex items-center justify-center gap-2 py-10 text-xs font-medium text-zinc-500">
                     <Loader2 className="size-4 animate-spin text-zinc-400" />
                     Consultando disponibilidad en tiempo real…
                   </div>
                 ) : groups.length === 0 ? (
-                  <div className="rounded-2xl border border-dashed border-zinc-200 bg-zinc-50 p-6 text-center text-xs text-zinc-500">
+                  <div className="rounded-md border border-dashed border-zinc-200 bg-zinc-50 p-6 text-center text-xs text-zinc-500">
                     No hay turnos disponibles para esta fecha. Intenta seleccionar otro día o
                     eligiendo «Cualquiera disponible».
                   </div>
                 ) : (
-                  <div className="space-y-6">
+                  <div className="space-y-4">
                     {groups.map((group) => (
                       <div key={group.label}>
-                        <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+                        <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
                           {group.label}
                         </p>
                         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
@@ -557,13 +558,13 @@ export function BookingWizard({
                                 key={`${slot.startAt}-${slot.staffId}`}
                                 type="button"
                                 onClick={() => setSlotKey(slotKeyFor(slot))}
-                                className={`min-h-[44px] rounded-xl border py-2.5 px-3 text-center transition ${
+                                className={`rounded border py-2 px-2.5 text-center transition ${
                                   active
-                                    ? "border-zinc-950 bg-zinc-950 text-white shadow-xs"
+                                    ? "border-zinc-900 bg-zinc-900 text-white shadow-xs"
                                     : "border-zinc-200 bg-white text-zinc-800 hover:border-zinc-300 hover:bg-zinc-50"
                                 }`}
                               >
-                                <span className="block text-sm font-semibold tracking-tight">
+                                <span className="block text-xs font-bold font-mono">
                                   {slot.startAt.slice(11, 16)}
                                 </span>
                                 {staffId === "any" && (
@@ -590,27 +591,27 @@ export function BookingWizard({
           {/* Paso 4: Datos del cliente */}
           {step === 3 && (
             <section className="animate-rise">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-600">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
                 Paso 4 de 4
               </span>
-              <h1 className="mt-1 text-2xl font-medium tracking-tight text-zinc-900 sm:text-3xl">
-                Tus datos de reserva
+              <h1 className="mt-1 text-xl font-bold tracking-tight text-zinc-950">
+                Datos de la Reserva
               </h1>
-              <p className="mt-1.5 text-xs text-zinc-600">
-                Ingresa tus datos para enviarte la confirmación de tu turno.
+              <p className="mt-1 text-xs text-zinc-600">
+                Ingresa los datos para registrar y confirmar el turno.
               </p>
 
-              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
                 <label className="sm:col-span-1">
                   <span className="mb-1 block text-xs font-semibold text-zinc-800">
-                    Nombre y apellido <span className="text-zinc-500">*</span>
+                    Nombre completo <span className="text-zinc-500">*</span>
                   </span>
                   <input
                     value={clientName}
                     onChange={(event) => setClientName(event.target.value)}
-                    placeholder="Tu nombre completo"
+                    placeholder="Ej. Lucas García"
                     autoComplete="name"
-                    className="w-full min-h-[44px] rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+                    className="w-full rounded border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
                   />
                 </label>
 
@@ -624,7 +625,7 @@ export function BookingWizard({
                     placeholder="Ej. 300 123 4567"
                     autoComplete="tel"
                     inputMode="tel"
-                    className="w-full min-h-[44px] rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+                    className="w-full rounded border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 font-mono"
                   />
                 </label>
 
@@ -635,30 +636,30 @@ export function BookingWizard({
                   <input
                     value={clientEmail}
                     onChange={(event) => setClientEmail(event.target.value)}
-                    placeholder="tucorreo@ejemplo.com"
+                    placeholder="correo@ejemplo.com"
                     autoComplete="email"
                     inputMode="email"
-                    className="w-full min-h-[44px] rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+                    className="w-full rounded border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
                   />
                 </label>
 
                 <label className="sm:col-span-2">
                   <span className="mb-1 block text-xs font-semibold text-zinc-800">
-                    Comentarios para el profesional <span className="font-normal text-zinc-500">(opcional)</span>
+                    Comentarios o especificaciones <span className="font-normal text-zinc-500">(opcional)</span>
                   </span>
                   <textarea
                     value={notes}
                     onChange={(event) => setNotes(event.target.value)}
                     rows={2}
-                    placeholder="Detalles sobre tu corte, diseño, alergias o referencias…"
-                    className="w-full min-h-[72px] resize-none rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-zinc-950 focus:ring-1 focus:ring-zinc-950"
+                    placeholder="Detalles sobre el corte, barba, diseño o referencias…"
+                    className="w-full resize-none rounded border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-900 placeholder-zinc-400 outline-none transition focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
                   />
                 </label>
               </div>
 
               {/* Turnos periódicos */}
-              <div className="mt-6 rounded-2xl border border-zinc-200 bg-zinc-50/70 p-4">
-                <label className="flex cursor-pointer items-start gap-3">
+              <div className="mt-5 rounded-md border border-zinc-200 bg-zinc-50/70 p-3.5">
+                <label className="flex cursor-pointer items-start gap-2.5">
                   <input
                     type="checkbox"
                     checked={repeatEnabled}
@@ -666,18 +667,18 @@ export function BookingWizard({
                     className="mt-0.5 size-4 accent-zinc-950"
                   />
                   <div>
-                    <span className="flex items-center gap-1.5 text-xs font-bold text-zinc-950">
+                    <span className="flex items-center gap-1.5 text-xs font-bold text-zinc-900">
                       <Repeat className="size-3.5 text-zinc-600" />
-                      Agendar serie periódica de turnos
+                      Agendar serie periódica recurrente
                     </span>
-                    <span className="mt-0.5 block text-xs text-zinc-500 leading-relaxed">
-                      Ideal para mantenimiento de corte, retoque de barba o color cada ciertas semanas.
+                    <span className="mt-0.5 block text-[11px] text-zinc-500 leading-relaxed">
+                      Reserva varios turnos continuos para mantenimiento periódico de corte o color.
                     </span>
                   </div>
                 </label>
 
                 {repeatEnabled && (
-                  <div className="mt-4 grid grid-cols-2 gap-3 border-t border-zinc-200 pt-3">
+                  <div className="mt-3 grid grid-cols-2 gap-3 border-t border-zinc-200 pt-3">
                     <label>
                       <span className="mb-1 block text-[11px] font-semibold text-zinc-600">
                         Frecuencia
@@ -685,7 +686,7 @@ export function BookingWizard({
                       <select
                         value={intervalWeeks}
                         onChange={(event) => setIntervalWeeks(Number(event.target.value))}
-                        className="min-h-[44px] w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-900 outline-none focus:border-zinc-950"
+                        className="w-full rounded border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-900 outline-none focus:border-zinc-900"
                       >
                         {[1, 2, 3, 4, 5, 6, 8].map((w) => (
                           <option key={w} value={w}>
@@ -702,7 +703,7 @@ export function BookingWizard({
                       <select
                         value={occurrences}
                         onChange={(event) => setOccurrences(Number(event.target.value))}
-                        className="min-h-[44px] w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-900 outline-none focus:border-zinc-950"
+                        className="w-full rounded border border-zinc-200 bg-white px-2.5 py-1.5 text-xs text-zinc-900 outline-none focus:border-zinc-900"
                       >
                         {[2, 3, 4, 6, 8].map((t) => (
                           <option key={t} value={t}>
@@ -718,18 +719,18 @@ export function BookingWizard({
           )}
 
           {error && (
-            <div className="mt-5 rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700">
+            <div className="mt-4 rounded border border-red-200 bg-red-50 p-3 text-xs text-red-700">
               {error}
             </div>
           )}
 
-          {/* Botones de navegación */}
-          <div className="mt-8 flex items-center justify-between border-t border-zinc-100 pt-5">
+          {/* Navigation Controls */}
+          <div className="mt-6 flex items-center justify-between border-t border-zinc-100 pt-4">
             <button
               type="button"
               onClick={() => setStep((current) => Math.max(0, current - 1))}
               disabled={step === 0 || submitting}
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold text-zinc-600 transition hover:text-zinc-950 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-1.5 rounded border border-zinc-200 bg-white px-3.5 py-2 text-xs font-semibold text-zinc-700 transition hover:bg-zinc-50 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
             >
               <ArrowLeft className="size-3.5" />
               <span>Atrás</span>
@@ -740,18 +741,18 @@ export function BookingWizard({
                 type="button"
                 onClick={() => setStep((current) => Math.min(3, current + 1))}
                 disabled={!canContinue}
-                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-zinc-950 px-6 py-2.5 text-xs font-medium text-white shadow-xs transition hover:bg-zinc-800 active:scale-98 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center gap-2 rounded bg-zinc-900 px-5 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-zinc-800 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
               >
                 <span>Siguiente paso</span>
                 <ArrowRight className="size-3.5" />
               </button>
             ) : (
-              <div className="flex flex-col items-end gap-1.5">
+              <div className="flex flex-col items-end gap-1">
                 <button
                   type="button"
                   onClick={submit}
                   disabled={!canContinue || submitting}
-                  className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-zinc-950 px-6 py-2.5 text-xs font-medium text-white shadow-xs transition hover:bg-zinc-800 active:scale-98 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
+                  className="inline-flex items-center justify-center gap-2 rounded bg-zinc-900 px-5 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-zinc-800 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
                 >
                   {submitting ? (
                     <>
@@ -767,7 +768,7 @@ export function BookingWizard({
                 </button>
                 {!canContinue && (
                   <span className="text-[11px] text-zinc-500">
-                    Ingresa tu nombre y teléfono para confirmar
+                    Ingresa nombre y teléfono para continuar
                   </span>
                 )}
               </div>
@@ -776,21 +777,20 @@ export function BookingWizard({
         </div>
 
         {/* Resumen lateral */}
-        <aside className="h-fit rounded-2xl border border-zinc-200 bg-zinc-50 p-6 shadow-xs lg:sticky lg:top-6">
-          <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-            Resumen de la cita
-          </p>
-
-          <div className="mt-4 border-b border-zinc-200/80 pb-4">
-            <p className="text-lg font-medium text-zinc-950">
+        <aside className="h-fit rounded-lg border border-zinc-200 bg-white p-5 shadow-xs lg:sticky lg:top-6">
+          <div className="border-b border-zinc-200 pb-3">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+              Resumen de la Cita
+            </span>
+            <p className="mt-1 text-base font-bold text-zinc-950">
               {service?.name ?? "Selecciona un servicio"}
             </p>
-            <p className="mt-0.5 text-xs text-zinc-600">
+            <p className="text-xs text-zinc-500 font-mono">
               {service ? `${service.durationMin} minutos de atención` : "Paso 1"}
             </p>
           </div>
 
-          <dl className="mt-4 space-y-3 text-xs text-zinc-600">
+          <dl className="mt-3.5 space-y-2.5 text-xs text-zinc-600">
             <div className="flex items-center justify-between gap-3">
               <dt className="text-zinc-500">Profesional</dt>
               <dd className="font-semibold text-zinc-950">
@@ -802,14 +802,14 @@ export function BookingWizard({
 
             <div className="flex items-center justify-between gap-3">
               <dt className="text-zinc-500">Fecha</dt>
-              <dd className="font-semibold text-zinc-950">
+              <dd className="font-semibold text-zinc-950 capitalize">
                 {date ? longDate(date) : "—"}
               </dd>
             </div>
 
             <div className="flex items-center justify-between gap-3">
               <dt className="text-zinc-500">Horario</dt>
-              <dd className="font-semibold text-zinc-950">
+              <dd className="font-semibold text-zinc-950 font-mono">
                 {selectedSlot ? `${selectedSlot.startAt.slice(11, 16)} hs` : "—"}
               </dd>
             </div>
@@ -823,15 +823,15 @@ export function BookingWizard({
               </div>
             )}
 
-            <div className="flex items-center justify-between gap-3 border-t border-zinc-200 pt-4 text-sm font-semibold text-zinc-950">
+            <div className="flex items-center justify-between gap-3 border-t border-zinc-200 pt-3 text-xs font-semibold text-zinc-950">
               <dt>Total estimado</dt>
-              <dd className="text-base font-semibold">
+              <dd className="text-sm font-bold font-mono">
                 {service ? formatPrice(service.priceCents, currency) : "—"}
               </dd>
             </div>
           </dl>
 
-          <div className="mt-5 rounded-xl border border-zinc-200 bg-white p-3 text-xs text-zinc-600 leading-relaxed shadow-xs">
+          <div className="mt-4 rounded border border-zinc-200 bg-zinc-50 p-2.5 text-[11px] text-zinc-600 leading-relaxed">
             Se abona en el estudio al finalizar el servicio. Atención puntual garantizada.
           </div>
         </aside>

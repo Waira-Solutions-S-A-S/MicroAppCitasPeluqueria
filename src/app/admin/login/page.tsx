@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
+import { ArrowLeft, Lock, Shield } from "lucide-react";
 
 import { getCurrentUser } from "@/lib/auth";
 import { getSettings } from "@/lib/settings";
@@ -10,7 +10,7 @@ import { LoginForm } from "./login-form";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = { title: "Acceso Equipo · Panel" };
+export const metadata: Metadata = { title: "Acceso Administrativo · Metis Panel" };
 
 export default async function LoginPage({
   searchParams,
@@ -27,44 +27,59 @@ export default async function LoginPage({
   if (user) redirect(next ?? "/admin");
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-6 py-12 antialiased text-zinc-900">
-      <div className="mb-6">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-zinc-950 transition"
-        >
-          <ChevronLeft className="size-3.5" />
-          <span>Volver al sitio</span>
-        </Link>
-      </div>
-
-      <div className="flex items-center gap-3">
-        <div className="flex size-9 items-center justify-center rounded-lg bg-zinc-950 text-xs font-semibold tracking-widest text-white">
-          ST
-        </div>
-        <div>
-          <p className="text-sm font-medium tracking-tight text-zinc-950">
+    <div className="min-h-screen bg-[#22252c] flex flex-col justify-center items-center p-4 sm:p-6 antialiased text-zinc-100 font-sans">
+      <div className="w-full max-w-sm">
+        {/* Brand Header */}
+        <div className="mb-6 text-center">
+          <div className="mx-auto flex size-12 items-center justify-center rounded bg-[#1f2228] border border-zinc-700 text-sm font-bold tracking-widest text-white shadow-md">
+            ST
+          </div>
+          <h1 className="mt-3 text-lg font-bold tracking-tight text-white">
             {settings.businessName}
+          </h1>
+          <p className="text-xs text-zinc-400 font-medium">
+            Panel de Administración · Metis
           </p>
-          <p className="text-[11px] text-zinc-500 uppercase tracking-wider">Acceso de administración</p>
+        </div>
+
+        {/* Metis Login Box */}
+        <div className="rounded-md border border-zinc-700/80 bg-[#1f2228] shadow-xl overflow-hidden">
+          <div className="border-b border-zinc-800 bg-[#191b20] px-5 py-3.5 flex items-center justify-between">
+            <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-zinc-200">
+              <Lock className="size-3.5 text-zinc-400" />
+              <span>Iniciar Sesión</span>
+            </span>
+            <span className="rounded bg-zinc-800 px-2 py-0.5 text-[10px] font-mono font-semibold text-zinc-400 border border-zinc-700">
+              Seguro
+            </span>
+          </div>
+
+          <div className="p-6">
+            <LoginForm next={next} />
+          </div>
+
+          {/* Demo Credentials Footer */}
+          <div className="border-t border-zinc-800/80 bg-[#181a1f] p-3.5 text-center text-[11px] text-zinc-400">
+            <p>
+              Demo local: <strong className="text-zinc-200 font-mono">admin@estudio.local</strong>
+            </p>
+            <p className="mt-0.5">
+              Clave: <strong className="text-zinc-200 font-mono">admin123</strong>
+            </p>
+          </div>
+        </div>
+
+        {/* Back to Public Site Link */}
+        <div className="mt-6 text-center">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-400 hover:text-white transition"
+          >
+            <ArrowLeft className="size-3.5" />
+            <span>Volver a la portada pública</span>
+          </Link>
         </div>
       </div>
-
-      <div className="mt-8 rounded-2xl border border-zinc-200 bg-white p-6 shadow-xs sm:p-8">
-        <h1 className="text-xl font-medium tracking-tight text-zinc-900">
-          Iniciar sesión
-        </h1>
-        <p className="mt-1 text-xs text-zinc-600">
-          Ingresa con tu cuenta para gestionar turnos, agenda y servicios.
-        </p>
-
-        <LoginForm next={next} />
-      </div>
-
-      <p className="mt-6 text-center text-xs text-zinc-500">
-        Demo local: <span className="font-medium text-zinc-800">admin@estudio.local</span> /{" "}
-        <span className="font-medium text-zinc-800">admin123</span>
-      </p>
     </div>
   );
 }
