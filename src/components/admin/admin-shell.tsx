@@ -141,9 +141,18 @@ export function AdminShell({
     },
   ];
 
+  const businessInitials =
+    businessName
+      .split(" ")
+      .filter(Boolean)
+      .map((w) => w[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "EN";
+
   return (
     <div className="min-h-screen bg-[#f4f6f9] text-zinc-900 font-sans flex flex-col antialiased">
-      {/* 1. TOP NAVBAR (Metis Bootstrap Admin Topbar - #top) */}
+      {/* 1. TOP NAVBAR (Admin Topbar - #top) */}
       <header className="sticky top-0 z-50 flex h-14 w-full items-center justify-between border-b border-zinc-800 bg-[#1f2228] px-3 sm:px-5 text-white shadow-sm">
         {/* Left: Hamburger & Brand */}
         <div className="flex items-center gap-3">
@@ -167,7 +176,7 @@ export function AdminShell({
           {/* Brand Logo & Name */}
           <Link href="/admin" className="flex items-center gap-2.5 group">
             <span className="flex size-7 items-center justify-center rounded bg-zinc-800 font-mono text-xs font-bold text-white ring-1 ring-zinc-700">
-              ST
+              {businessInitials}
             </span>
             <div className="flex flex-col">
               <span className="text-sm font-bold tracking-tight text-white transition group-hover:text-zinc-200">

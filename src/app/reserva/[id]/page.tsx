@@ -177,7 +177,7 @@ export default async function ReservaPage({
         </div>
       )}
 
-      {/* Comprobante Sattis Studio */}
+      {/* Comprobante de Turno */}
       <div className="rounded-lg border border-zinc-200 bg-white p-6 shadow-xs sm:p-7">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-100 pb-5">
           <div>
@@ -351,9 +351,22 @@ export default async function ReservaPage({
         )}
       </div>
 
-      <p className="mt-6 text-center text-xs text-zinc-500">
-        Guarda este enlace para consultar o gestionar tu turno en cualquier momento.
-      </p>
+      <div className="mt-8 text-center text-xs text-zinc-400">
+        <p className="text-zinc-500 mb-2">
+          Guarda este enlace para consultar o gestionar tu turno en cualquier momento.
+        </p>
+        <p>
+          &copy; {new Date().getFullYear()} {settings.businessName} · Desarrollado por{" "}
+          <a
+            href="https://waira-solutions.vercel.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-zinc-600 hover:text-zinc-900 underline underline-offset-2 transition"
+          >
+            Waira Solutions S.A.S
+          </a>
+        </p>
+      </div>
     </div>
   );
 }

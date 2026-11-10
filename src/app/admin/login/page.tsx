@@ -26,13 +26,21 @@ export default async function LoginPage({
   const [user, settings] = await Promise.all([getCurrentUser(), getSettings()]);
   if (user) redirect(next ?? "/admin");
 
+  const initials = settings.businessName
+    .split(" ")
+    .filter(Boolean)
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase() || "EN";
+
   return (
     <div className="min-h-screen bg-[#22252c] flex flex-col justify-center items-center p-4 sm:p-6 antialiased text-zinc-100 font-sans">
       <div className="w-full max-w-sm">
         {/* Brand Header */}
         <div className="mb-6 text-center">
-          <div className="mx-auto flex size-12 items-center justify-center rounded bg-[#1f2228] border border-zinc-700 text-sm font-bold tracking-widest text-white shadow-md">
-            ST
+          <div className="mx-auto flex size-12 items-center justify-center rounded bg-[#1f2228] border border-zinc-700 text-sm font-bold tracking-widest text-white shadow-md font-mono">
+            {initials}
           </div>
           <h1 className="mt-3 text-lg font-bold tracking-tight text-white">
             {settings.businessName}
