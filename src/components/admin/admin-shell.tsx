@@ -470,7 +470,7 @@ export function AdminShell({
           {!sidebarCollapsed && (
             <div className="border-t border-zinc-800/80 p-3 text-center">
               <span className="text-[10px] text-zinc-500 font-mono">
-                v2.4 · Metis Admin Panel
+                Waira Solutions S.A.S
               </span>
             </div>
           )}
@@ -541,13 +541,21 @@ export function AdminShell({
         </button>
       </nav>
 
-      {/* 5. METIS FOOTER (#footer) */}
+      {/* 5. ADMIN FOOTER */}
       <footer className="border-t border-zinc-200 bg-white py-3 px-6 text-xs text-zinc-500 flex flex-col sm:flex-row items-center justify-between gap-2">
         <p>
-          2026 &copy; <strong className="text-zinc-800">{businessName}</strong> · Sistema de Gestión de Citas & Agenda
+          &copy; {new Date().getFullYear()} <strong className="text-zinc-800">{businessName}</strong> · Gestión de Citas & Agenda
         </p>
-        <p className="text-[11px] text-zinc-400">
-          Plantilla adaptada de <a href="https://preview.colorlib.com/theme/metis/" target="_blank" rel="noopener noreferrer" className="underline hover:text-zinc-700">Metis Bootstrap Admin Template</a>
+        <p className="text-[11px] text-zinc-500 flex items-center gap-1">
+          <span>Desarrollado por</span>
+          <a
+            href="https://waira-solutions.vercel.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-zinc-700 hover:text-zinc-950 underline underline-offset-2 transition"
+          >
+            Waira Solutions S.A.S
+          </a>
         </p>
       </footer>
     </div>

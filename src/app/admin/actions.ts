@@ -91,6 +91,7 @@ export async function createServiceAction(formData: FormData): Promise<void> {
   });
 
   revalidatePath("/admin/servicios");
+  revalidatePath("/reservar");
   revalidatePath("/");
   back("/admin/servicios", "ok", "Servicio creado.");
 }
@@ -123,6 +124,7 @@ export async function updateServiceAction(formData: FormData): Promise<void> {
   });
 
   revalidatePath("/admin/servicios");
+  revalidatePath("/reservar");
   revalidatePath("/");
   back("/admin/servicios", "ok", "Servicio actualizado.");
 }
@@ -141,6 +143,7 @@ export async function toggleServiceAction(formData: FormData): Promise<void> {
   });
 
   revalidatePath("/admin/servicios");
+  revalidatePath("/reservar");
   revalidatePath("/");
   back("/admin/servicios", "ok", service.isActive ? "Servicio pausado." : "Servicio activado.");
 }
@@ -183,6 +186,7 @@ export async function createStaffAction(formData: FormData): Promise<void> {
   }
 
   revalidatePath("/admin/horarios");
+  revalidatePath("/reservar");
   revalidatePath("/");
   back("/admin/horarios", "ok", "Profesional creado.");
 }
@@ -216,6 +220,7 @@ export async function updateStaffAction(formData: FormData): Promise<void> {
   });
 
   revalidatePath("/admin/horarios");
+  revalidatePath("/reservar");
   revalidatePath("/");
   back("/admin/horarios", "ok", "Profesional actualizado.");
 }
@@ -234,6 +239,7 @@ export async function toggleStaffAction(formData: FormData): Promise<void> {
   });
 
   revalidatePath("/admin/horarios");
+  revalidatePath("/reservar");
   revalidatePath("/");
   back("/admin/horarios", "ok", member.isActive ? "Profesional pausado." : "Profesional activado.");
 }
@@ -283,6 +289,7 @@ export async function saveHoursAction(formData: FormData): Promise<void> {
 
   revalidatePath("/admin/horarios");
   revalidatePath("/admin/agenda");
+  revalidatePath("/reservar");
   revalidatePath("/");
   back("/admin/horarios", "ok", "Horarios guardados correctamente.");
 }
@@ -380,5 +387,6 @@ export async function updateAppointmentStatusAction(formData: FormData): Promise
 
   revalidatePath("/admin");
   revalidatePath("/admin/agenda");
+  revalidatePath("/reservar");
   revalidatePath("/reserva/" + parsed.data.id);
 }

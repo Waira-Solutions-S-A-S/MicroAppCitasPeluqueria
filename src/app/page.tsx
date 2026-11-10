@@ -30,6 +30,7 @@ const audiences = [
     color: "#18181b",
     image: "/swiper-imgs/img-studio-001.jpg",
     tag: "Corte & Color",
+    subtitle: "Corte, coloración y peinado",
     description: "Cortes, coloración y tratamientos sin cruces de horarios ni esperas en sala.",
   },
   {
@@ -38,6 +39,7 @@ const audiences = [
     color: "#7c3aed",
     image: "/studio/img-section-01.jpg",
     tag: "Barba & Estilo",
+    subtitle: "Corte clásico, barba y perfilado",
     description: "Turnos rápidos, clientes recurrentes y sillones siempre ocupados.",
   },
   {
@@ -46,6 +48,7 @@ const audiences = [
     color: "#db2777",
     image: "/studio/img-section-tattoo.jpeg",
     tag: "Tattoo & Arte",
+    subtitle: "Diseño y sesiones por artista",
     description: "Sesiones largas, señas previas y disponibilidad clara por artista.",
   },
   {
@@ -54,6 +57,7 @@ const audiences = [
     color: "#0891b2",
     image: "/studio/fotografia.jpg",
     tag: "Estudio & Sesiones",
+    subtitle: "Sesiones en estudio y exteriores",
     description: "Sesiones en estudio, producciones y entregas sin idas y vueltas por chat.",
   },
   {
@@ -62,6 +66,7 @@ const audiences = [
     color: "#d97706",
     image: "/studio/maquillaje.jpg",
     tag: "Social & Eventos",
+    subtitle: "Social, eventos y producciones",
     description: "Pruebas de novias, eventos de fin de semana y clientas que recomiendan.",
   },
   {
@@ -70,23 +75,25 @@ const audiences = [
     color: "#059669",
     image: "/studio/img-section-03.jpg",
     tag: "Cuidado & Skincare",
+    subtitle: "Tratamientos y estética facial",
     description: "Tratamientos periódicos, fichas con preferencias y seguimiento personalizado.",
   },
 ];
 
 const freeFeatures = [
-  "Reservas ilimitadas",
-  "Confirmaciones automáticas",
-  "Recordatorios de retorno",
-  "Historial de clientes",
-  "Con publicidad",
+  "Reservas online ilimitadas 24/7",
+  "Hasta 2 profesionales activos",
+  "Confirmación automática y recordatorios",
+  "Historial completo de clientes",
+  "Panel de administración y métricas",
 ];
 
 const proFeatures = [
-  "Todo lo del plan Gratis",
-  "Sin publicidad",
-  "Experiencia más limpia",
-  "Tu marca, sin distracciones",
+  "Todo lo del plan Básico",
+  "Profesionales y estaciones ilimitadas",
+  "Turnos periódicos y series recurrentes",
+  "Estadísticas de ingresos y ocupación",
+  "Personalización con logo y marca propia",
 ];
 
 export default async function HomePage({
@@ -365,16 +372,8 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* Breath Section 1 */}
-      <div className="mx-auto max-w-7xl px-8 py-24 text-right md:px-16 md:py-32">
-        <h3 className="text-3xl font-light leading-tight text-zinc-900 sm:text-4xl md:text-5xl">
-          Cada turno que no se pierde{" "}
-          <span className="block font-medium sm:inline">es dinero que sí entra.</span>
-        </h3>
-      </div>
-
       {/* Section 2: Fidelización y retoma */}
-      <section id="fidelizacion" className="mx-auto max-w-7xl px-6 md:px-12">
+      <section id="fidelizacion" className="mx-auto max-w-7xl px-6 pt-24 md:px-12">
         <div className="flex flex-col gap-6 md:flex-row">
           {/* Left: Content panel */}
           <div className="order-2 flex w-full flex-col justify-center rounded-lg bg-zinc-100 p-8 sm:p-12 md:order-1 md:w-1/2 md:p-16">
@@ -405,8 +404,6 @@ export default async function HomePage({
                 </div>
               ))}
             </div>
-
-
           </div>
 
           {/* Right: Full photo with huge overlay typography */}
@@ -425,16 +422,8 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* Breath Section 2 */}
-      <div className="mx-auto max-w-7xl px-8 py-24 text-left md:px-16 md:py-32">
-        <h3 className="text-3xl font-light leading-tight text-zinc-900 sm:text-4xl md:text-5xl">
-          Tu negocio, organizado. <br />
-          <span className="font-medium">Tu cabeza, tranquila.</span>
-        </h3>
-      </div>
-
       {/* Para quién es */}
-      <section id="para-quien" className="border-t border-zinc-200/80 bg-zinc-50/50 py-24">
+      <section id="para-quien" className="mt-24 border-t border-zinc-200/80 bg-zinc-50/50 py-24">
         <div className="mx-auto max-w-7xl px-8 md:px-16">
           <div className="max-w-xl">
             <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
@@ -480,7 +469,7 @@ export default async function HomePage({
                       </div>
                       <div>
                         <h3 className="text-base font-medium text-zinc-950">{audience.name}</h3>
-                        <p className="text-xs text-zinc-500">Negocio de agenda</p>
+                        <p className="text-xs text-zinc-500">{audience.subtitle}</p>
                       </div>
                     </div>
 
@@ -525,14 +514,14 @@ export default async function HomePage({
           {/* Plan Gratis */}
           <div className="flex flex-col rounded-lg border border-zinc-200/80 bg-white p-8 shadow-xs">
             <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-              Plan Gratis
+              Plan Básico
             </p>
             <div className="mt-4 flex items-baseline gap-2">
               <span className="text-4xl font-light tracking-tight text-zinc-950">$0</span>
-              <span className="text-xs text-zinc-500">sin costo</span>
+              <span className="text-xs text-zinc-500">sin costo mensual</span>
             </div>
             <p className="mt-2 text-sm leading-relaxed text-zinc-600">
-              Totalmente funcional, sostenido con publicidad.
+              Ideal para salones individuales o profesionales independientes.
             </p>
 
             <ul className="mt-6 space-y-3 text-sm text-zinc-700">
@@ -563,10 +552,10 @@ export default async function HomePage({
             </p>
             <div className="mt-4 flex items-baseline gap-2">
               <span className="text-4xl font-light tracking-tight text-zinc-950">$5</span>
-              <span className="text-xs text-zinc-500">USD</span>
+              <span className="text-xs text-zinc-500">USD / mes</span>
             </div>
             <p className="mt-2 text-sm leading-relaxed text-zinc-600">
-              Sin publicidad y con una experiencia más limpia.
+              Para salones y estudios con equipo y mayor volumen de turnos.
             </p>
 
             <ul className="mt-6 space-y-3 text-sm text-zinc-700">

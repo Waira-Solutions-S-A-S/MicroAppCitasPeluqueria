@@ -10,7 +10,7 @@ import { LoginForm } from "./login-form";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = { title: "Acceso Administrativo · Metis Panel" };
+export const metadata: Metadata = { title: "Acceso Administrativo · Panel de Control" };
 
 export default async function LoginPage({
   searchParams,
@@ -38,7 +38,7 @@ export default async function LoginPage({
             {settings.businessName}
           </h1>
           <p className="text-xs text-zinc-400 font-medium">
-            Panel de Administración · Metis
+            Panel de Control & Agenda
           </p>
         </div>
 
