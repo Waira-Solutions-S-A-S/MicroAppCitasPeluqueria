@@ -604,15 +604,6 @@ export default async function HomePage({
                 El software de reservas para peluquerías, barberías, tatuadores, fotógrafos y
                 profesionales que viven de su agenda.
               </p>
-              <div className="mt-6">
-                <Link
-                  href="/reservar"
-                  className="inline-flex min-h-[38px] items-center gap-2 rounded bg-zinc-950 px-5 py-2 text-xs font-semibold text-white transition hover:bg-zinc-800"
-                >
-                  <Calendar className="size-3.5" />
-                  <span>Reservar turno online</span>
-                </Link>
-              </div>
             </div>
 
             {/* Producto */}
@@ -657,7 +648,7 @@ export default async function HomePage({
                 </li>
                 <li>
                   <Link href="/reservar" className="transition hover:text-zinc-950">
-                    Ver demo
+                    Reservar turno
                   </Link>
                 </li>
                 {user && (
@@ -693,10 +684,19 @@ export default async function HomePage({
 
           <div className="pt-8 text-center sm:flex sm:items-center sm:justify-between sm:text-left text-xs text-zinc-500">
             <p>
-              © {new Date().getFullYear()} {settings.businessName}. Todos los derechos
-              reservados.
+              © {new Date().getFullYear()} {settings.businessName}. Todos los derechos reservados.
             </p>
-            <p className="mt-2 sm:mt-0">Hecho para que tu agenda trabaje por ti.</p>
+            <p className="mt-2 sm:mt-0 flex items-center justify-center sm:justify-end gap-1">
+              <span>Desarrollado por</span>
+              <a
+                href="https://waira-solutions.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-zinc-800 hover:text-zinc-950 transition underline underline-offset-2"
+              >
+                Waira Solutions S.A.S
+              </a>
+            </p>
           </div>
         </div>
       </footer>
