@@ -155,18 +155,18 @@ export default async function HomePage({
           </nav>
 
           {/* Action buttons */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 sm:gap-2.5">
             {user ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <Link
                   href="/admin"
-                  className="inline-flex min-h-[36px] items-center rounded border border-zinc-200 bg-zinc-50 px-3.5 py-1.5 text-xs font-semibold text-zinc-800 transition hover:bg-zinc-100"
+                  className="inline-flex min-h-[36px] items-center rounded border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-xs font-semibold text-zinc-800 transition hover:bg-zinc-100"
                 >
-                  Mi cuenta
+                  Panel Admin
                 </Link>
                 <a
                   href="/salir"
-                  className="inline-flex min-h-[36px] items-center rounded px-3 py-1.5 text-xs font-semibold text-zinc-500 transition hover:text-red-600"
+                  className="inline-flex min-h-[36px] items-center rounded px-2.5 py-1.5 text-xs font-semibold text-zinc-500 transition hover:text-red-600"
                 >
                   Salir
                 </a>
@@ -174,18 +174,18 @@ export default async function HomePage({
             ) : (
               <Link
                 href="/admin/login"
-                className="hidden min-h-[36px] items-center rounded border border-zinc-200 px-3.5 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-950 sm:inline-flex"
+                className="inline-flex min-h-[36px] items-center rounded border border-zinc-200 bg-white px-3 sm:px-3.5 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-950 shadow-xs"
               >
                 Ingresar
               </Link>
             )}
 
             <Link
-              href="#precios"
-              className="inline-flex min-h-[36px] items-center gap-1.5 rounded bg-zinc-950 px-4 py-2 text-xs font-semibold tracking-wide text-white transition hover:bg-zinc-800"
+              href="/reservar"
+              className="inline-flex min-h-[36px] items-center gap-1.5 rounded bg-zinc-950 px-3.5 sm:px-4 py-2 text-xs font-semibold tracking-wide text-white transition hover:bg-zinc-800"
             >
-              <span>Empezar gratis</span>
-              <ArrowRight className="size-3.5" />
+              <Calendar className="size-3.5" />
+              <span>Reservar</span>
             </Link>
           </div>
         </div>
@@ -249,18 +249,18 @@ export default async function HomePage({
 
           <div className="flex flex-wrap items-center gap-3">
             <Link
-              href="#precios"
-              className="inline-flex min-h-[44px] items-center gap-2 rounded border border-white bg-white px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-zinc-950 transition hover:bg-zinc-200"
+              href="/reservar"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded bg-white px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-zinc-950 transition hover:bg-zinc-200"
             >
-              <span>Empezar gratis</span>
-              <ArrowRight className="size-4" />
+              <Calendar className="size-4" />
+              <span>Reservar turno online</span>
             </Link>
             <Link
-              href="/reservar"
-              className="inline-flex min-h-[44px] items-center gap-2 rounded border border-white/80 bg-white/10 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-md transition hover:bg-white hover:text-zinc-950"
+              href="/admin/login"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded border border-white/80 bg-black/40 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-md transition hover:bg-white hover:text-zinc-950"
             >
-              <span>Ver demo</span>
-              <Calendar className="size-4" />
+              <span>Acceso administración</span>
+              <ArrowRight className="size-4" />
             </Link>
           </div>
         </div>
@@ -354,11 +354,11 @@ export default async function HomePage({
 
             <div className="mt-8">
               <Link
-                href="#precios"
+                href="/reservar"
                 className="inline-flex min-h-[40px] items-center gap-2 rounded border border-zinc-950 bg-transparent px-5 py-2 text-xs font-semibold tracking-wide text-zinc-950 transition hover:bg-zinc-950 hover:text-white"
               >
-                <span>Quiero reservas así</span>
                 <Calendar className="size-3.5" />
+                <span>Ver disponibilidad de turnos</span>
               </Link>
             </div>
           </div>
@@ -406,15 +406,7 @@ export default async function HomePage({
               ))}
             </div>
 
-            <div className="mt-8 flex items-center gap-3">
-              <Link
-                href="#precios"
-                className="inline-flex min-h-[40px] items-center gap-2 rounded border border-zinc-950 bg-transparent px-5 py-2 text-xs font-semibold tracking-wide text-zinc-950 transition hover:bg-zinc-950 hover:text-white"
-              >
-                <span>Quiero clientes que vuelvan</span>
-                <Calendar className="size-3.5" />
-              </Link>
-            </div>
+
           </div>
 
           {/* Right: Full photo with huge overlay typography */}
@@ -497,18 +489,18 @@ export default async function HomePage({
                     </p>
                   </div>
                 </div>
-
-                <div className="p-6 pt-0">
-                  <Link
-                    href="#precios"
-                    className="flex min-h-[38px] w-full items-center justify-center gap-2 rounded border border-zinc-200 bg-zinc-50 py-2 text-xs font-semibold text-zinc-900 transition hover:bg-zinc-100"
-                  >
-                    <span>Empezar gratis</span>
-                    <ArrowRight className="size-3.5" />
-                  </Link>
-                </div>
               </div>
             ))}
+          </div>
+
+          <div className="mt-12 flex justify-center">
+            <Link
+              href="/reservar"
+              className="inline-flex min-h-[42px] items-center gap-2 rounded bg-zinc-950 px-6 py-2.5 text-xs font-semibold tracking-wide text-white transition hover:bg-zinc-800"
+            >
+              <Calendar className="size-3.5" />
+              <span>Ver agenda y reservar turno</span>
+            </Link>
           </div>
         </div>
       </section>
@@ -556,8 +548,8 @@ export default async function HomePage({
               href="/admin/login"
               className="mt-8 flex min-h-[38px] w-full items-center justify-center gap-2 rounded border border-zinc-950 bg-transparent px-5 py-2 text-xs font-semibold tracking-wide text-zinc-950 transition hover:bg-zinc-950 hover:text-white"
             >
-              <span>Empezar gratis</span>
-              <Calendar className="size-3.5" />
+              <span>Acceder al panel gratis</span>
+              <ArrowRight className="size-3.5" />
             </Link>
           </div>
 
@@ -614,11 +606,11 @@ export default async function HomePage({
               </p>
               <div className="mt-6">
                 <Link
-                  href="#precios"
+                  href="/reservar"
                   className="inline-flex min-h-[38px] items-center gap-2 rounded bg-zinc-950 px-5 py-2 text-xs font-semibold text-white transition hover:bg-zinc-800"
                 >
-                  <ArrowRight className="size-3.5" />
-                  <span>Empezar gratis</span>
+                  <Calendar className="size-3.5" />
+                  <span>Reservar turno online</span>
                 </Link>
               </div>
             </div>
