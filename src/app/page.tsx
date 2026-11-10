@@ -689,7 +689,7 @@ export default async function HomePage({
             <p className="mt-2 sm:mt-0 flex items-center justify-center sm:justify-end gap-1">
               <span>Desarrollado por</span>
               <a
-                href="https://waira-solutions.com"
+                href="https://wairasolutions.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-semibold text-zinc-800 hover:text-zinc-950 transition underline underline-offset-2"
